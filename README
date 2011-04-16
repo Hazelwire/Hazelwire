@@ -1,0 +1,5 @@
+Hazelwire is a software framework that aims at simplifying and standardizing the development and deployment of security wargames. 
+It consists of a deployment application, modules, moderation software and runs on top a VPN-network. It standardizes the development process by specifying a common module interface for the vulnerable software. 
+The modules developed according to this interface can be imported into the deployment application and combined to form the basis of a security wargame. 
+The deployment application generates virtual machines incorporating the vulnerabilities specified in the selected modules. 
+The generated virtual machines combined with the moderation-software and the VPN-network will form a fully administrable wargame.
