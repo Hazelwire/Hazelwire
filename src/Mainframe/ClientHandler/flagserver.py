@@ -3,7 +3,7 @@
 import socket
 import threading
 import SocketServer
-from DatabaseHandler import database 
+from Mainframe.DatabaseHandler import database 
 
 # Modules are represented by an array of dictionaries with the keys ModuleName and NumberOfFlags.
 modules = []
