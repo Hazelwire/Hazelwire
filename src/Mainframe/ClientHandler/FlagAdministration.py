@@ -1,6 +1,3 @@
-#!/usr/bin/python
-
-import socket
 import threading
 import SocketServer
 from Mainframe.DatabaseHandler import database 
