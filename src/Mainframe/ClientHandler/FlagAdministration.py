@@ -49,17 +49,14 @@ def generateFlags(number, clientIP):
         for x in range(number):
             flag.append("some generated flag")#generate flag
     
-
-if __name__ == "__main__":
-    HOST, PORT = "localhost", 9999
-
+def startServer(host,port):
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
     ip, port = server.server_address
-
-    # Start a thread with the server -- that thread will then start one
-    # more thread for each request
     server_thread = threading.Thread(target=server.serve_forever)
-    # Exit the server thread when the main thread terminates
     server_thread.start()
-    print "Server loop running in thread:", server_thread.getName()
+    
+if __name__ == "__main__":
+    HOST, PORT = "localhost", 9999
+    startServer(HOST, PORT)
+    print "Started flag administration service on port " + str(PORT)
 
