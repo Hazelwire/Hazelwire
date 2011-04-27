@@ -1,6 +1,6 @@
 import threading
 import SocketServer
-from Mainframe.DatabaseHandler import database 
+import DatabaseHandler
 
 # Modules are represented by an array of dictionaries with the keys ModuleName and NumberOfFlags.
 modules = []
@@ -13,7 +13,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             # * Check client IP to see if already requested, if yes: return REQFAIL
             # * Generate number of flags that are needed according to the manifest
             # * Send the flags one by one separated by a new module
-            if database.checkClientIP(self.client_address):
+            if DatabaseHandler.checkClientIP(self.client_address):
                 #Client already requested flags in the past
                 response = "REQFAIL"
                 self.request.send(response)
@@ -45,7 +45,7 @@ def generateFlags(number, clientIP):
     flags = []
     for x in range(number):
         flag.append("some generated flag")#generate flag
-    while not database.addFlags(flags, clientIP): #keep on generating flags when some flag already existed
+    while not DatabaseHandler.addFlags(flags, clientIP): #keep on generating flags when some flag already existed
         for x in range(number):
             flag.append("some generated flag")#generate flag
     
