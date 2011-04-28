@@ -6,28 +6,25 @@ def requestFlags(host, port):
     global moduleFlags
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host,port))
-    sfile = s.makefile("rb")
+    sfile = s.makefile("r")
     s.send("REQFLAGS\n")
-    print "sent request"
     first = sfile.readline().strip()
-    print first
     if first == "STARTFLAGS": #got ok from mainframe
-        print "got ok from mainframe"
-        recv = True
-        while recv:
+        awaitingModules = True
+        while awaitingModules:
             data = sfile.readline().strip()
-            if not data == '': print data
-            if data.startswith("NEWMODULE"):
+            if data.startswith("MODNAME"):
                 moduleFlags.append({'name':'', 'flags':[]})
-                moduleFlags[-1]['name'] = sfile.readline().split(' ')[1].strip()
-                print "got new module with name " + moduleFlags[-1]['name']
-                flag = sfile.readline().strip()
-                while flag.startswith("FLAG"):
-                    moduleFlags[-1]['flags'].append(flag.split(' ')[1])
-                    print "got new flag " + moduleFlags[-1]['flags'][-1]
+                moduleFlags[-1]['name'] = data.split(' ')[1].strip()
+		awaitingFlags = True
+                while awaitingFlags:
                     flag = sfile.readline().strip()
+		    if flag == "ENDMODULE":
+		        awaitingFlags = False
+			break
+                    moduleFlags[-1]['flags'].append(flag.split(' ')[1])
             elif data == "ENDFLAGS":
-                recv = False
+                awaitingFlags = False
         return True
     elif first == "REQFAIL": #we already requested flags. 
         return False

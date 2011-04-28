@@ -23,18 +23,15 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
                 return
             else:
                 self.wfile.write("STARTFLAGS\n") #initiate flag transmission
-                print "Sent flag initiation"
                 #Client has no flags assigned to him, generate some.
                 for module in modules:
-                    self.wfile.write("NEWMODULE\n")
-                    print "Sent new module " + module['name']
                     self.wfile.write("MODNAME " + module['name']+'\n')
                     #module['flags']= generateFlags(module['numberOfFlags'], clientIP)
                     for flag in module['flags']:
                         self.wfile.write("FLAG " + flag+'\n')
-                        print "sent flag " + flag
+                    self.wfile.write("ENDMODULE\n")
                 self.wfile.write("ENDFLAGS\n")
-                print "sent end of flags"
+                print "Sent " + self.client_address[0] + " some flags."
         elif self.data == "REQSHUTDOWN":
             if self.client_address[0] == "127.0.0.1": #can only be sent from localhost
                 self.server.shutdown()
@@ -70,7 +67,7 @@ def startServer(host,port):
 if __name__ == "__main__":
     global modules
     HOST, PORT = "localhost", 9999
-    modules = [{'name':'test1', 'flags':['derp1','derp2','derp3']},{'name':'test2', 'flags':['derp4','derp5','derp6']},{'name':'test3', 'flags':['derp7','derp8','derp9']}]
+    modules = [{'name':'test1', 'flags':['derp1','derp2','derp3']},{'name':'test2', 'flags':['derp4','derp5','derp6']},{'name':'test3', 'flags':['derp7','derp8','derp9']},{'name':'test4','flags':['derp10','derp11','derp12']},{'name':'test5','flags':['derp13','derp14','derp15']}]
     startServer(HOST, PORT)
     print "Started flag administration service on port " + str(PORT)
 
