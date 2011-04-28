@@ -11,7 +11,7 @@ def disconnect():
     conn.close()
 
 def checkClientIP(clientIP):
-    return False
+    return False #just for debugging
     c = connect()
     c.execute("SELECT * FROM flags WHERE clientip=?", clientIP)
     c.close()
@@ -19,6 +19,7 @@ def checkClientIP(clientIP):
     return len(c) == 0
 
 def addFlags(flags, clientIP): 
+    return True #just for debugging
     c = connect()
     for flag in flags: # check if a flag already is in the database 
         c.execute("SELECT * FROM flags WHERE flag=?", flag)

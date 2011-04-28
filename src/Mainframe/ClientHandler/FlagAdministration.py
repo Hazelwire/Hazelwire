@@ -1,6 +1,7 @@
 import threading
 import SocketServer
 import DatabaseHandler
+import string, random
 
 # Modules are represented by an array of dictionaries with the keys ModuleName and NumberOfFlags.
 modules = []
@@ -47,21 +48,21 @@ def readManifest(manifest):
 
 def generateFlags(number, clientIP):
     """Takes a number of flags that need to be generated for clientIP. Adds them to the database"""
-    flags = []
-    for x in range(number):
-        flag.append("some generated flag")#generate flag
-    while not DatabaseHandler.addFlags(flags, clientIP): #keep on generating flags when some flag already existed
+    while True:
+        flags = []
         for x in range(number):
-            flag.append("some generated flag")#generate flag
-    
+            flags.append("FLG")
+            for x in range(61):
+                flags[-1] += [random.choice(string.letters+string.digits)] #choose a random letter or digit
+        if DatabaseHandler.addFlags(flags, clientIP): break #if succesfully added, we're done.
+    return flags
+
 def startServer(host,port):
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
     ip, port = server.server_address
     server_thread = threading.Thread(target=server.serve_forever)
-    try:
-        server_thread.start()
-    except KeyboardInterrupt:
-        server.shutdown()
+    server_thread.start()
+
         
     
 if __name__ == "__main__":
