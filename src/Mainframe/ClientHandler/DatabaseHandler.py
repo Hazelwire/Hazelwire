@@ -11,6 +11,7 @@ def disconnect():
     conn.close()
 
 def checkClientIP(clientIP):
+    return False
     c = connect()
     c.execute("SELECT * FROM flags WHERE clientip=?", clientIP)
     c.close()
