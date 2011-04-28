@@ -28,7 +28,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
                         self.request.send("FLAG " + flag)
                 self.request.send("ENDFLAGS")
         elif self.data == "REQSHUTDOWN":
-            if self.client_address == "127.0.0.1": #can only be sent from localhost
+            if self.client_address[0] == "127.0.0.1": #can only be sent from localhost
                 self.server.shutdown()
             return
 
