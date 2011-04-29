@@ -4,3 +4,4 @@
 .project
 *.pyc
 *.pydevproject
+src/Mainframe/WebInterfaces/templates_c/*
