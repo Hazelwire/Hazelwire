@@ -43,7 +43,7 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
 def getModules():
-    """Check the datanase for list of modules, how many flags must be created for each module and the paths + flag points """
+    """Check the database for list of modules, how many flags must be created for each module and the paths + flag points """
     global modules
     modules = DatabaseHandler.getModuleInfo()
 
@@ -73,4 +73,3 @@ if __name__ == "__main__":
     getModules()
     startServer(HOST, PORT)
     print "Started flag administration service on port " + str(PORT)
-    print modules
