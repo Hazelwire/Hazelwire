@@ -3,13 +3,12 @@ import SocketServer
 import DatabaseHandler
 import string, random
 
-# Modules are represented by an array of dictionaries with the keys ModuleName and NumberOfFlags.
+# Modules are represented by an array of dictionaries with the keys ModuleName and NumberOfFlags, BasePath, InstallScript path
 modules = []
 
 class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
 
     def handle(self):
-        global modules
         self.data = self.rfile.readline().strip()
         print "Got " + self.data + " from " + self.client_address[0]
         if self.data == "REQFLAGS":
@@ -27,7 +26,9 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
                 #Client has no flags assigned to him, generate some.
                 for module in modules:
                     self.wfile.write("MODNAME " + module['name']+'\n')
-                    #module['flags']= generateFlags(module['numberOfFlags'], clientIP)
+                    self.wfile.write("BASEPATH " + module['basepath'] + '\n')
+                    self.wfile.write("DEPLOYSCRIPT " + module['deployscript'] + '\n')
+                    module['flags'] = generateFlags(module['name'], module['numberOfFlags'], self.client_address[0])
                     for flag in module['flags']:
                         self.wfile.write("FLAG " + flag+'\n')
                     self.wfile.write("ENDMODULE\n")
@@ -41,19 +42,19 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
-def readManifest(manifest):
-    """Check the manifest for list of modules and how many flags must be created"""
+def getModules():
+    """Check the datanase for list of modules, how many flags must be created for each module and the paths """
     pass
 
 
-def generateFlags(number, clientIP):
+def generateFlags(modulename, number, clientIP):
     """Takes a number of flags that need to be generated for clientIP. Adds them to the database"""
     while True:
         flags = []
         for x in range(number):
             flags.append("FLG")
             for x in range(61):
-                flags[-1] += [random.choice(string.letters+string.digits)] #choose a random letter or digit
+                flags[-1] += random.choice(string.letters+string.digits) #choose a random letter or digit
         if DatabaseHandler.addFlags(flags, clientIP): break #if succesfully added, we're done.
     return flags
 
@@ -66,9 +67,8 @@ def startServer(host,port):
         
     
 if __name__ == "__main__":
-    global modules
     HOST, PORT = "localhost", 9999
-    modules = [{'name':'test1', 'flags':['derp1','derp2','derp3']},{'name':'test2', 'flags':['derp4','derp5','derp6']},{'name':'test3', 'flags':['derp7','derp8','derp9']},{'name':'test4','flags':['derp10','derp11','derp12']},{'name':'test5','flags':['derp13','derp14','derp15']}]
+    modules = [{'name':'test1', 'flags':[], 'numberOfFlags':5, 'basepath':'/exploit1/', 'deployscript':'deploy/script.py'},{'name':'test2', 'flags':[], 'numberOfFlags':2, 'basepath':'/exploit2/', 'deployscript':'deploy/script.py'},{'name':'test3', 'flags':[], 'numberOfFlags':4, 'basepath':'/exploit3/', 'deployscript':'deploy/script.py'}]
     startServer(HOST, PORT)
     print "Started flag administration service on port " + str(PORT)
 
