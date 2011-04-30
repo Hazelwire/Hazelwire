@@ -23,21 +23,21 @@ def checkClientIP(clientIP):
 def addFlags(modulename, flags, clientIP): 
     c = connect()
     for flag in flags: # check if a flag already is in the database 
-        c.execute("SELECT * FROM flags WHERE flag=?", [flag['flag']])
+        c.execute("SELECT * FROM flags WHERE flag=?", [flag])
         if len(c.fetchall()) != 0:
             return False
     for flag in flags: #actually add the flags
-        c.execute("INSERT INTO flags VALUES (?, (SELECT id FROM modules WHERE name=?), (SELECT id FROM teams WHERE VMip=?), ?, ?);", [flags.index(flag)+1,modulename, clientIP, flags[flags.index(flag)]['points'], flag['flag']]) #TODO: add some actual SQL here.
+        c.execute("INSERT INTO flags VALUES (?, (SELECT id FROM modules WHERE name=?), (SELECT id FROM teams WHERE VMip=?), ?);", [flags.index(flag)+1,modulename, clientIP, flag]) #TODO: add some actual SQL here.
     c.close()
     disconnect()
     return True
 
-def getModuleInfo(): #TODO: get the points info as well, not yet in the database: need to figure out how to store.
+def getModuleInfo():
     res = []
     c = connect()
     c.execute("SELECT * FROM modules;")
     for module in c.fetchall():
-        res.append({'name':module[1], 'numFlags':module[2], 'basepath':module[3], 'deployscript':module[4], 'points':[4,12,3,12,23,41]}) #points are bogus
+        res.append({'name':module[1], 'numFlags':module[2], 'basepath':module[3], 'deployscript':module[4]})
     return res
 
 if __name__ == "__main__":

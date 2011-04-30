@@ -3,7 +3,7 @@ import SocketServer
 import DatabaseHandler
 import string, random
 
-# Modules are represented by an array of dictionaries with the keys ModuleName and numFlags, array with points of Flags, BasePath, InstallScript path
+# Modules are represented by an array of dictionaries with the keys ModuleName and numFlags, BasePath, InstallScript path
 modules = []
 
 class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
@@ -28,9 +28,9 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
                     self.wfile.write("MODNAME " + module['name']+'\n')
                     self.wfile.write("BASEPATH " + module['basepath'] + '\n')
                     self.wfile.write("DEPLOYSCRIPT " + module['deployscript'] + '\n')
-                    module['flags'] = generateFlags(module['name'], module['numFlags'], module['points'], self.client_address[0])
+                    module['flags'] = generateFlags(module['name'], module['numFlags'], self.client_address[0])
                     for flag in module['flags']:
-                        self.wfile.write("FLAG " + flag['flag']+'\n')
+                        self.wfile.write("FLAG " + flag+'\n')
                     self.wfile.write("ENDMODULE\n")
                 self.wfile.write("ENDFLAGS\n")
                 print "Sent " + self.client_address[0] + " some flags."
@@ -43,19 +43,19 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
 def getModules():
-    """Check the database for list of modules, how many flags must be created for each module and the paths + flag points """
+    """Check the database for list of modules, how many flags must be created for each module and the paths"""
     global modules
     modules = DatabaseHandler.getModuleInfo()
 
 
-def generateFlags(modulename, number, points, clientIP):
+def generateFlags(modulename, number, clientIP):
     """Takes a number of flags that need to be generated for clientIP. Adds them to the database"""
     while True:
         flags = []
         for x in range(number):
-            flags.append({'flag':"FLG", 'points': points[x]})
+            flags.append("FLG")
             for x in range(61):
-                flags[-1]['flag'] += random.choice(string.letters+string.digits) #choose a random letter or digit
+                flags[-1] += random.choice(string.letters+string.digits) #choose a random letter or digit
         if DatabaseHandler.addFlags(modulename, flags, clientIP): break #if succesfully added, we're done.
     return flags
 
