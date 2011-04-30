@@ -32,6 +32,19 @@ def addFlags(modulename, flags, clientIP):
     disconnect()
     return True
 
+def addModuleInfo(modules):
+    c = connect()
+    for module in modules:
+        c.execute("INSERT INTO modules VALUES (?, ?, ?, ?, ?);",[None, module['name'], module['numFlags'], module['basepath'], module['deployscript']])
+    c.close()
+    disconnect()
+    c = connect()
+    for module in modules:
+        for flag in module['flagpoints']:
+            c.execute("INSERT INTO flagpoints VALUES (?, ?, ?);", [module['flagpoints'].index(flag)+1, modules.index(module)+1, flag])
+    c.close()
+    disconnect()
+    
 def getModuleInfo():
     res = []
     c = connect()
