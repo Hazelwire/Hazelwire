@@ -1,4 +1,4 @@
-import socket
+import socket,os
 
 moduleFlags = [] #array of dictionaries {'ModuleName': String, 'BasePath': String, 'InstallScript': String, 'flags': []}
 
@@ -32,8 +32,9 @@ def requestFlags(host, port):
     
     
 def deployFlags():
-    #I have no clue how to deploy dem flags.
-    pass
+    for module in moduleFlags:
+        os.system(module['basepath'] + module['deployscript']) #execute deploy script
+        
     
 
 if __name__ == "__main__":
