@@ -49,8 +49,8 @@ class ManifestHandler(xml.sax.ContentHandler):
 def parseManifest(manifest):
     parser = xml.sax.make_parser()
     parser.setContentHandler(ManifestHandler())
-    parser.parse(open("../example_MANIFEST.xml","r"))
+    parser.parse(open(manifest,"r"))
     DatabaseHandler.addModuleInfo(modules)
 
 if __name__ == "__main__":
-    parseManifest("example_MANIFEST.xml")
+    parseManifest("../example_MANIFEST.xml")
