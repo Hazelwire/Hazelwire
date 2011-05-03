@@ -1,7 +1,6 @@
 <MANIFEST>
     <MODULE>
         <name>test1</name>
-        <numFlags>5</numFlags>
         <basepath>/home/exploit1/</basepath>
         <deployscript>deploy/deployFlags</deployscript>
 	<serviceport>31337</serviceport>
@@ -15,7 +14,6 @@
     </MODULE>
     <MODULE>
         <name>test2</name>
-        <numFlags>2</numFlags>
         <basepath>/home/exploit2/</basepath>
         <deployscript>deploy/install.py</deployscript>
 	<serviceport>61281</serviceport>
