@@ -1,4 +1,4 @@
-package com.utwente.hazelwire.test;
+package org.hazelwire.test;
 
 public class MainTest
 {
