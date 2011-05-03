@@ -36,13 +36,9 @@ class ManifestHandler(xml.sax.ContentHandler):
             self.isDeployScriptElement = False
         elif name == "flags":
             self.startFlagSection = False
-<<<<<<< HEAD
 	elif name == "serviceport":
 	    isServicePortElement = False
-    
-=======
 
->>>>>>> d9599e7... Identation fixes
     def characters (self, ch):
         if self.isNameElement:
             modules[-1]['name'] += ch
