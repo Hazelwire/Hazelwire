@@ -35,7 +35,7 @@ def addFlags(modulename, flags, clientIP):
 def addModuleInfo(modules):
     c = connect()
     for module in modules:
-        c.execute("INSERT INTO modules VALUES (?, ?, ?, ?, ?);",[None, module['name'], module['numFlags'], module['basepath'], module['deployscript']])
+        c.execute("INSERT INTO modules VALUES (?, ?, ?, ?, ?, ?);",[module['serviceport'], None, module['name'], module['numFlags'], module['basepath'], module['deployscript']])
     c.close()
     disconnect()
     c = connect()

@@ -4,6 +4,7 @@
         <numFlags>5</numFlags>
         <basepath>/home/exploit1/</basepath>
         <deployscript>deploy/deployFlags</deployscript>
+	<serviceport>31337</serviceport>
         <flags>
             <flag points="12" />
             <flag points="25" />
@@ -17,6 +18,7 @@
         <numFlags>2</numFlags>
         <basepath>/home/exploit2/</basepath>
         <deployscript>deploy/install.py</deployscript>
+	<serviceport>61281</serviceport>
         <flags>
             <flag points="10" />
             <flag points="32" />
