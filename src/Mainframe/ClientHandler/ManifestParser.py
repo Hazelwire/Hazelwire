@@ -10,8 +10,8 @@ class ManifestHandler(xml.sax.ContentHandler):
     def startElement(self, name, attrs):
         if name == "MODULE":
             modules.append({'name':'','numFlags':0,'basepath':'','deployscript':'', 'flagpoints':[]}) 
-    	elif name == "name":
-	        self.isNameElement = True
+        elif name == "name":
+            self.isNameElement = True
         elif name == "numFlags":
             self.isNumFlagsElement = True
         elif name == "basepath":
@@ -22,10 +22,10 @@ class ManifestHandler(xml.sax.ContentHandler):
             self.startFlagSection = True
         elif name == "flag" and self.startFlagSection:
             modules[-1]['flagpoints'].append(attrs.items()[0][1])
-        
+
     def endElement(self, name):
         if name == "name":
-	        self.isNameElement = False
+            self.isNameElement = False
         elif name == "numFlags":
             self.isNumFlagsElement = False
         elif name == "basepath":
@@ -34,7 +34,7 @@ class ManifestHandler(xml.sax.ContentHandler):
             self.isDeployScriptElement = False
         elif name == "flags":
             self.startFlagSection = False
-    
+
     def characters (self, ch):
         if self.isNameElement:
             modules[-1]['name'] += ch
