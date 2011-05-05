@@ -12,27 +12,26 @@ class AdminInterface extends WebInterface {
 
     public function show() {
         $smarty = &$this->getSmarty();
-        
+
         /*
          * Error handling
          */
         $smarty->assign("num_errors", count($this->errors));
-        if($this->fatal_error){
+        if ($this->fatal_error) {
             $smarty->assignByRef("errors", $this->errors);
             $smarty->display("fatal_error.tpl");
             return;
-        }else if(count($this->errors)>0){
+        } else if (count($this->errors) > 0) {
             $errors_by_name = array();
-            for($i=0;$i<count($this->errors);$i++){
+            for ($i = 0; $i < count($this->errors); $i++) {
                 /* @var $error Error */
                 $error = $this->errors[$i];
                 $smarty->assign($error->getType(), $error->getMessage());
                 $errors_by_name[$error->getType()] = $error;
             }
-            $smarty->assign("errors", array_merge($this->errors,$errors_by_name));
+            $smarty->assign("errors", array_merge($this->errors, $errors_by_name));
         }
 
-        //echo $this->getCurrentState();
         /*
          * Actual showing the pages
          */
@@ -43,6 +42,9 @@ class AdminInterface extends WebInterface {
                 $smarty->assign("site_path", $this->config['site_folder']);
             }
             return $smarty->fetch("config.tpl");
+            
+        } elseif (($this->state = $this->getCurrentState()) == POSTCONFIG) {
+            return $smarty->fetch("add_contestants.tpl");
         }
     }
 
@@ -57,10 +59,13 @@ class AdminInterface extends WebInterface {
     private function setState($state) {
         $db = & $this->database;
         /* @var $db PDO */
-        if ($this->getCurrentState() == -1)
-            $db->exec("INSERT INTO 'state' VALUES (" . $state . ");"); //@TODO change into ?
-        else
-            $db->exec("UPDATE state SET state = " . $state.";"); //@TODO change into ?
+        if ($this->getCurrentState() == -1) {
+            $q = $db->prepare("INSERT INTO 'state' VALUES (?);");
+            $q->execute(array($state));
+        } else {
+            $q = $db->prepare("UPDATE state SET state = ?;");
+            $q->execute(array($state));
+        }
         $this->state = $state;
     }
 
@@ -81,41 +86,70 @@ class AdminInterface extends WebInterface {
         if ($this->fatal_error)
             return;
 
-         //Assuming everything went OK, we are now in the PRECONFIG state
+        //Assuming everything went OK, we are now in the PRECONFIG state
         //Going to do the actual work
 
         switch ($this->getCurrentState()) {
             case PRECONFIG:
                 //if something was submitted we need to handle it
-                if($_SERVER['REQUEST_METHOD'] == "POST") {
+                if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     /* @var $db PDO */
                     $db = &$this->database;
-                    
-                    $gamename = $db->quote($_POST['name']);
+
+                    $gamename = $_POST['name'];
                     $auto_p2p_interval = intval($_POST['p2p_interval']);
                     $auto_s2p_interval = intval($_POST['s2p_interval']);
-                    if($auto_p2p_interval > 0 && $auto_s2p_interval > 0)
-                    {
-                        $result = $db->exec("INSERT INTO 'config' VALUES (" . $gamename . ",".$auto_p2p_interval.",".$auto_s2p_interval.");"); //TODO change into ?
-                        if($result !== false){
-                            $this->setState (POSTCONFIG);
-                        }
-                        else{
+                    $manifest = $_FILES['manifest'];
+                    $temp = explode(".", $manifest['name']);
+                    $ext = $temp[count($temp) - 1];
+
+                    if (strcmp($ext, "xml") != 0) {
+                        $this->handleError(new Error("config_input_error", "You can only upload XML files!", false));
+                        return;
+                    } elseif ($auto_p2p_interval > 0 && $auto_s2p_interval > 0 && $manifest['error'] === 0) {
+
+                        //@TODO, use maartens script to parse XML
+                        $q = $db->prepare("INSERT INTO 'config' VALUES (?,?,?);");
+                        /* @var $q PDOStatement */
+                        $result = $q->execute(array($gamename, $auto_p2p_interval, $auto_s2p_interval));
+
+                        if ($result !== false) {
+                            $this->setState(POSTCONFIG);
+                        } else {
                             $this->handleError(new Error("db_error", "An error occured while trying to insert something into the database", true));
                             return;
                         }
-                            
-                    }
-                    else
-                    {
+                    } elseif ($manifest['error'] === 0) {
                         $this->handleError(new Error("config_input_error", "Please supply valid configuration inputs!", false));
+                    } else {
+                        $this->handleError(new Error("config_input_error", "Something went wrong with uploading the manifest file. Please try again.", false));
                     }
                 }
 
                 break;
             case POSTCONFIG:
+                if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
+                    $db = &$this->database;
+                    if (isset($_POST['button']) && strtolower($_POST['button']) == 'next') {
 
+                        /* @var $result PDOStatement */
+                        $result = $db->query("SELECT COUNT(*) FROM teams");
 
+                        if ($result->fetchColumn() > 0) {
+                            $this->setState(PREVPN);
+                        } else {
+                            $this->handleError(new Error("team_input_error", "You must atleast have 1 contestant to start a wargame. Sorry! xD", false));
+                        }
+                    } elseif (isset($_POST['button']) && strtolower($_POST['button']) == 'add') {
+                        /**
+                         * Check for correct input
+                         * Check for overlapping IPs | @TODO Make it possible for Admin to have more control over subnets
+                         * Create a VPN config file and a Client Config Dir.
+                         * Create keys and a CA / DH if necessary (i.e. if this is the first)
+                         */
+                        $this->handleError(new Error("fatal_error", "Failure FTW", true));
+                    }
+                }
                 break;
             case PREVPN:
 

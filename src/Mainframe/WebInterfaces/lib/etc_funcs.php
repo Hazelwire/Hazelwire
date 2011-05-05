@@ -12,7 +12,7 @@ function myip2long($ip) {
 
 function ip_in_range($ip,$range) {
    $match = false;
-
+   
    $ip_addr = decbin(myip2long($ip));
 
    $network = explode("/", $range);
