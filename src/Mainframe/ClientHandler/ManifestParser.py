@@ -57,7 +57,8 @@ def parseManifest(manifest):
     parser.setContentHandler(ManifestHandler())
     parser.parse(open(manifest,"r"))
     if correctXML:
-        DatabaseHandler.addModuleInfo(modules)
+        db = DatabaseHandler.DatabaseHandler()
+        db.addModuleInfo(modules)
         return True
     return False
 
