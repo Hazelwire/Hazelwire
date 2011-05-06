@@ -51,7 +51,39 @@ def getModuleInfo():
     c.execute("SELECT * FROM modules;")
     for module in c.fetchall():
         res.append({'name':module[1], 'numFlags':module[2], 'basepath':module[3], 'deployscript':module[4]})
+    c.close()
+    disconnect()
     return res
+
+def getClientIPs():
+    res = []
+    c = connect()
+    c.execute("SELECT VMip FROM teams;")
+    for team in c.fetchall():
+        res.append(team[0])
+    c.close()
+    disconnect()
+    return res
+
+def getModulePorts():
+    res = []
+    c = connect()
+    c.execute("SELECT serviceport FROM modules;")
+    for port in c.fetchall():
+        res.append(port[0])
+    c.close()
+    disconnect()
+    return res
+
+def addSuspiciousContestant(IP, port):
+    #TODO: needs to be implemented, the table structure needs to be defined
+    pass
+
+def getIntervals():
+    c = connect()
+    c.execute("SELECT normal_interval, p2p_interval FROM config;")
+    res = c.fetchall()
+    return res[0], res[1]
 
 if __name__ == "__main__":
     assert checkClientIP('10.0.8.1') == True

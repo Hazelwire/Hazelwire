@@ -18,8 +18,8 @@ class ManifestHandler(xml.sax.ContentHandler):
             self.isDeployScriptElement = True
         elif name == "flags":
             self.startFlagSection = True
-	elif name == "serviceport":
-	    self.isServicePortElement = True
+        elif name == "serviceport":
+            self.isServicePortElement = True
         elif name == "flag" and self.startFlagSection:
             modules[-1]['flagpoints'].append(attrs.items()[0][1])
 
@@ -33,8 +33,8 @@ class ManifestHandler(xml.sax.ContentHandler):
             self.isDeployScriptElement = False
         elif name == "flags":
             self.startFlagSection = False
-	elif name == "serviceport":
-	    isServicePortElement = False
+        elif name == "serviceport":
+            isServicePortElement = False
         elif name == "MODULE":
             modules[-1]['numFlags'] = len(modules[-1]['flagpoints'])
             if modules[-1]['numFlags'] == 0 or modules[-1]['name'] == '' or modules[-1]['basepath'] == '' or modules[-1]['deployscript'] == '':
@@ -48,7 +48,7 @@ class ManifestHandler(xml.sax.ContentHandler):
             modules[-1]['basepath'] += ch
         elif self.isDeployScriptElement:
             modules[-1]['deployscript'] += ch
-	elif self.isServicePortElement:
+        elif self.isServicePortElement:
             modules[-1]['serviceport'] += ch
 
 
@@ -60,6 +60,6 @@ def parseManifest(manifest):
         DatabaseHandler.addModuleInfo(modules)
         return True
     return False
-    
+
 if __name__ == "__main__":
     print parseManifest("../example_MANIFEST.xml")
