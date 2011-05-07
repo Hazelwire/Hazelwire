@@ -1,16 +1,17 @@
 import socket
-import DatabaseHandler
+from DatabaseHandler import DatabaseHandler
 from SanityCheck import checkIP
 import P2PSanityCheck
 
 class ManualSanityCheckerService:
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, db):
+        self.db = db
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((host,port))
         self.sock.listen(1)
-        self.contestants = DatabaseHandler.getClientIPs()
-        self.portsToScan = DatabaseHandler.getModulePorts()
+        self.contestants = self.db.getClientIPs()
+        self.portsToScan = self.db.getModulePorts()
 
     def startServer(self):
         self.running = True
@@ -33,7 +34,7 @@ class ManualSanityCheckerService:
                 results = p2p.getResults()
             for result in results:
                     if not result['fine']:
-                        DatabaseHandler.addSuspiciousContestant(IP, result['port'])
+                        self.db.addSuspiciousContestant(IP, result['port'])
         elif data == "STOPMANUAL":
             self.running = False       
             

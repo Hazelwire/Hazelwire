@@ -1,17 +1,17 @@
 import sqlite3
 """ Handler for communication with the Database."""
 class DatabaseHandler:
-        
+
     def __init__(self,db="test.db"):
         self.db = db
-        
+
     def connect(self):
         self.conn = sqlite3.connect(self.db)
-    
+
     def disconnect(self):
         self.conn.commit()
         self.conn.close()
-    
+
     def checkClientIP(self,clientIP):
         self.connect()
         c = self.conn.cursor()
@@ -20,7 +20,7 @@ class DatabaseHandler:
         c.close()
         self.disconnect()
         return len(res) != 0
-    
+
     def addFlags(self, modulename, flags, clientIP): 
         self.connect()
         c = self.conn.cursor()
@@ -33,7 +33,7 @@ class DatabaseHandler:
         c.close()
         self.disconnect()
         return True
-    
+
     def addModuleInfo(self,modules):
         self.connect()
         c = self.conn.cursor()
@@ -48,7 +48,7 @@ class DatabaseHandler:
                 c.execute("INSERT INTO flagpoints VALUES (?, ?, ?);", [module['flagpoints'].index(flag)+1, modules.index(module)+1, flag])
         c.close()
         self.disconnect()
-        
+
     def getModuleInfo(self):
         res = []
         self.connect()
@@ -79,7 +79,7 @@ class DatabaseHandler:
         c = self.conn.cursor()
         c.execute("SELECT VMip FROM teams;")
         for team in c.fetchall():
-	    res.append(team[0])
+            res.append(team[0])
         c.close()
         self.disconnect()
         return res
@@ -90,7 +90,7 @@ class DatabaseHandler:
         c = self.conn.cursor()
         c.execute("SELECT serviceport FROM modules;")
         for port in c.fetchall():
-	    res.append(port[0])
+            res.append(port[0])
         c.close()
         self.disconnect()
         return res
