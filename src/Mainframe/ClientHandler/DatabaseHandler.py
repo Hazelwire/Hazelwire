@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, time
 """ Handler for communication with the Database."""
 class DatabaseHandler:
 
@@ -60,18 +60,21 @@ class DatabaseHandler:
         return res
 
     def addSuspiciousContestant(self, IP, port):
-        #TODO: needs to be implemented, the table structure needs to be defined
-        pass
+        self.connect()
+        c = self.conn.cursor()
+        c.execute("INSERT INTO evil_teams VALUES(?,?,?);", [IP, port, int(time.time())])
+        c.close()
+        self.disconnect()
 
     def getIntervals(self):
         self.connect()
         c = self.conn.cursor()
-        c.execute("SELECT normal_interval, p2p_interval FROM config;")
-        res = c.fetchall()
-        c.close()
+        c.execute("SELECT value FROM config WHERE config_name = 'normal_interval';")
+        normal_interval = c.fetchall()[0][0]
+        c.execute("SELECT value FROM config WHERE config_name = 'p2p_interval';")
+        p2p_interval = c.fetchall()[0][0]
         self.disconnect()
-        return res[0], res[1]
-
+        return (int(normal_interval), int(p2p_interval))
 
     def getClientIPs(self):
         res = []

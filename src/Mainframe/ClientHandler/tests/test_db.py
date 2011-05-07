@@ -23,6 +23,10 @@ CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip NUMERIC);
 INSERT INTO teams VALUES(1,'Henkies','10.0.8.1');
 INSERT INTO teams VALUES(2,'Sjakies','10.0.10.1');
 INSERT INTO teams VALUES(3,'lokale lutsers','127.0.0.1');
+CREATE TABLE config (config_name TEXT, type TEXT, value TEXT);
+INSERT INTO config VALUES('normal_interval','sanitycheck',3);
+INSERT INTO config VALUES('p2p_interval','sanitycheck',10);
+CREATE TABLE evil_teams (IP TEXT, port NUMERIC, time NUMERIC);
 COMMIT;""")
         self.temp.commit()
         self.cursor.close()
@@ -72,4 +76,19 @@ COMMIT;""")
     def test_db_6_getModulePorts(self):
         res = [(31337),(61281)]
         self.assertEqual(res, self.db.getModulePorts())   
+    
+    def test_db_7_getIntervals(self):
+        res = (3,10)
+        self.assertEqual(res, self.db.getIntervals())
+    
+    def test_db_8_addSuspiciousContestant(self):
+        self.db.addSuspiciousContestant('127.0.0.1',31337)
+        db = sqlite3.connect("temp.db")
+        c = db.cursor()
+        c.execute("SELECT * FROM evil_teams;")
+        res = c.fetchall()
+        self.assertTrue(len(res)==1)
+        self.assertTrue(res[0][0] == '127.0.0.1')
+        self.assertTrue(res[0][1] == 31337)
+        
     
