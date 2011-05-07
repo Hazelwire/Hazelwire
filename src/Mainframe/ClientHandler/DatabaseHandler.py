@@ -59,12 +59,3 @@ class DatabaseHandler:
             res.append({'name':module[1], 'numFlags':module[2], 'basepath':module[3], 'deployscript':module[4]})
         self.disconnect()
         return res
-    
-
-if __name__ == "__main__":
-    db = DatabaseHandler("test.db")
-    assert db.checkClientIP('10.0.8.1') == True
-    assert db.checkClientIP('10.0.10.1') == False
-    assert db.addFlags("pwnjebox", ['FLGZ0sRrUGvTLLaHqv8dUwy3HPgDo8y5ZCweGvCt9VyuXCus4UmUhzqeB9FFr6c7'], '10.0.8.1') == False
-    print db.addFlags("pwnjebox", ['FLGZ0sRrUGvTLLaHqv8dUwy3HLoLDERPZCweGvCt9VyuXCus4UmUhzqeB9FFr6c7'], '10.0.8.1')
-    print db.getModuleInfo()
