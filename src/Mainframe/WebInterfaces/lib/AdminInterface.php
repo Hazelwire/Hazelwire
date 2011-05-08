@@ -44,6 +44,18 @@ class AdminInterface extends WebInterface {
             return $smarty->fetch("config.tpl");
             
         } elseif (($this->state = $this->getCurrentState()) == POSTCONFIG) {
+            // @TODO assign all added teams for overview
+            
+            $db = &$this->database; /* @var $db PDO */
+            $q = $db->query("SELECT id FROM teams"); /* @var $q PDOStatement */
+            
+            $cs = array();
+            foreach($q as $data){
+                $c = Contestant::getById($data['id'], $db);
+                if($c !== false)
+                    array_push ($cs, $c);
+            }
+            $smarty->assign("contestants", $cs);
             return $smarty->fetch("add_contestants.tpl");
         }
     }
@@ -103,6 +115,7 @@ class AdminInterface extends WebInterface {
                     $temp = explode(".", $manifest['name']);
                     $ext = $temp[count($temp) - 1];
 
+                    // @TODO make this use MIMEtypes
                     if (strcmp($ext, "xml") != 0) {
                         $this->handleError(new Error("config_input_error", "You can only upload XML files!", false));
                         return;
@@ -130,12 +143,12 @@ class AdminInterface extends WebInterface {
             case POSTCONFIG:
                 if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                     $db = &$this->database;
+                    
+                    /* @var $result PDOStatement */
+                    $result = $db->query("SELECT COUNT(*) FROM teams");
+                    $num_teams = $result->fetchColumn();
                     if (isset($_POST['button']) && strtolower($_POST['button']) == 'next') {
-
-                        /* @var $result PDOStatement */
-                        $result = $db->query("SELECT COUNT(*) FROM teams");
-
-                        if ($result->fetchColumn() > 0) {
+                        if ($num_teams > 0) {
                             $this->setState(PREVPN);
                         } else {
                             $this->handleError(new Error("team_input_error", "You must atleast have 1 contestant to start a wargame. Sorry! xD", false));
@@ -147,7 +160,75 @@ class AdminInterface extends WebInterface {
                          * Create a VPN config file and a Client Config Dir.
                          * Create keys and a CA / DH if necessary (i.e. if this is the first)
                          */
-                        $this->handleError(new Error("fatal_error", "Failure FTW", true));
+                        
+                        if(!ctype_alnum($_POST['name']))
+                            $this->handleError(new Error("team_input_error", "Illigal name. Only alphanumeric allowed!", false));
+                        elseif((!(intval($_POST['server_ip']) > 0 && intval($_POST['server_ip']) < 255)) || !((intval($_POST['ip_range']) > 0 && intval($_POST['ip_range']) < 255)))
+                            $this->handleError(new Error("team_input_error", "IP input moet tussen 0 en 255 liggen, excluding.", false));
+                        else {
+                            $subnet = "10." . $_POST['ip_range'] . ".0.0/24";
+                            $vmip =   "10." . $_POST['ip_range'] . "." . $_POST['server_ip'] . ".1";
+                            $vmip_endpoint =   "10." . $_POST['ip_range'] . "." . $_POST['server_ip'] . ".2";
+                            
+                            $result = $db->query("SELECT * FROM teams");
+                            
+                            foreach($result as $res){
+                                if($_POST['name'] == $res['name'])
+                                    $this->handleError(new Error("team_input_error", "Duplicate name much!", false));
+                                elseif($subnet == $res['subnet'])
+                                    $this->handleError(new Error("team_input_error", "Duplicate subnet much!", false));
+                                elseif($vmip == $res['VMip'])
+                                    $this->handleError(new Error("team_input_error", "Duplicate server ip much!", false));
+                            }
+                            
+                            //check for errors and return
+                            if(count($this->errors) > 0){
+                                return;
+                            }else{
+                                //assume all is right, insert into database
+                                $c = new Contestant($_POST['name'], $subnet, $vmip);
+                                
+                                $c->save($db);
+                                
+                                $om = new OpenVPNManager($this->config['RSA_location'], $this->config['openvpn_location'], $this->config['site_folder']);
+                                
+                                $path = $this->config['RSA_location'];
+                                if($num_teams == 0){
+
+                                    $om->buildInitKeys();
+                                    
+                                }
+                                
+                                $om->buildServerKeys($_POST['name']);
+                                $om->buildClientKeys($_POST['name']);
+                                
+                                // @TODO We moeten ook Apache configs aanpassen enzo om Limit te allowen voor .htaccess
+                                
+                                // create the CCD file
+                                $om->createClientConfigFile($_POST['name'], $vmip, $vmip_endpoint);
+                                
+                                $smarty = &$this->getSmarty();
+                                $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
+                                $tpl->assign("teamname", $_POST['name']);
+                                $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
+                                $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
+                                $tpl->assign("server_ip_range",  substr($subnet, 0, -3));
+                                $tpl->assign("man_port",$config['management_port_base'] + $c->getId());
+                                $tpl->assign("port",$this->config['base_port'] + $c->getId());
+                                $config_file_data = $tpl->fetch();
+                                
+                                $config_file_loc = $this->config['openvpn_location'] . $_POST['name'] . ".conf";
+                                $handle = fopen($config_file_loc, 'w');
+                                if($handle === false){
+                                    $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
+                                    return;
+                                }
+                                fwrite($handle, $config_file_data);
+                                fclose($handle);
+                                    
+                            }
+                        }
+                        
                     }
                 }
                 break;

@@ -13,6 +13,8 @@ include_once 'lib/AdminInterface.php';
 include_once 'lib/ContestantInterface.php';
 include_once 'lib/Smarty-3.0.6/libs/Smarty.class.php';
 include_once 'lib/Error.php';
+include_once 'lib/Contestant.php';
+include_once 'lib/OpenVPNManager.php';
 
 
 $interface;

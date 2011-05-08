@@ -1,0 +1,253 @@
+#!/bin/sh
+
+#  OpenVPN -- An application to securely tunnel IP networks
+#             over a single TCP/UDP port, with support for SSL/TLS-based
+#             session authentication and key exchange,
+#             packet encryption, packet authentication, and
+#             packet compression.
+#
+#  Copyright (C) 2002-2010 OpenVPN Technologies, Inc. <sales@openvpn.net>
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License version 2
+#  as published by the Free Software Foundation.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program (see the file COPYING included with this
+#  distribution); if not, write to the Free Software Foundation, Inc.,
+#  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# pkitool is a front-end for the openssl tool.
+
+# Calling scripts can set the certificate organizational 
+# unit with the KEY_OU environmental variable. 
+
+# Calling scripts can also set the KEY_NAME environmental
+# variable to set the "name" X509 subject field.
+
+PROGNAME=pkitool2
+VERSION=2.0
+DEBUG=0
+
+die()
+{
+    local m="$1"
+
+    echo "$m" >&2
+    exit 1
+}
+
+need_vars()
+{
+    echo '  Please edit the vars script to reflect your configuration,'
+    echo '  then source it with "source ./vars".'
+    echo '  Next, to start with a fresh PKI configuration and to delete any'
+    echo '  previous certificates and keys, run "./clean-all".'
+    echo "  Finally, you can run this tool ($PROGNAME) to build certificates/keys."
+}
+
+# Set tool defaults
+[ -n "$OPENSSL" ] || export OPENSSL="openssl"
+[ -n "$PKCS11TOOL" ] || export PKCS11TOOL="pkcs11-tool"
+[ -n "$GREP" ] || export GREP="grep"
+
+# Set defaults
+DO_REQ="1"
+REQ_EXT=""
+DO_CA="1"
+CA_EXT=""
+DO_P12="0"
+DO_P11="0"
+DO_ROOT="0"
+NODES_REQ="-nodes"
+NODES_P12=""
+BATCH="-batch"
+CA="ca"
+# must be set or errors of openssl.cnf
+PKCS11_MODULE_PATH="dummy"
+PKCS11_PIN="dummy"
+
+# Process options
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --keysize  ) KEY_SIZE=$2
+		     shift;;
+	--server   ) REQ_EXT="$REQ_EXT -extensions server"
+	             CA_EXT="$CA_EXT -extensions server" ;;
+	--batch    ) BATCH="-batch" ;;
+	--interact ) BATCH="" ;;
+        --inter    ) CA_EXT="$CA_EXT -extensions v3_ca" ;;
+        --initca   ) DO_ROOT="1" ;;
+	--pass     ) NODES_REQ="" ;;
+        --csr      ) DO_CA="0" ;;
+        --sign     ) DO_REQ="0" ;;
+        --pkcs12   ) DO_P12="1" ;;
+	--pkcs11   ) DO_P11="1"
+	             PKCS11_MODULE_PATH="$2"
+		     PKCS11_SLOT="$3"
+		     PKCS11_ID="$4"
+		     PKCS11_LABEL="$5"
+		     shift 4;;
+
+	# standalone
+	--pkcs11-init)
+	             PKCS11_MODULE_PATH="$2"
+	             PKCS11_SLOT="$3"
+	             PKCS11_LABEL="$4"
+		     if [ -z "$PKCS11_LABEL" ]; then
+		       die "Please specify library name, slot and label"
+		     fi
+		     $PKCS11TOOL --module "$PKCS11_MODULE_PATH" --init-token --slot "$PKCS11_SLOT" \
+		     	--label "$PKCS11_LABEL" &&
+			$PKCS11TOOL --module "$PKCS11_MODULE_PATH" --init-pin --slot "$PKCS11_SLOT"
+		     exit $?;;
+	--pkcs11-slots)
+	             PKCS11_MODULE_PATH="$2"
+		     if [ -z "$PKCS11_MODULE_PATH" ]; then
+		       die "Please specify library name"
+		     fi
+		     $PKCS11TOOL --module "$PKCS11_MODULE_PATH" --list-slots
+		     exit 0;;
+	--pkcs11-objects)
+	             PKCS11_MODULE_PATH="$2"
+	             PKCS11_SLOT="$3"
+		     if [ -z "$PKCS11_SLOT" ]; then
+		       die "Please specify library name and slot"
+		     fi
+		     $PKCS11TOOL --module "$PKCS11_MODULE_PATH" --list-objects --login --slot "$PKCS11_SLOT"
+		     exit 0;;
+
+	# errors
+	--*        ) die "$PROGNAME: unknown option: $1" ;;
+	*          ) break ;;
+    esac
+    shift   
+done
+
+if ! [ -z "$BATCH" ]; then
+	if $OPENSSL version | grep 0.9.6 > /dev/null; then
+		die "Batch mode is unsupported in openssl<0.9.7"
+	fi
+fi
+
+if [ $DO_P12 -eq 1 -a $DO_P11 -eq 1 ]; then
+	die "PKCS#11 and PKCS#12 cannot be specified together"
+fi
+
+if [ $DO_P11 -eq 1 ]; then
+	if ! grep "^pkcs11.*=" "$KEY_CONFIG" > /dev/null; then
+		die "Please edit $KEY_CONFIG and setup PKCS#11 engine"
+	fi
+fi
+
+# If we are generating pkcs12, only encrypt the final step
+if [ $DO_P12 -eq 1 ]; then
+    NODES_P12="$NODES_REQ"
+    NODES_REQ="-nodes"
+fi
+
+if [ $DO_P11 -eq 1 ]; then
+	if [ -z "$PKCS11_LABEL" ]; then
+		die "PKCS#11 arguments incomplete"
+	fi
+fi
+
+# If undefined, set default key expiration intervals
+if [ -z "$KEY_EXPIRE" ]; then
+    KEY_EXPIRE=3650
+fi
+if [ -z "$CA_EXPIRE" ]; then
+    CA_EXPIRE=3650
+fi
+
+# Set organizational unit to empty string if undefined
+if [ -z "$KEY_OU" ]; then
+    KEY_OU=""
+fi
+
+# Set X509 Name string to empty string if undefined
+if [ -z "$KEY_NAME" ]; then
+    KEY_NAME=""
+fi
+
+# Set KEY_CN, FN
+if [ $DO_ROOT -eq 1 ]; then
+    if [ -z "$KEY_CN" ]; then
+	if [ "$1" ]; then
+	    KEY_CN="$1"
+	elif [ "$KEY_ORG" ]; then
+	    KEY_CN="$KEY_ORG CA"
+	fi
+    fi
+    if [ $BATCH ] && [ "$KEY_CN" ]; then
+	echo "Using CA Common Name:" "$KEY_CN"
+    fi
+    FN="$KEY_CN"
+elif [ $BATCH ] && [ "$KEY_CN" ]; then
+    echo "Using Common Name:" "$KEY_CN"
+    FN="$KEY_CN"
+    if [ "$1" ]; then
+	FN="$1"
+    fi
+else
+    if [ $# -ne 1 ]; then
+	usage
+	exit 1
+    else
+	KEY_CN="$1"
+    fi
+    FN="$KEY_CN"
+fi
+
+export CA_EXPIRE KEY_EXPIRE KEY_OU KEY_NAME KEY_CN PKCS11_MODULE_PATH PKCS11_PIN
+
+# Make sure ./vars was sourced beforehand
+if [ -d "$KEY_DIR" ] && [ "$KEY_CONFIG" ]; then
+    cd "$KEY_DIR"
+
+    # Make sure $KEY_CONFIG points to the correct version
+    # of openssl.cnf
+    if $GREP -i 'easy-rsa version 2\.[0-9]' "$KEY_CONFIG" >/dev/null; then
+	:
+    else
+	echo "$PROGNAME: KEY_CONFIG (set by the ./vars script) is pointing to the wrong"
+        echo "version of openssl.cnf: $KEY_CONFIG"
+	echo "The correct version should have a comment that says: easy-rsa version 2.x";
+	exit 1;
+    fi
+
+    # Build root CA
+    if [ $DO_ROOT -eq 1 ]; then
+	$OPENSSL req -batch -days 3650 -nodes -new -newkey rsa:1024 -sha1 \
+	    -x509 -keyout "ca.key" -out "ca.crt" -config "$KEY_CONFIG" -subj "/CN=John Dough" && \
+	    chmod 0600 "ca.key"
+    else        
+        # Make sure CA key/cert is available
+	if [ $DO_CA -eq 1 ] || [ $DO_P12 -eq 1 ]; then
+	    if [ ! -r "ca.crt" ] || [ ! -r "ca.key" ]; then
+		echo "$PROGNAME: Need a readable $CA.crt and $CA.key in $KEY_DIR"
+		echo "Try $PROGNAME --initca to build a root certificate/key."
+		exit 1
+	    fi
+	fi
+
+	FN="$KEY_CN"
+        # Build cert/key
+	( [ $DO_REQ -eq 0 ] || $OPENSSL req $BATCH -days 365 $NODES_REQ -new -newkey rsa:$KEY_SIZE \
+	        -keyout "$FN.key" -out "$FN.csr" $REQ_EXT -config "$KEY_CONFIG" $PKCS11_ARGS ) && \
+	    ( [ $DO_CA -eq 0 ]  || $OPENSSL ca -batch -days 3650 -out "$FN.crt" \
+	        -in "$FN.csr" $CA_EXT -md sha1 -config "$KEY_CONFIG" ) && \
+	    ( [ $DO_P12 -eq 0 ] || $OPENSSL pkcs12 -export -inkey "$FN.key" \
+	        -in "$FN.crt" -certfile "$CA.crt" -out "$FN.p12" $NODES_P12 )
+
+    fi
+
+# Need definitions
+else
+    need_vars
+fi

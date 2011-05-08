@@ -16,5 +16,35 @@
             <div> <label><!-- pseudo label --> </label>
                 <input type="Submit" value="Add" name="button" />  <input name="button" type="Submit" value="Next" /></div>
         </form>
+        <p></p>
+        Contestants added so far: <br/><br/>
+        <table>
+        {foreach from=$contestants item=contestant}
+        <tr>
+            <td>ID:</td>
+            <td>{$contestant->getId()}</td>
+        </tr>
+        <tr>
+            <td>Name:</td>
+            <td>{$contestant->getTeamname()}</td>
+        </tr>
+        <tr>
+            <td>Subnet:</td>
+            <td>{$contestant->getSubnet()}</td>
+        </tr>
+        <tr>
+            <td>VMip:</td>
+            <td>{$contestant->getVm_ip()}</td>
+        </tr>
+        <tr>
+            <td>Links:</td>
+            <td><a href="download.php?type=tkey&team={$contestant->getTeamname()}">Team Key</a><br/>
+                <a href="download.php?type=tcert&team={$contestant->getTeamname()}">Team Cert</a> <br/>
+                <a href="download.php?type=vkey&team={$contestant->getTeamname()}">VM Key</a><br/>
+                <a href="download.php?type=vcert&team={$contestant->getTeamname()}">VM Cert</a><br/>
+                <a href="download.php?type=ca">CA</a></td>
+        </tr>
+        {/foreach}
+        </table>
     </body>
 </html>

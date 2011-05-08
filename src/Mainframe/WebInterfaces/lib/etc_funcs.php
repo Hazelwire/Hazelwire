@@ -8,7 +8,7 @@ function myip2long($ip) {
    }
 }
 
-########### function to chek ip if it in one of denyied/allowed networks =)
+########### function to chek ip if it in one of denyied/allowed networks
 
 function ip_in_range($ip,$range) {
    $match = false;
@@ -24,4 +24,23 @@ function ip_in_range($ip,$range) {
    }
    return $match;
 }
+
+
+
+   function run_in_background($Command, $Priority = 0)
+   {
+       if($Priority)
+           $PID = shell_exec("nohup nice -n $Priority $Command 2> /dev/null & echo $!");
+       else
+           $PID = shell_exec("nohup $Command 2> /dev/null & echo $!");
+       return($PID);
+   }
+
+   function is_process_running($PID)
+   {
+       exec("ps $PID", $ProcessState);
+       return(count($ProcessState) >= 2);
+   }
+
+
 ?>
