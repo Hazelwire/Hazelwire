@@ -48,15 +48,12 @@ class ManifestHandler(xml.sax.ContentHandler):
             modules[-1]['deployscript'] += ch
 
 
-def parseManifest(manifest):
+def parseManifest(manifest, db):
     parser = xml.sax.make_parser()
     parser.setContentHandler(ManifestHandler())
     parser.parse(open(manifest,"r"))
     if correctXML:
-        db = DatabaseHandler.DatabaseHandler()
+        db = DatabaseHandler.DatabaseHandler(db)
         db.addModuleInfo(modules)
         return True
     return False
-    
-if __name__ == "__main__":
-    print parseManifest("../example_MANIFEST.xml")
