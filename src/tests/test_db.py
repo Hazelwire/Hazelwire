@@ -1,5 +1,5 @@
 import unittest, sqlite3, os
-from DatabaseHandler import DatabaseHandler
+from Mainframe.ClientHandler.DatabaseHandler import DatabaseHandler
 
 class DatabaseHandlerTestCase(unittest.TestCase):
     
