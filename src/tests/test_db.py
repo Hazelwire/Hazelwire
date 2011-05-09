@@ -4,6 +4,10 @@ from Mainframe.ClientHandler.DatabaseHandler import DatabaseHandler
 class DatabaseHandlerTestCase(unittest.TestCase):
     
     def setUp(self):
+        try:
+            os.remove("temp.db") #removing just to be sure
+        except:
+            pass
         self.temp = sqlite3.connect("temp.db")
         self.cursor = self.temp.cursor()
         self.cursor.executescript("""BEGIN TRANSACTION;
