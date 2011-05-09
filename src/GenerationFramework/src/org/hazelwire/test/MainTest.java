@@ -8,17 +8,19 @@ import java.util.zip.ZipFile;
 
 import org.hazelwire.main.Configuration;
 import org.hazelwire.modules.Module;
+import org.hazelwire.virtualmachine.VMHandler;
 
 public class MainTest
 {
 	public static void main(String[] args)
 	{
-		Configuration lol;
+		VMHandler vmHandler = new VMHandler("/usr/bin/vboxmanage", true);
 		try
 		{
-			lol = new Configuration();
-			System.out.println(lol.getUserDir());
-		} catch (IOException e)
+			vmHandler.importVM("/home/shokora/test/HazelwireTest.ova","Hazelwire\\ Test");
+			vmHandler.startVM("Hazelwire\\ Test");
+			vmHandler.stopVM("Hazelwire\\ test");
+		} catch (Exception e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

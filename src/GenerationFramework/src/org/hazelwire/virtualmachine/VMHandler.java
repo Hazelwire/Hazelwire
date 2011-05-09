@@ -20,13 +20,25 @@ public class VMHandler
 	 * @param vmName
 	 * @param debug
 	 */
-	public void startVM(String vmName) throws Exception
+	public void startVM(String vmName)
 	{		
 		try
-		{
-			if(this.checkIfVMExists(vmName)) throw new Exception("VM is already imported");
-			
+		{			
 			Process process = Runtime.getRuntime().exec(virtualBoxPath+" "+vmName+" --type headless");
+			
+			if(debug) new VMLogger(process);
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void stopVM(String vmName)
+	{
+		try
+		{
+			Process process = Runtime.getRuntime().exec(virtualBoxPath+" controlvm "+vmName+" poweroff");
 			
 			if(debug) new VMLogger(process);
 		}
@@ -40,10 +52,11 @@ public class VMHandler
 	 * The to be imported vm should be in .ova format
 	 * @param vmPath
 	 */
-	public void importVM(String vmPath)
+	public void importVM(String vmPath, String vmName) throws Exception
 	{
 		try
 		{
+			if(this.checkIfVMExists(vmName)) throw new Exception("VM is already imported");
 			Process process = Runtime.getRuntime().exec(virtualBoxPath+" import "+vmPath);
 			
 			if(debug) new VMLogger(process);

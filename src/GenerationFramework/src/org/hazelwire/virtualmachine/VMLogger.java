@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 import org.hazelwire.main.Configuration;
 
@@ -23,11 +24,11 @@ public class VMLogger
 	
 	public VMLogger(Process process) throws IOException
 	{
-		this.configuration = new Configuration(); //This might not be the best way to do this?
+		//this.configuration = new Configuration(); //This might not be the best way to do this?
 		this.procOut 	= new BufferedReader(new InputStreamReader(process.getInputStream()));
 		this.procError 	= new BufferedReader(new InputStreamReader(process.getErrorStream()));
-		FileWriter fstream = new FileWriter(configuration.getVMLogPath());
-		this.out = new BufferedWriter(fstream);
+		//FileWriter fstream = new FileWriter(configuration.getVMLogPath());
+		this.out = new BufferedWriter(new OutputStreamWriter(System.out));
 		this.logToFile(); //start logging
 	}
 	
