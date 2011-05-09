@@ -1,7 +1,7 @@
 import unittest, sqlite3, socket, os
 
 from ClientBot import FlagRequest
-from Mainframe.ClientHandler import FlagAdministration, DatabaseHandler
+from Mainframe.ClientHandler import FlagAdministration
 
 class FlagDistributionTestCase(unittest.TestCase):
     
@@ -33,7 +33,6 @@ COMMIT;""")
         self.temp.commit()
         self.cursor.close()
         self.temp.close()
-        self.db = DatabaseHandler.DatabaseHandler("temp.db")
         FlagAdministration.setDB("temp.db")
         FlagAdministration.getModules()
         FlagAdministration.startServer('127.0.0.1',9999)

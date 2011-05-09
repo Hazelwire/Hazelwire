@@ -1,0 +1,20 @@
+<MANIFEST>
+    <MODULE>
+        <name>test1</name>
+        <basepath>/home/exploit1/</basepath>
+        <flags>
+            <flag points="12" />
+            <flag points="25" />
+            <flag points="10" />
+            <flag points="15" />
+	    <flag points="83" />
+        </flags>
+    </MODULE>
+    <MODULE>
+        <deployscript>deploy/install.py</deployscript>
+        <flags>
+            <flag points="10" />
+            <flag points="32" />
+        </flags>
+    </MODULE>
+</MANIFEST>
