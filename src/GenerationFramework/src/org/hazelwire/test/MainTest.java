@@ -6,21 +6,26 @@ import java.util.Enumeration;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.hazelwire.main.Configuration;
 import org.hazelwire.modules.Module;
 
 public class MainTest
 {
 	public static void main(String[] args)
 	{
+		Configuration lol;
 		try
 		{
-			MainTest test = new MainTest();
-			File zip = new File("/home/shokora/FirefoxDownload/tjerkovara-weet_ik_veel.zip");
-			test.convertPackageToModule(zip);
-		}
-		catch(Exception e)
+			lol = new Configuration();
+			System.out.println(lol.getUserDir());
+		} catch (IOException e)
 		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		finally
+		{
+			System.out.println("PRINT LOL BIATCH");
 		}
 	}
 	
