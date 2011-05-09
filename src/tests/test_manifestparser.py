@@ -14,7 +14,7 @@ class ManifestParserTestCase(unittest.TestCase):
               self.cursor.executescript("""BEGIN TRANSACTION;
       CREATE TABLE flagpoints (flag_id NUMERIC, mod_id NUMERIC, points NUMERIC);
       CREATE TABLE flags (flag_id NUMERIC, mod_id NUMERIC, team_id NUMERIC, flag TEXT);
-      CREATE TABLE modules (id INTEGER PRIMARY KEY, name TEXT, numFlags NUMERIC, basepath TEXT, deployscript TEXT);
+      CREATE TABLE modules (serviceports NUMERIC, id INTEGER PRIMARY KEY, name TEXT, numFlags NUMERIC, basepath TEXT, deployscript TEXT);
       CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip NUMERIC);
       INSERT INTO teams VALUES(1,'Henkies','10.0.8.1');
       INSERT INTO teams VALUES(2,'Sjakies','10.0.10.1');
