@@ -7,24 +7,23 @@ import java.util.regex.Pattern;
 
 public class VMHandler
 {
-	String virtualBoxPath;
+	String virtualBoxPath, vmName, vmPath;
 	boolean debug;
 	
-	public VMHandler(String virtualBoxPath, boolean debug)
+	public VMHandler(String virtualBoxPath, String vmName, String vmPath, boolean debug)
 	{
 		this.virtualBoxPath = virtualBoxPath;
 		this.debug = debug;
+		this.vmName = vmName;
+		this.vmPath = vmPath;
 	}
 	
-	/**
-	 * @param vmName
-	 * @param debug
-	 */
-	public void startVM(String vmName)
+	public void startVM()
 	{		
 		try
 		{			
-			Process process = Runtime.getRuntime().exec(virtualBoxPath+" "+vmName+" --type headless");
+			Process process = Runtime.getRuntime().exec(virtualBoxPath+" startvm "+vmName+" --type headless");
+			System.out.println(virtualBoxPath+" startvm "+vmName+" --type headless");
 			
 			if(debug) new VMLogger(process);
 		}
@@ -34,7 +33,7 @@ public class VMHandler
 		}
 	}
 	
-	public void stopVM(String vmName)
+	public void stopVM()
 	{
 		try
 		{
@@ -50,14 +49,14 @@ public class VMHandler
 	
 	/**
 	 * The to be imported vm should be in .ova format
-	 * @param vmPath
 	 */
-	public void importVM(String vmPath, String vmName) throws Exception
+	public void importVM() throws Exception
 	{
 		try
 		{
-			if(this.checkIfVMExists(vmName)) throw new Exception("VM is already imported");
+			if(this.checkIfImported()) throw new Exception("VM is already imported");
 			Process process = Runtime.getRuntime().exec(virtualBoxPath+" import "+vmPath);
+			process.waitFor(); //Wait untill the process is done with importing, else calling starvm would end horribly
 			
 			if(debug) new VMLogger(process);
 		}
@@ -67,13 +66,81 @@ public class VMHandler
 		}
 	}
 	
+	/**
+	 * This will forward a certain hostPort in the VM to a certain guestPort in the host-system.
+	 * @param protocol
+	 * @param hostPort
+	 * @param guestPort
+	 * @param transProtocol
+	 * @throws Exception
+	 */
+	public void addForward(String protocol, int hostPort, int guestPort, String transProtocol) throws Exception
+	{
+		String[] commands = 
+		{
+			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/HostPort\""+hostPort,
+			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GuestPort\""+guestPort,
+			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GProtocol\""+transProtocol
+		};
+		
+		try
+		{
+			if(!this.checkIfImported()) throw new Exception("VM does not exist");
+			
+			for(int i=0;i<commands.length;i++)
+			{
+				Process process = Runtime.getRuntime().exec(commands[i]);
+				process.waitFor(); //The commands need to be in sequence
+				
+				if(debug) new VMLogger(process);
+			}
+		}
+		catch(IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * This will remove a certain portforwarding.
+	 * @pre ports are actually forwarded to the vm
+	 * @post forward does not exist anymore
+	 * @param protocol
+	 * @throws Exception
+	 */
+	public void removeForward(String vmName, String protocol) throws Exception
+	{
+		String[] commands = 
+		{
+			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/HostPort\"",
+			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GuestPort\"",
+			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GProtocol\"",
+		};
+		
+		try
+		{
+			if(!this.checkIfImported()) throw new Exception("VM does not exist");
+			
+			for(int i=0;i<commands.length;i++)
+			{
+				Process process = Runtime.getRuntime().exec(commands[i]);
+				process.waitFor(); //The commands need to be in sequence
+				
+				if(debug) new VMLogger(process);
+			}
+		}
+		catch(IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
 	
 	/**
 	 * Checks whether a vm is already imported or not
-	 * @param vmName
 	 * @return
 	 */
-	public boolean checkIfVMExists(String vmName)
+	public boolean checkIfImported()
 	{
 		try
 		{

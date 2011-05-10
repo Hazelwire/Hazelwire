@@ -14,20 +14,16 @@ public class MainTest
 {
 	public static void main(String[] args)
 	{
-		VMHandler vmHandler = new VMHandler("/usr/bin/vboxmanage", true);
+		VMHandler vmHandler = new VMHandler("/usr/bin/vboxmanage","HazelwireTest","/home/shokora/test/HazelwireTest.ova", true);
 		try
 		{
-			vmHandler.importVM("/home/shokora/test/HazelwireTest.ova","Hazelwire\\ Test");
-			vmHandler.startVM("Hazelwire\\ Test");
-			vmHandler.stopVM("Hazelwire\\ test");
+			//vmHandler.importVM("/home/shokora/test/HazelwireTest.ova","HazelwireTest");
+			vmHandler.startVM();
+			vmHandler.stopVM();
 		} catch (Exception e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		finally
-		{
-			System.out.println("PRINT LOL BIATCH");
 		}
 	}
 	

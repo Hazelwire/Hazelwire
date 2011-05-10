@@ -1,0 +1,20 @@
+<hazelwire-module>
+	<name>Test Module</name>
+	<flags>
+		<flag>
+			<id>1</id>
+			<points-default>10</points-default>
+		</flag>
+		<flag>
+			<id>2</id>
+			<points-default>5</points-default>
+		</flag>
+	</flags>
+	<options>
+		<option>
+			<id>1</id>
+			<name>Listen port</name>
+			<type>integer</type>
+		</option>
+	</options>
+</hazelwire-module>
