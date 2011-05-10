@@ -8,5 +8,6 @@ public class SSHConnection
 	
 	public SSHConnection(String hostname, int port, String username, String password)
 	{
+		
 	}
 }

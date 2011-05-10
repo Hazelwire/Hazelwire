@@ -1,43 +1,31 @@
 package org.hazelwire.test;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
-import org.hazelwire.main.Configuration;
-import org.hazelwire.modules.Module;
-import org.hazelwire.virtualmachine.VMHandler;
+import net.schmizz.sshj.SSHClient;
 
-public class MainTest
-{
-	public static void main(String[] args)
-	{
-		VMHandler vmHandler = new VMHandler("/usr/bin/vboxmanage","HazelwireTest","/home/shokora/test/HazelwireTest.ova", true);
-		try
-		{
-			//vmHandler.importVM("/home/shokora/test/HazelwireTest.ova","HazelwireTest");
-			vmHandler.startVM();
-			vmHandler.stopVM();
-		} catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+/** This example demonstrates uploading of a file over SCP to the SSH server. */
+public class MainTest {
+
+    public static void main(String[] args) throws Exception
+    {
+    		System.out.println("ZAAD");
+		   SSHClient ssh = new SSHClient();
+	       ssh.loadKnownHosts();
+	       ssh.connect("localhost");
+	       try {
+	           ssh.authPublickey(System.getProperty("user.name"));
+	           ssh.authPassword("test", "test");
 	
-	public Module convertPackageToModule(File packageFile) throws ZipException, IOException
-	{
-		ZipFile zipFile = new ZipFile(packageFile);
-		
-		Enumeration e = zipFile.entries();
-		
-		while(e.hasMoreElements())
-		{
-			System.out.println(e.nextElement());
-		}
-		
-		return null;
-	}
+	           // Present here to demo algorithm renegotiation - could have just put this before connect()
+	           // Make sure JZlib is in classpath for this to work
+	           //ssh.useCompression();
+	
+	           final String src = System.getProperty("user.home") + File.separator + "test.txt";
+	           final String target = "/home/test/test.txt";
+	           ssh.newSCPFileTransfer().upload(src, target);
+	       } finally {
+	           ssh.disconnect();
+	       }
+    }
 }
