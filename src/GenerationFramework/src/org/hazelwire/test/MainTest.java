@@ -13,6 +13,7 @@ public class MainTest {
 		   SSHClient ssh = new SSHClient();
 	       ssh.loadKnownHosts();
 	       ssh.connect("localhost");
+	       
 	       try {
 	           ssh.authPublickey(System.getProperty("user.name"));
 	           ssh.authPassword("test", "test");

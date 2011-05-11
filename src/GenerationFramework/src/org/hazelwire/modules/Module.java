@@ -1,5 +1,8 @@
 package org.hazelwire.modules;
 
+import java.util.Date;
+import java.util.HashMap;
+
 /**
  * 
  * @author Tim Strijdhorst
@@ -7,12 +10,22 @@ package org.hazelwire.modules;
  */
 public class Module
 {
-	private String name, filePath;
+	private String name, filePath, author, type;
+	private HashMap<Integer,Integer> flags; //<id,amountOfPoints>
+	private HashMap<Integer,Option> options; //<id,Option>
+	private Date date;
 	
 	public Module(String name, String filePath)
 	{
 		this.name = name;
 		this.filePath = filePath;
+		this.flags = new HashMap<Integer,Integer>();
+		this.options = new HashMap<Integer,Option>();
+	}
+	
+	public Module()
+	{
+		//Make it possible to create an empty module and set all the info later
 	}
 	
 	public String getName()
@@ -33,5 +46,25 @@ public class Module
 	public void setFilePath(String filePath)
 	{
 		this.filePath = filePath;
+	}
+	
+	public void addFlag(int id, int points)
+	{
+		this.flags.put(id, points);
+	}
+	
+	public void removeFlag(int id)
+	{
+		this.flags.remove(id);
+	}
+	
+	public void addOption(int id, Option option)
+	{
+		this.options.put(id,option);
+	}
+	
+	public void removeOption(int id)
+	{
+		this.options.remove(id);
 	}
 }

@@ -18,8 +18,10 @@ public class VMHandler
 		this.vmPath = vmPath;
 	}
 	
-	public void startVM()
-	{		
+	public void startVM() throws Exception
+	{
+		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
+		
 		try
 		{			
 			Process process = Runtime.getRuntime().exec(virtualBoxPath+" startvm "+vmName+" --type headless");
@@ -33,8 +35,10 @@ public class VMHandler
 		}
 	}
 	
-	public void stopVM()
+	public void stopVM() throws Exception
 	{
+		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
+		
 		try
 		{
 			Process process = Runtime.getRuntime().exec(virtualBoxPath+" controlvm "+vmName+" poweroff");
@@ -52,15 +56,33 @@ public class VMHandler
 	 */
 	public void importVM() throws Exception
 	{
+		if(this.checkIfImported()) throw new Exception("VM is already imported");
+		
 		try
 		{
-			if(this.checkIfImported()) throw new Exception("VM is already imported");
 			Process process = Runtime.getRuntime().exec(virtualBoxPath+" import "+vmPath);
 			process.waitFor(); //Wait untill the process is done with importing, else calling starvm would end horribly
 			
 			if(debug) new VMLogger(process);
 		}
 		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void exportVM() throws Exception
+	{
+		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
+		
+		try
+		{
+			Process process = Runtime.getRuntime().exec(virtualBoxPath+" export "+vmName+" -o "+vmName+".ova");
+			process.waitFor();
+			
+			if(debug) new VMLogger(process);
+		}
+		catch(IOException e)
 		{
 			throw new RuntimeException(e);
 		}
@@ -83,10 +105,10 @@ public class VMHandler
 			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GProtocol\""+transProtocol
 		};
 		
+		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
+		
 		try
 		{
-			if(!this.checkIfImported()) throw new Exception("VM does not exist");
-			
 			for(int i=0;i<commands.length;i++)
 			{
 				Process process = Runtime.getRuntime().exec(commands[i]);
@@ -117,10 +139,10 @@ public class VMHandler
 			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GProtocol\"",
 		};
 		
+		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
+		
 		try
 		{
-			if(!this.checkIfImported()) throw new Exception("VM does not exist");
-			
 			for(int i=0;i<commands.length;i++)
 			{
 				Process process = Runtime.getRuntime().exec(commands[i]);

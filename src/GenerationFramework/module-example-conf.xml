@@ -1,5 +1,14 @@
 <hazelwire-module>
-	<name>Test Module</name>
+	<general-info>
+		<name>Test Module</name>
+		<author>Tim Strijdhorst</author>
+		<date>11-05-2011</date>
+		<type>Service</type>
+		<series>
+			<name>Hazelwire Test Package</name>
+			<id>1</id>
+		</series>
+	</general-info>
 	<flags>
 		<flag>
 			<id>1</id>
