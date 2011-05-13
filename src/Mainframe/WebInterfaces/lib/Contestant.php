@@ -46,9 +46,18 @@ class Contestant {
         $q->execute(array($id));
         $res = $q->fetchAll();
         if($res !== false && count($res) > 0){
-            return new Contestant($res[0]['name'],$res[0]['VMip'],$res[0]['subnet'],$res[0]['id']);
+            return new Contestant($res[0]['name'],$res[0]['subnet'],$res[0]['VMip'],$res[0]['id']);
         }
         return false;
+    }
+    
+    /** 
+     * Wrappert voor OpenVPNManager's getVPNStatus(...)
+     * 
+     * @return boolean true als VPN draait voor deze contestant, anders false.
+     */
+    public function getVPNStatus(){
+        return OpenVPNManager::getVPNStatus($this);
     }
 
     /*

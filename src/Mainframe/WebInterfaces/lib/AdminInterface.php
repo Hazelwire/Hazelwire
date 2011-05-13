@@ -44,19 +44,29 @@ class AdminInterface extends WebInterface {
             return $smarty->fetch("config.tpl");
             
         } elseif (($this->state = $this->getCurrentState()) == POSTCONFIG) {
-            // @TODO assign all added teams for overview
             
-            $db = &$this->database; /* @var $db PDO */
-            $q = $db->query("SELECT id FROM teams"); /* @var $q PDOStatement */
-            
-            $cs = array();
-            foreach($q as $data){
-                $c = Contestant::getById($data['id'], $db);
-                if($c !== false)
-                    array_push ($cs, $c);
-            }
-            $smarty->assign("contestants", $cs);
+            $smarty->assign("contestants", $this->contestant_list);
             return $smarty->fetch("add_contestants.tpl");
+        } elseif ($this->getCurrentState() == PREVPN) {
+            $smarty->assign("contestants", $this->contestant_list);
+            return $smarty->fetch("vpn_start.tpl");
+        } elseif ($this->getCurrentState() == PREGAMESTART) {
+            return $smarty->fetch("game_start.tpl");
+        } elseif ($this->getCurrentState() == GAMEINPROGRESS) {
+            
+//            $db = &$this->database; /* @var $db PDO */
+//            $q = $db->query("SELECT id FROM teams"); /* @var $q PDOStatement */
+//
+//            $this->contestant_list = array();
+//            foreach($q as $data){
+//                $c = Contestant::getById($data['id'], $db);
+//                if($c !== false)
+//                    array_push ($this->contestant_list, $c);
+//            }
+            
+            return $smarty->fetch("game_administration.tpl");
+        } elseif ($this->getCurrentState() == POSTGAME) {
+            return $smarty->fetch("game_end.tpl");
         }
     }
 
@@ -121,7 +131,10 @@ class AdminInterface extends WebInterface {
                         return;
                     } elseif ($auto_p2p_interval > 0 && $auto_s2p_interval > 0 && $manifest['error'] === 0) {
 
-                        //@TODO, use maartens script to parse XML
+                        
+                        move_uploaded_file($manifest['tmp_name'], "manifest.xml");
+                        exec($config['ch_location'] . "ManifestParser.py " . "manifest.xml " . $config['database_file_name'] . " > /dev/null 2>/dev/null &");
+                        
                         $q = $db->prepare("INSERT INTO 'config' VALUES (?,?,?);");
                         /* @var $q PDOStatement */
                         $result = $q->execute(array($gamename, $auto_p2p_interval, $auto_s2p_interval));
@@ -129,7 +142,7 @@ class AdminInterface extends WebInterface {
                         if ($result !== false) {
                             $this->setState(POSTCONFIG);
                         } else {
-                            $this->handleError(new Error("db_error", "An error occured while trying to insert something into the database", true));
+                            $this->handleError(new Error("config_input_error", "An error occured while trying to insert something into the database", true));
                             return;
                         }
                     } elseif ($manifest['error'] === 0) {
@@ -188,24 +201,23 @@ class AdminInterface extends WebInterface {
                                 //assume all is right, insert into database
                                 $c = new Contestant($_POST['name'], $subnet, $vmip);
                                 
+                                array_push($this->contestant_list,$c);
+                                
                                 $c->save($db);
                                 
-                                $om = new OpenVPNManager($this->config['RSA_location'], $this->config['openvpn_location'], $this->config['site_folder']);
-                                
-                                $path = $this->config['RSA_location'];
                                 if($num_teams == 0){
 
-                                    $om->buildInitKeys();
+                                    OpenVPNManager::buildInitKeys();
                                     
                                 }
                                 
-                                $om->buildServerKeys($_POST['name']);
-                                $om->buildClientKeys($_POST['name']);
+                                OpenVPNManager::buildServerKeys($_POST['name']);
+                                OpenVPNManager::buildClientKeys($_POST['name']);
                                 
                                 // @TODO We moeten ook Apache configs aanpassen enzo om Limit te allowen voor .htaccess
-                                
+                                // @TODO create client config too
                                 // create the CCD file
-                                $om->createClientConfigFile($_POST['name'], $vmip, $vmip_endpoint);
+                                OpenVPNManager::createClientConfigFile($_POST['name'], $vmip, $vmip_endpoint);
                                 
                                 $smarty = &$this->getSmarty();
                                 $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
@@ -218,7 +230,7 @@ class AdminInterface extends WebInterface {
                                 $config_file_data = $tpl->fetch();
                                 
                                 $config_file_loc = $this->config['openvpn_location'] . $_POST['name'] . ".conf";
-                                $handle = fopen($config_file_loc, 'w');
+                                $handle = @fopen($config_file_loc, 'w');
                                 if($handle === false){
                                     $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
                                     return;
@@ -233,15 +245,83 @@ class AdminInterface extends WebInterface {
                 }
                 break;
             case PREVPN:
-
+                $db = &$this->database;
+                if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
+                    
+                    if (isset($_POST['start'])) {
+                        $id = intval(key($_POST['start']));
+                        if(($c = Contestant::getById($id, $db)) !== false){
+                            OpenVPNManager::startVPN($c);
+                        }else
+                            $this->handleError(new Error("vpn_error", "Such a contestant does not exist!", false));
+                    }elseif (isset($_POST['stop'])) {
+                        $id = intval(key($_POST['stop']));
+                        if(($c = Contestant::getById($id, $db)) !== false){
+                            OpenVPNManager::stopVPN($c);
+                        }else
+                            $this->handleError(new Error("vpn_error", "Such a contestant does not exist!", false));
+                    } elseif (isset($_POST['startall'])) {
+                        foreach ($this->contestant_list as $c){
+                            if(!OpenVPNManager::getVPNStatus($c))
+                                OpenVPNManager::startVPN($c);
+                        }
+                    }elseif (isset($_POST['stopall'])) {
+                        foreach ($this->contestant_list as $c){
+                            if(OpenVPNManager::getVPNStatus($c))
+                                OpenVPNManager::stopVPN($c);
+                        }
+                    }elseif (isset($_POST['next'])) {
+                        foreach ($this->contestant_list as $c){
+                            if(!OpenVPNManager::getVPNStatus($c))
+                                OpenVPNManager::startVPN($c);
+                        }
+                        $this->setState(PREGAMESTART);
+                    }
+                }
 
                 break;
             case PREGAMESTART:
-
+                if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
+                    if (isset($_POST['next'])) {
+                        
+                        OpenVPNManager::setKernelRouting(true);
+                        exec($config['ch_location'] . "FlagAdministration.py " . $config['database_file_name'] . " > /dev/null 2>/dev/null &");
+                        
+                        $this->setState(GAMEINPROGRESS);
+                    }
+                }
 
                 break;
             case GAMEINPROGRESS:
-
+                if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
+                    if (isset($_POST['next'])) {
+                        
+                        OpenVPNManager::setKernelRouting(false);
+                        
+                        $fp = @fsockopen("127.0.0.1", 9999, $errno, $errstr, 5);
+                        if(!$fp){
+                            $this->handleError(new Error("game_administration_error", "Cannot stop Flag Administration! (".$errno.")", false));
+                        }else{
+                            fwrite($fp, "REQSHUTDOWN");
+                            fclose($fp);
+                        }
+                        
+                        foreach ($this->contestant_list as $c){
+                            if(OpenVPNManager::getVPNStatus($c))
+                                OpenVPNManager::stopVPN($c);
+                        }
+                        
+                        $fp = @fsockopen("127.0.0.1", 10000, $errno, $errstr, 5);
+                        if(!$fp){
+                            $this->handleError(new Error("game_administration_error", "Cannot stop OpenVPNService.py! (".$errno.")", false));
+                        }else{
+                            fwrite($fp, "STOPSERVICE");
+                            fclose($fp);
+                        }
+                        
+                        $this->setState(POSTGAME);
+                    }
+                }
 
                 break;
             case POSTGAME:

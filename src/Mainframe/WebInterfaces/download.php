@@ -21,7 +21,7 @@ if(strcmp($_SERVER['REMOTE_ADDR'], '127.0.0.1') === 0 || ip_in_range($_SERVER['R
         if(!file_exists($file))
             exit;
         
-        loadFile($file);
+        loadFile($file);    
         
     }elseif($_GET['type'] == 'vkey'){
         $file = $config['RSA_location'] . "keys/" . $_GET['team'] . "_vm.key";

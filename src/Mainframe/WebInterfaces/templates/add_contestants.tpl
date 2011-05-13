@@ -19,25 +19,15 @@
         <p></p>
         Contestants added so far: <br/><br/>
         <table>
+            <tr>
+                <td>ID</td><td>Name</td><td>Subnet</td><td>VMip</td><td>Links</td>
+            </tr>
         {foreach from=$contestants item=contestant}
         <tr>
-            <td>ID:</td>
             <td>{$contestant->getId()}</td>
-        </tr>
-        <tr>
-            <td>Name:</td>
             <td>{$contestant->getTeamname()}</td>
-        </tr>
-        <tr>
-            <td>Subnet:</td>
             <td>{$contestant->getSubnet()}</td>
-        </tr>
-        <tr>
-            <td>VMip:</td>
             <td>{$contestant->getVm_ip()}</td>
-        </tr>
-        <tr>
-            <td>Links:</td>
             <td><a href="download.php?type=tkey&team={$contestant->getTeamname()}">Team Key</a><br/>
                 <a href="download.php?type=tcert&team={$contestant->getTeamname()}">Team Cert</a> <br/>
                 <a href="download.php?type=vkey&team={$contestant->getTeamname()}">VM Key</a><br/>
