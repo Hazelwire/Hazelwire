@@ -4,26 +4,27 @@
 		<author>Tim Strijdhorst</author>
 		<date>11-05-2011</date>
 		<type>Service</type>
-		<series>
+		<package>
 			<name>Hazelwire Test Package</name>
 			<id>1</id>
-		</series>
+		</package>
 	</general-info>
 	<flags>
 		<flag>
-			<id>1</id>
-			<points-default>10</points-default>
+			<points>10</points>
 		</flag>
 		<flag>
-			<id>2</id>
-			<points-default>5</points-default>
+			<points>5</points>
 		</flag>
 	</flags>
 	<options>
 		<option>
-			<id>1</id>
 			<name>Listen port</name>
-			<type>integer</type>
+			<value type="integer">31337</value>
+		</option>
+		<option>
+			<name>Welcome message</name>
+			<value type="string">Welcome to the megacorp website</value>
 		</option>
 	</options>
 </hazelwire-module>

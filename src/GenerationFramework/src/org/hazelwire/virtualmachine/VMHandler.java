@@ -3,8 +3,17 @@ package org.hazelwire.virtualmachine;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
+import javax.management.RuntimeErrorException;
+
+/**
+ * @author Tim Strijdhorst
+ * @todo write a function that waits to see if the virtual machine is booted or not
+ *
+ */
 public class VMHandler
 {
 	String virtualBoxPath, vmName, vmPath;
@@ -24,7 +33,9 @@ public class VMHandler
 		
 		try
 		{			
-			Process process = Runtime.getRuntime().exec(virtualBoxPath+" startvm "+vmName+" --type headless");
+			String[] arguments = {virtualBoxPath,"startvm",vmName,"--type","headless"};
+			Process process = Runtime.getRuntime().exec(arguments);
+			
 			System.out.println(virtualBoxPath+" startvm "+vmName+" --type headless");
 			
 			if(debug) new VMLogger(process);
@@ -41,7 +52,8 @@ public class VMHandler
 		
 		try
 		{
-			Process process = Runtime.getRuntime().exec(virtualBoxPath+" controlvm "+vmName+" poweroff");
+			String[] arguments = {virtualBoxPath,"controlvm",vmName,"poweroff"};
+			Process process = Runtime.getRuntime().exec(arguments);
 			
 			if(debug) new VMLogger(process);
 		}
@@ -52,6 +64,40 @@ public class VMHandler
 	}
 	
 	/**
+	 * Keep trying to make a connection to a certain port on the host system that is routed to the VM by a NAT forward.
+	 * Assuming that the port is really forwarded and the service is start on bootup it will fail to connect untill the VM has fully booted.
+	 * @param hostPort
+	 */
+	public boolean discoverBootedVM(int hostPort)
+	{
+		boolean up = false;
+		int errorCounter = 0;
+		
+		while(!up && errorCounter < 50)
+		{
+			try
+			{
+				Socket socket = new Socket("localhost",hostPort);
+				up = true;
+			}
+			catch (IOException e)
+			{
+				//don't do anything just keep running the loop
+				try
+				{
+					Thread.sleep(1000); //sleep for one second, no use checking every nanosecond whether it's up yet...
+				}
+				catch(Exception ex)
+				{
+					throw new RuntimeException(ex);
+				}
+			}
+		}
+		
+		return up;		
+	}
+	
+	/**
 	 * The to be imported vm should be in .ova format
 	 */
 	public void importVM() throws Exception
@@ -59,8 +105,9 @@ public class VMHandler
 		if(this.checkIfImported()) throw new Exception("VM is already imported");
 		
 		try
-		{
-			Process process = Runtime.getRuntime().exec(virtualBoxPath+" import "+vmPath);
+		{			
+			String[] arguments = {virtualBoxPath,"import",vmPath};
+			Process process = Runtime.getRuntime().exec(arguments);
 			process.waitFor(); //Wait untill the process is done with importing, else calling starvm would end horribly
 			
 			if(debug) new VMLogger(process);
@@ -71,13 +118,23 @@ public class VMHandler
 		}
 	}
 	
+	/**
+	 * Export to the current working dir with filename *vmName*.ova
+	 * @throws Exception
+	 */
 	public void exportVM() throws Exception
+	{
+		this.exportVM(vmName,vmName+".ova");
+	}
+	
+	public void exportVM(String vmName, String exportPath) throws Exception
 	{
 		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
 		
 		try
 		{
-			Process process = Runtime.getRuntime().exec(virtualBoxPath+" export "+vmName+" -o "+vmName+".ova");
+			String[] arguments = {virtualBoxPath,"export",vmName,"-o",exportPath};
+			Process process = Runtime.getRuntime().exec(arguments);
 			process.waitFor();
 			
 			if(debug) new VMLogger(process);
@@ -98,11 +155,11 @@ public class VMHandler
 	 */
 	public void addForward(String protocol, int hostPort, int guestPort, String transProtocol) throws Exception
 	{
-		String[] commands = 
+		String[][] commands = 
 		{
-			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/HostPort\""+hostPort,
-			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GuestPort\""+guestPort,
-			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GProtocol\""+transProtocol
+			{virtualBoxPath,"setextradata",vmName,"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/HostPort",String.valueOf(hostPort)},
+			{virtualBoxPath,"setextradata",vmName,"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GuestPort",String.valueOf(guestPort)},
+			{virtualBoxPath,"setextradata",vmName,"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/Protocol",transProtocol}
 		};
 		
 		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
@@ -130,13 +187,13 @@ public class VMHandler
 	 * @param protocol
 	 * @throws Exception
 	 */
-	public void removeForward(String vmName, String protocol) throws Exception
+	public void removeForward(String protocol) throws Exception
 	{
-		String[] commands = 
+		String[][] commands = 
 		{
-			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/HostPort\"",
-			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GuestPort\"",
-			virtualBoxPath+" setextradata \""+vmName+"\" \"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GProtocol\"",
+			{virtualBoxPath,"setextradata",vmName,"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/HostPort"},
+			{virtualBoxPath,"setextradata",vmName,"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/GuestPort"},
+			{virtualBoxPath,"setextradata",vmName,"VBoxInternal/Devices/pcnet/0/LUN#0/Config/"+protocol+"/Protocol"}
 		};
 		
 		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
@@ -151,7 +208,7 @@ public class VMHandler
 				if(debug) new VMLogger(process);
 			}
 		}
-		catch(IOException e)
+		catch(Exception e)
 		{
 			throw new RuntimeException(e);
 		}
@@ -166,7 +223,8 @@ public class VMHandler
 	{
 		try
 		{
-			Process process = Runtime.getRuntime().exec(virtualBoxPath+" list vms");
+			String[] arguments = {virtualBoxPath,"list","vms"};
+			Process process = Runtime.getRuntime().exec(arguments);
 			Pattern pattern = Pattern.compile(".*"+vmName+".*");
 			boolean found = false;
 			
@@ -185,5 +243,45 @@ public class VMHandler
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	public String getVirtualBoxPath()
+	{
+		return virtualBoxPath;
+	}
+
+	public void setVirtualBoxPath(String virtualBoxPath)
+	{
+		this.virtualBoxPath = virtualBoxPath;
+	}
+
+	public String getVmName()
+	{
+		return vmName;
+	}
+
+	public void setVmName(String vmName)
+	{
+		this.vmName = vmName;
+	}
+
+	public String getVmPath()
+	{
+		return vmPath;
+	}
+
+	public void setVmPath(String vmPath)
+	{
+		this.vmPath = vmPath;
+	}
+
+	public boolean isDebug()
+	{
+		return debug;
+	}
+
+	public void setDebug(boolean debug)
+	{
+		this.debug = debug;
 	}
 }

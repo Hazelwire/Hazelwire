@@ -1,20 +1,31 @@
-<MANIFEST>
-    <MODULE>
-        <name>test1</name>
-        <basepath>/home/exploit1/</basepath>
-        <flags>
-            <flag points="12" />
-            <flag points="25" />
-            <flag points="10" />
-            <flag points="15" />
-	    <flag points="83" />
-        </flags>
-    </MODULE>
-    <MODULE>
-        <deployscript>deploy/install.py</deployscript>
-        <flags>
-            <flag points="10" />
-            <flag points="32" />
-        </flags>
-    </MODULE>
-</MANIFEST>
+<hazelwire-module>
+	<general-info>
+		<name>Test Module</name>
+		<author>Tim Strijdhorst</author>
+		<date>11-05-2011</date>
+		<type>Service</type>
+		<package>
+			<name>Hazelwire Test Package</name>
+			<id>1</id>
+		</package>
+	</general-info>
+	<flags>
+		<flag>
+			<points>10</points>
+		</flag>
+		<flag>
+			<points>5</points>
+		</flag>
+	</flags>
+	<options>
+		<option>
+			<name>Listen port</name>
+			<value type="integer">31337</value>
+		</option>
+		<option>
+			<name>Welcome message</name>
+			<value type="string">Welcome to the megacorp website</value>
+		</option>
+	</options>
+</hazelwire-module>
+

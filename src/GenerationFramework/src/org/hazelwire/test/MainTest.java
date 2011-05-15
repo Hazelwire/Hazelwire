@@ -1,32 +1,32 @@
 package org.hazelwire.test;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
-import net.schmizz.sshj.SSHClient;
+import org.hazelwire.virtualmachine.SSHConnection;
+import org.hazelwire.virtualmachine.VMHandler;
 
 /** This example demonstrates uploading of a file over SCP to the SSH server. */
 public class MainTest {
 
     public static void main(String[] args) throws Exception
     {
-    		System.out.println("ZAAD");
-		   SSHClient ssh = new SSHClient();
-	       ssh.loadKnownHosts();
-	       ssh.connect("localhost");
-	       
-	       try {
-	           ssh.authPublickey(System.getProperty("user.name"));
-	           ssh.authPassword("test", "test");
-	
-	           // Present here to demo algorithm renegotiation - could have just put this before connect()
-	           // Make sure JZlib is in classpath for this to work
-	           //ssh.useCompression();
-	
-	           final String src = System.getProperty("user.home") + File.separator + "test.txt";
-	           final String target = "/home/test/test.txt";
-	           ssh.newSCPFileTransfer().upload(src, target);
-	       } finally {
-	           ssh.disconnect();
-	       }
+    	VMHandler vmHandler = new VMHandler("/usr/bin/vboxmanage", "HazelwireTest", "/home/shokora/test/HazelwireTest.ova", true);
+    	//vmHandler.importVM();
+    	vmHandler.addForward("ssh", 2222, 22, "TCP");
+    	vmHandler.startVM();
+    	if(vmHandler.discoverBootedVM(2222))
+    	{
+	    	SSHConnection ssh = new SSHConnection("localhost",2222,"hazelwire","hazelwire");
+	    	
+	    	ssh.scpUpload("/home/shokora/test.txt","/home/hazelwire/test.txt");
+	    	vmHandler.stopVM();
+	    	vmHandler.removeForward("ssh");
+	    	vmHandler.exportVM("/home/shokora/test.ova",vmHandler.getVmName());
+    	}
+    	else
+    	{
+    		throw new Exception("Could not connect to the virtualmachine");
+    	}
     }
 }

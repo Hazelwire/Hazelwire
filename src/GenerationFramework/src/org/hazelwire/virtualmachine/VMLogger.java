@@ -32,27 +32,24 @@ public class VMLogger
 	}
 	
 	public void logToFile() throws IOException
-	{
-		String newline = System.getProperty("line.seperator");
-		
-		this.out.write("START LOG"+newline+"FROM STDOUT:");
+	{		
+		this.out.write("START LOG\r\nFROM STDOUT:\r\n");
 		String s = null;
 		
 		while((s = this.procOut.readLine()) != null)
 		{
-			this.out.write(s+newline);
+			this.out.write(s+"\r\n");
 		}
 		
-		this.out.write("FROM STDERR:");
+		this.out.write("FROM STDERR:\r\n");
 		
 		while((s = this.procError.readLine()) != null)
 		{
-			this.out.write(s+newline);
+			this.out.write(s+"\r\n");
 		}
 		
-		this.out.write("END LOG"+newline);
-		this.out.flush(); //if for some odd reason it didn't flush already force it
-
+		this.out.write("\r\nEND LOG"+"\r\n");
+		this.out.flush(); //if for some reason it didn't send it yet, flush it
 	}
 	
 	public void cleanUp()

@@ -45,6 +45,13 @@ public class SSHConnection
         }
 	}
 	
+	public void scpUpload(String filePath, String targetDir) throws IOException, ClassNotFoundException
+	{
+		ArrayList<String> files = new ArrayList<String>();
+		files.add(filePath);
+		this.scpUpload(files, targetDir);
+	}
+	
 	public int executeRemoteCommand(String command) throws IOException, ClassNotFoundException
 	{
 		SSHClient ssh = getSSHConnection();
@@ -65,9 +72,9 @@ public class SSHConnection
 	
 	public SSHClient getSSHConnection() throws IOException
 	{
-		SSHClient ssh = new SSHClient();
+		SSHClient ssh = new SSHClient();		
         ssh.loadKnownHosts();
-        ssh.connect(this.hostname);
+        ssh.connect(this.hostname,this.port);
         ssh.authPassword(username, password);
         
         return ssh;
