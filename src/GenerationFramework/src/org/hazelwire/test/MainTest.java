@@ -20,9 +20,10 @@ public class MainTest {
 	    	SSHConnection ssh = new SSHConnection("localhost",2222,"hazelwire","hazelwire");
 	    	
 	    	ssh.scpUpload("/home/shokora/test.txt","/home/hazelwire/test.txt");
+	    	ssh.executeRemoteCommand("cp test.txt test2.txt");
 	    	vmHandler.stopVM();
 	    	vmHandler.removeForward("ssh");
-	    	vmHandler.exportVM("/home/shokora/test.ova",vmHandler.getVmName());
+	    	vmHandler.exportVM(vmHandler.getVmName(),"/home/shokora/test.ova");
     	}
     	else
     	{

@@ -52,22 +52,20 @@ public class SSHConnection
 		this.scpUpload(files, targetDir);
 	}
 	
-	public int executeRemoteCommand(String command) throws IOException, ClassNotFoundException
+	public void executeRemoteCommand(String command) throws IOException, ClassNotFoundException
 	{
 		SSHClient ssh = getSSHConnection();
-        
+        int exitStatus; //for some odd reason it doesn't always return an exit status, 
 		Session session = ssh.startSession();
         
 		try
 		{
 			Command cmd = session.exec(command);
-			return cmd.getExitStatus(); //return exitstatus to see if it was succesful or not
 		}
 		finally
 		{
 			session.close();
 		}
-		
 	}
 	
 	public SSHClient getSSHConnection() throws IOException
