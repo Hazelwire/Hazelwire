@@ -206,6 +206,26 @@ public class Configuration
 		applicationProps.setProperty("externalModuleDirectory", dir);
 	}
 	
+	public String getExternalScriptDirectory()
+	{
+		return applicationProps.getProperty("externalScriptDirectory");
+	}
+	
+	public void setExternalScriptDirectory(String dir)
+	{
+		applicationProps.setProperty("externalScriptDirectory", dir);
+	}
+	
+	public Integer getCallbackPort()
+	{
+		return Integer.valueOf(applicationProps.getProperty("callbackPort"));
+	}
+	
+	public void setCallbackPort(int port)
+	{
+		applicationProps.setProperty("callbackPort", String.valueOf(port));
+	}
+	
 	public String getOS()
 	{
 		return System.getProperty("os.name");

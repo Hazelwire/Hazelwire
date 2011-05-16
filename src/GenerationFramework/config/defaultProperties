@@ -12,3 +12,5 @@ vmName=HazelwireTest
 sshUsername=hazelwire
 propertyPath=config/userProperties
 externalModuleDirectory=/home/hazelwire/Modules/
+externalScriptDirectory=/home/hazelwire/
+callbackPort=31337

@@ -33,7 +33,7 @@ package org.hazelwire.main;
  * directory path, filename, and extension. The methods won't work if it
  * doesn't.
  */
-class FileName {
+public class FileName {
   private String fullPath;
   private char pathSeparator, extensionSeparator;
 

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Scanner;
 
-import sun.security.krb5.Config;
-
 /**
  * This is just for the first prototype, later on a more proper CLI will be build (and a GUI).
  * @author Tim Strijdhorst

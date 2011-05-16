@@ -2,6 +2,8 @@ package org.hazelwire.modules;
 
 import java.util.Date;
 import java.util.HashMap;
+import org.hazelwire.main.FileName;
+import org.hazelwire.main.Generator;
 
 /**
  * 
@@ -10,17 +12,18 @@ import java.util.HashMap;
  */
 public class Module
 {
-	private String name, filePath, author, type;
+	private String name, author, type;
 	private HashMap<Integer,Integer> flags; //<id,amountOfPoints>
 	private HashMap<Integer,Option> options; //<id,Option>
 	private Date date;
 	private ModulePackage modulePackage;
 	private int id;
+	private FileName filePath;
 	
 	public Module(String name, String filePath)
 	{
 		this.name = name;
-		this.filePath = filePath;
+		this.filePath = new FileName(filePath,Generator.getInstance().getFileSeperator(),'.');
 		this.flags = new HashMap<Integer,Integer>();
 		this.options = new HashMap<Integer,Option>();
 	}
@@ -42,12 +45,22 @@ public class Module
 
 	public String getFilePath()
 	{
-		return filePath;
+		return filePath.getPath();
+	}
+	
+	public String getFileName()
+	{
+		return filePath.getFilename();
 	}
 
 	public void setFilePath(String filePath)
 	{
-		this.filePath = filePath;
+		this.filePath = new FileName(filePath,Generator.getInstance().getFileSeperator(),'.');
+	}
+	
+	public void setFileName(String fileName)
+	{
+		if(this.filePath != null) filePath = new FileName(filePath.getPath()+fileName,Generator.getInstance().getFileSeperator(),'.');
 	}
 	
 	public void addFlag(int id, int points)
