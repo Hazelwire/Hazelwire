@@ -1,6 +1,7 @@
 package org.hazelwire.main;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -19,7 +20,7 @@ public class Configuration
 	
 	private static Configuration configuration; //singleton
 	
-	public static synchronized Configuration getConfiguration() throws IOException
+	public static synchronized Configuration getInstance() throws IOException
 	{
 		if(configuration == null)
 		{
@@ -39,21 +40,46 @@ public class Configuration
 	
 	private Configuration() throws IOException
 	{
+		//this might be made dynamic
+		
+	}
+	
+	public void loadDefaultProperties(String defaultPropertyPath) throws IOException
+	{
 		//Load the default properties
-		FileInputStream in = new FileInputStream("defaultProperties");
+		FileInputStream in = new FileInputStream(defaultPropertyPath);
 		defaultProps = new Properties();
 		defaultProps.load(in);
 		in.close();
-		
-		this.loadUserProperties();
 	}
 	
 	public void loadUserProperties(String propertyPath) throws IOException
 	{
-		applicationProps = new Properties(defaultProps);
+		if(defaultProps != null)
+		{
+			applicationProps = new Properties(defaultProps);		
+		}
+		else
+		{
+			applicationProps = new Properties();
+		}
+		
 		FileInputStream in = new FileInputStream(propertyPath);
 		applicationProps.load(in);
 		in.close();
+	}
+	
+	public void saveUserProperties(String propertyPath) throws IOException
+	{
+		FileOutputStream out = new FileOutputStream(propertyPath);
+		try
+		{
+			applicationProps.store(out, "");
+		}
+		finally
+		{
+			out.close();
+		}
 	}
 	
 	public void loadUserProperties() throws IOException
