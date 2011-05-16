@@ -196,6 +196,16 @@ public class Configuration
 		applicationProps.setProperty("sshGuestPort", String.valueOf(port));
 	}
 	
+	public String getExternalModuleDirectory()
+	{
+		return applicationProps.getProperty("externalModuleDirectory");
+	}
+	
+	public void setExternalModuleDirectory(String dir)
+	{
+		applicationProps.setProperty("externalModuleDirectory", dir);
+	}
+	
 	public String getOS()
 	{
 		return System.getProperty("os.name");

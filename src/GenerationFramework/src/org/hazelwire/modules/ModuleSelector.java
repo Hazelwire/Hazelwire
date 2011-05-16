@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.hazelwire.main.Configuration;
+
 /**
  * 
  * @author Tim Strijdhorst
@@ -13,7 +15,6 @@ public class ModuleSelector
 {
 	private HashMap<Integer,Module> selectedModules, availableModules;
 	private int idCounter;
-	private String filePath; //This will come out of some external configuration later on
 	private HashMap<String,ModulePackage> modulePackageList; //<Name,Package>
 	
 	public ModuleSelector()
@@ -25,7 +26,7 @@ public class ModuleSelector
 	
 	public void init() throws Exception
 	{
-		ArrayList<Module> moduleList = ModuleHandler.scanForModules(this.filePath);
+		ArrayList<Module> moduleList = ModuleHandler.scanForModules(Configuration.getInstance().getModulePath());
 		
 		Iterator<Module> iterator = moduleList.iterator();
 		
@@ -59,7 +60,9 @@ public class ModuleSelector
 			}
 		}
 		
-		this.availableModules.put(this.idCounter++,module);
+		module.setId(idCounter++);
+		
+		this.availableModules.put(this.idCounter,module);
 	}
 	
 	public void addModulePackage(ModulePackage modulePackage)
@@ -79,5 +82,20 @@ public class ModuleSelector
 	public void removeModule(int id)
 	{
 		this.availableModules.remove(id);
+	}
+
+	public HashMap<Integer, Module> getSelectedModules()
+	{
+		return selectedModules;
+	}
+
+	public HashMap<Integer, Module> getAvailableModules()
+	{
+		return availableModules;
+	}
+
+	public HashMap<String, ModulePackage> getModulePackageList()
+	{
+		return modulePackageList;
 	}
 }

@@ -15,6 +15,7 @@ public class Module
 	private HashMap<Integer,Option> options; //<id,Option>
 	private Date date;
 	private ModulePackage modulePackage;
+	private int id;
 	
 	public Module(String name, String filePath)
 	{
@@ -107,5 +108,20 @@ public class Module
 	public ModulePackage getModulePackage()
 	{
 		return modulePackage;
+	}
+	
+	public String toString()
+	{
+		return "id: "+String.valueOf(id)+" name: "+name+" flags: "+String.valueOf(flags.size())+" options: "+String.valueOf(options.size());
+	}
+
+	public int getId()
+	{
+		return id;
+	}
+
+	public void setId(int id)
+	{
+		this.id = id;
 	}
 }

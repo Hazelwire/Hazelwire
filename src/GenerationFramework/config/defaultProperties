@@ -11,3 +11,4 @@ virtualBoxPath=/usr/bin/vboxmanage
 vmName=HazelwireTest
 sshUsername=hazelwire
 propertyPath=config/userProperties
+externalModuleDirectory=/home/hazelwire/Modules/

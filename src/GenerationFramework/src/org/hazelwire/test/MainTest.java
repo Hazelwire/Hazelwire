@@ -20,7 +20,7 @@ public class MainTest {
     	if(vmHandler.discoverBootedVM(config.getSSHHostPort()))
     	{
 	    	SSHConnection ssh = new SSHConnection("localhost",config.getSSHHostPort(),config.getSSHUsername(),config.getSSHPassword());
-	    	ssh.scpUpload("/home/shokora/test.txt","/home/hazelwire/test.txt");
+	    	ssh.scpUpload("/home/shokora/test.txt",config.getExternalModuleDirectory()+"test.txt");
 	    	ssh.executeRemoteCommand("cp test.txt test2.txt");
 	    	vmHandler.stopVM();
 	    	vmHandler.removeForward("ssh");
