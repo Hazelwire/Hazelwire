@@ -46,7 +46,7 @@ public abstract class XMLParser
 	    }
 	}
 	
-	public abstract void parseDocument() throws Exception;
+	public abstract Object parseDocument() throws Exception;
 	
 	/**
 	* I take a xml element and the tag name, look for the tag and get

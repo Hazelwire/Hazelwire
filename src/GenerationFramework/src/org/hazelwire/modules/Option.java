@@ -3,13 +3,18 @@ package org.hazelwire.modules;
 public class Option
 {
 	private int id;
-	String name, type;
+	String name, type, value;
 	
-	public Option(int id, String name, String type)
+	public Option(int id, String name, String type, String value)
 	{
 		this.id = id;
 		this.name = name;
 		this.type = type;
+	}
+	
+	public Option()
+	{
+		//empty constructor, client has to make sure that all the data has been filled for usage...
 	}
 
 	public int getId()
@@ -40,5 +45,15 @@ public class Option
 	public void setType(String type)
 	{
 		this.type = type;
+	}
+
+	public String getValue()
+	{
+		return value;
+	}
+
+	public void setValue(String value)
+	{
+		this.value = value;
 	}
 }

@@ -1,0 +1,12 @@
+#
+#Mon May 16 12:37:01 CEST 2011
+sshHostPort=2222
+sshGuestPort=22
+vmLogPath=/dev/null
+sshPassword=hazelwire
+vmPath=/home/shokora/test/HazelwireTest.ova
+vmExportPath=/home/shokora/test.ova
+modulePath=modules
+virtualBoxPath=/usr/bin/vboxmanage
+vmName=HazelwireTest
+sshUsername=hazelwire

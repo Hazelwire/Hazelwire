@@ -1,6 +1,5 @@
 package org.hazelwire.modules;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,13 +9,14 @@ import java.util.Iterator;
  * @author Tim Strijdhorst
  *
  */
-public class ModuleSelection
+public class ModuleSelector
 {
 	private HashMap<Integer,Module> selectedModules, availableModules;
 	private int idCounter;
 	private String filePath; //This will come out of some external configuration later on
+	private HashMap<String,ModulePackage> modulePackageList; //<Name,Package>
 	
-	public ModuleSelection()
+	public ModuleSelector()
 	{
 		this.selectedModules = new HashMap<Integer,Module>();
 		this.availableModules = new HashMap<Integer,Module>();
@@ -49,11 +49,27 @@ public class ModuleSelection
 		this.selectedModules.remove(id);
 	}
 	
-	public void addModule(String filePath) throws Exception
-	{
-		File packageFile = new File(filePath);
+	public void addModule(Module module) throws Exception
+	{		
+		if(module.getModulePackage() != null)
+		{
+			if(!modulePackageList.containsKey(module.getModulePackage().getName()))
+			{
+				addModulePackage(module.getModulePackage());
+			}
+		}
 		
-		this.availableModules.put(this.idCounter++,ModuleHandler.convertPackageToModule(packageFile));
+		this.availableModules.put(this.idCounter++,module);
+	}
+	
+	public void addModulePackage(ModulePackage modulePackage)
+	{
+		this.modulePackageList.put(modulePackage.getName(),modulePackage);
+	}
+	
+	public ModulePackage getModulePackage(String name)
+	{
+		return this.modulePackageList.get(name);
 	}
 	
 	/**

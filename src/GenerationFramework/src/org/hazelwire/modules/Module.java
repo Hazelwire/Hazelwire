@@ -14,6 +14,7 @@ public class Module
 	private HashMap<Integer,Integer> flags; //<id,amountOfPoints>
 	private HashMap<Integer,Option> options; //<id,Option>
 	private Date date;
+	private ModulePackage modulePackage;
 	
 	public Module(String name, String filePath)
 	{
@@ -66,5 +67,45 @@ public class Module
 	public void removeOption(int id)
 	{
 		this.options.remove(id);
+	}
+
+	public String getAuthor()
+	{
+		return author;
+	}
+
+	public void setAuthor(String author)
+	{
+		this.author = author;
+	}
+
+	public String getType()
+	{
+		return type;
+	}
+
+	public void setType(String type)
+	{
+		this.type = type;
+	}
+
+	public Date getDate()
+	{
+		return date;
+	}
+
+	public void setDate(Date date)
+	{
+		this.date = date;
+	}
+
+	public void setModulePackage(ModulePackage modulePackage)
+	{
+		this.modulePackage = modulePackage;
+	}
+
+	public ModulePackage getModulePackage()
+	{
+		return modulePackage;
 	}
 }

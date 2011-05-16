@@ -18,16 +18,16 @@ public class Configuration
 {
 	Properties defaultProps, applicationProps;
 	
-	private static Configuration configuration; //singleton
+	private static Configuration instance; //singleton
 	
 	public static synchronized Configuration getInstance() throws IOException
 	{
-		if(configuration == null)
+		if(instance == null)
 		{
-			configuration = new Configuration();
+			instance = new Configuration();
 		}
 		
-		return configuration;
+		return instance;
 	}
 	
 	/**
@@ -69,6 +69,11 @@ public class Configuration
 		in.close();
 	}
 	
+	public void loadUserProperties() throws IOException
+	{
+		this.loadUserProperties(defaultProps.getProperty("propertyPath"));
+	}
+	
 	public void saveUserProperties(String propertyPath) throws IOException
 	{
 		FileOutputStream out = new FileOutputStream(propertyPath);
@@ -80,11 +85,6 @@ public class Configuration
 		{
 			out.close();
 		}
-	}
-	
-	public void loadUserProperties() throws IOException
-	{
-		this.loadUserProperties(defaultProps.getProperty("propertyPath"));
 	}
 	
 	public String getModulePath()
@@ -121,6 +121,16 @@ public class Configuration
 		applicationProps.setProperty("vmName", vmName);
 	}
 	
+	public String getVMPath()
+	{
+		return applicationProps.getProperty("vmPath");
+	}
+	
+	public void setVMPath(String path)
+	{
+		applicationProps.setProperty("vmPath", path);
+	}
+	
 	public String getVMLogPath()
 	{
 		return applicationProps.getProperty("vmLogPath");
@@ -129,6 +139,16 @@ public class Configuration
 	public void setVMLogPath(String vmLogPath)
 	{
 		applicationProps.setProperty("vmLogPath", vmLogPath);
+	}
+	
+	public String getVMExportPath()
+	{
+		return applicationProps.getProperty("vmExportPath");
+	}
+	
+	public void setVMExportPath(String path)
+	{
+		applicationProps.setProperty("vmExportPath", path);
 	}
 	
 	public String getSSHUsername()
@@ -154,6 +174,26 @@ public class Configuration
 	public void setSSHPassword(String password)
 	{
 		applicationProps.setProperty("sshPassword", password);
+	}
+	
+	public int getSSHHostPort()
+	{
+		return Integer.valueOf(applicationProps.getProperty("sshHostPort"));
+	}
+	
+	public void setSSHHostPort(int port)
+	{
+		applicationProps.setProperty("sshHostPort", String.valueOf(port));
+	}
+	
+	public int getSSHGuestPort()
+	{
+		return Integer.valueOf(applicationProps.getProperty("sshGuestPort"));
+	}
+	
+	public void setSSHGuestPort(int port)
+	{
+		applicationProps.setProperty("sshGuestPort", String.valueOf(port));
 	}
 	
 	public String getOS()

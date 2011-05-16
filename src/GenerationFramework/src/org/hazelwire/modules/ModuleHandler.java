@@ -52,6 +52,7 @@ public class ModuleHandler
 		ZipFile zipFile = new ZipFile(packageFile);
 		String name = "";
 		Enumeration e = zipFile.entries();
+		Module module = null;
 		
 		while(e.hasMoreElements())
 		{
@@ -60,13 +61,12 @@ public class ModuleHandler
 			if(entry.equals("config.xml"))
 			{
 				ParserModuleConfig xmlParser = new ParserModuleConfig(zipFile.getInputStream(entry));
-				xmlParser.parseDocument();
-				name = xmlParser.getName();
+				module = (Module) xmlParser.parseDocument();
 			}
 		}
 		
 		if(name.equals("")) throw new Exception("Incorrect XML file");
 		
-		return new Module(name,packageFile.getPath());
+		return module;
 	}
 }
