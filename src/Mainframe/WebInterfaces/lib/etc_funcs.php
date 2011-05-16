@@ -25,6 +25,11 @@ function ip_in_range($ip,$range) {
    return $match;
 }
 
+function startsWith($haystack, $needle)
+{
+    $length = strlen($needle);
+    return (substr($haystack, 0, $length) === $needle);
+}
 
 
    function run_in_background($Command, $Priority = 0)

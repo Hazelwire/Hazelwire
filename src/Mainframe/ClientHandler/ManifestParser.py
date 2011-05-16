@@ -1,4 +1,4 @@
-import xml.sax
+import xml.sax, sys
 import DatabaseHandler
 
 modules = []
@@ -57,3 +57,9 @@ def parseManifest(manifest, db):
         db.addModuleInfo(modules)
         return True
     return False
+
+if __name__ == "__main__":
+    manifest = sys.argv[1]
+    db = sys.argv[2]
+    parseManifest(manifest,db)
+    

@@ -1,7 +1,6 @@
-import threading
+import threading, string, random, sys
 import SocketServer
 import DatabaseHandler
-import string, random
 
 # Modules are represented by an array of dictionaries with the keys ModuleName and numFlags, BasePath, InstallScript path
 modules = []
@@ -74,7 +73,7 @@ def startServer(host,port):
     
 if __name__ == "__main__":
     HOST, PORT = "localhost", 9999
-    setDB("test.db")
+    setDB(sys.argv[1])
     getModules()
     startServer(HOST, PORT)
     print "Started flag administration service on port " + str(PORT)
