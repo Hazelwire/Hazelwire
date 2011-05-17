@@ -134,7 +134,7 @@ class AdminInterface extends WebInterface {
 
                         
                         move_uploaded_file($manifest['tmp_name'], "manifest.xml");
-                        exec($config['ch_location'] . "ManifestParser.py " . "manifest.xml " . $config['database_file_name'] . " > /dev/null 2>/dev/null &");
+                        exec($this->config['ch_location'] . "ManifestParser.py " . "manifest.xml " . $this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
                         
                         $q = $db->prepare("INSERT INTO 'config' VALUES (?,?,?,?);");
                         /* @var $q PDOStatement */
@@ -178,7 +178,7 @@ class AdminInterface extends WebInterface {
                         if(!ctype_alnum($_POST['name']))
                             $this->handleError(new Error("team_input_error", "Illigal name. Only alphanumeric allowed!", false));
                         elseif((!(intval($_POST['server_ip']) > 0 && intval($_POST['server_ip']) < 255)) || !((intval($_POST['ip_range']) > 0 && intval($_POST['ip_range']) < 255)))
-                            $this->handleError(new Error("team_input_error", "IP input moet tussen 0 en 255 liggen, excluding.", false));
+                            $this->handleError(new Error("team_input_error", "IP input has to be between 0 and 255, excluding.", false));
                         else {
                             $subnet = "10." . $_POST['ip_range'] . ".0.0/24";
                             $vmip =   "10." . $_POST['ip_range'] . "." . $_POST['server_ip'] . ".1";

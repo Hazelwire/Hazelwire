@@ -8,7 +8,7 @@ $config['database_file_name'] = 'Hazelwire.sqlite';
 
 // The path to the root folder of the webinterfaces
 //$config['site_folder'] = '/var/www/WebInterfaces/';
-$config['site_folder'] = __DIR__;
+$config['site_folder'] = __DIR__."/";
 
 $config['RSA_location'] = 'lib/admin/rsa/';
 $config['openvpn_location'] = 'lib/admin/openvpn/';
