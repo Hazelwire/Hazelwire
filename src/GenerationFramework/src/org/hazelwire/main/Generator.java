@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.hazelwire.modules.ManifestGenerator;
 import org.hazelwire.modules.Module;
 import org.hazelwire.modules.ModuleSelector;
 import org.hazelwire.virtualmachine.InstallScriptGenerator;
@@ -22,6 +23,7 @@ public class Generator
 {
 	private static Generator instance;
 	private static String INSTALLNAME = "install.sh";
+	private static String MANIFESTFILENAME = "manifest.xml"; //you should probably not change this...
 	private ModuleSelector moduleSelector;
 	private TextInterface tui;
 	Configuration config;
@@ -117,13 +119,14 @@ public class Generator
 	    	SSHConnection ssh = new SSHConnection("localhost",config.getSSHHostPort(),config.getSSHUsername(),config.getSSHPassword());
 	    	prepareVM(ssh);
 	    	uploadModules(ssh);
-	    	generateInstallScript(INSTALLNAME);
-	    	String externalPath = Configuration.getInstance().getExternalScriptDirectory()+INSTALLNAME;
-	    	ssh.scpUpload(INSTALLNAME, externalPath);
-	    	executeInstallScript(ssh,externalPath);	    	
+	    	generateInstallScript(config.getOutputDirectory()+INSTALLNAME);
+	    	generateManifest(config.getOutputDirectory()+MANIFESTFILENAME);
+	    	String externalPath = config.getExternalScriptDirectory()+INSTALLNAME;
+	    	ssh.scpUpload(config.getOutputDirectory()+INSTALLNAME, externalPath);
+	    	executeInstallScript(ssh,externalPath);
 	    	vmHandler.stopVM();
 	    	vmHandler.removeForward("ssh");
-	    	vmHandler.exportVM(vmHandler.getVmName(),config.getVMExportPath());
+	    	vmHandler.exportVM();
     	}
     	else
     	{
@@ -160,7 +163,6 @@ public class Generator
 		try
 		{
 			Configuration config = Configuration.getInstance();
-			ssh.executeRemoteCommand("mkdir "+config.getExternalDeployDirectory());
 			ssh.executeRemoteCommand("mkdir "+config.getExternalModuleDirectory());
 			ssh.executeRemoteCommand("mkdir "+config.getExternalScriptDirectory());
 		}
@@ -204,6 +206,18 @@ public class Generator
 		catch (Exception e)
 		{
 			tui.println("ERROR: something went wrong while generating the installscript");
+		}
+	}
+	
+	public void generateManifest(String filePath)
+	{
+		try
+		{
+			ManifestGenerator.saveManifestToDisk(filePath);
+		}
+		catch (Exception e)
+		{
+			tui.println("ERROR: something went wrong while generating the manifest file");
 		}
 	}
 

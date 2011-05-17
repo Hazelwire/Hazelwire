@@ -1,9 +1,11 @@
 <hazelwire-module>
 	<general-info>
 		<name>Test Module</name>
-		<author>Maarten Rijke</author>
-		<date>17-05-2011</date>
-		<type>Web</type>
+		<author>Tim Strijdhorst</author>
+		<date>11-05-2011</date>
+		<type>Service</type>
+		<file>testmodule_0.3-1ubuntu5_all.deb</file>
+		<deploy>deploy.sh</deploy>
 		<package>
 			<name>Hazelwire Test Package</name>
 			<id>1</id>
@@ -24,7 +26,15 @@
 		</option>
 		<option>
 			<name>Welcome message</name>
-			<value type="string">Welcome to the megacorp website</value>
+			<value type="text">Welcome to the megacorp website</value>
+		</option>
+		<option>
+			<name>Hardcore mode</name>
+			<value type="boolean">false</value>
+		</option>
+		<option>
+			<name>Something that apparently neeads a floating point</name>
+			<value type="float">3.141592</value>
 		</option>
 	</options>
 </hazelwire-module>

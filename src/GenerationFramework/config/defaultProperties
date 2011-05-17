@@ -15,3 +15,4 @@ externalModuleDirectory=/home/hazelwire/modules/
 externalScriptDirectory=/home/hazelwire/
 callbackPort=31337
 externalDeployDirectory=/home/hazelwire/deploy/
+outputDirectory=output/

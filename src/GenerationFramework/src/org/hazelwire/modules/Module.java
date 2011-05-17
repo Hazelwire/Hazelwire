@@ -1,7 +1,9 @@
 package org.hazelwire.modules;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+
 import org.hazelwire.main.FileName;
 import org.hazelwire.main.Generator;
 
@@ -12,7 +14,7 @@ import org.hazelwire.main.Generator;
  */
 public class Module
 {
-	private String name, author, type, deployFileName;
+	private String name, author, type, deployPath;
 	private HashMap<Integer,Integer> flags; //<id,amountOfPoints>
 	private HashMap<Integer,Option> options; //<id,Option>
 	private Date date;
@@ -144,13 +146,23 @@ public class Module
 		this.id = id;
 	}
 
-	public String getDeployFileName()
+	public String getDeployPath()
 	{
-		return deployFileName;
+		return deployPath;
 	}
 
-	public void setDeployFileName(String deployFileName)
+	public void setDeployPath(String deployFileName)
 	{
-		this.deployFileName = deployFileName;
+		this.deployPath = deployFileName;
+	}
+
+	public Collection<Integer> getFlags()
+	{
+		return flags.values();
+	}
+
+	public Collection<Option> getOptions()
+	{
+		return options.values();
 	}
 }

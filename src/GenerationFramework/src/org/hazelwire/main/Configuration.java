@@ -216,24 +216,14 @@ public class Configuration
 		applicationProps.setProperty("externalScriptDirectory", dir);
 	}
 	
-	public String getExternalDeployDirectory()
+	public String getOutputDirectory()
 	{
-		return applicationProps.getProperty("externalDeployDirectory");
+		return applicationProps.getProperty("outputDirectory");
 	}
 	
-	public void setExternalDeployDirectory(String dir)
+	public void setOutputDirectory(String dir)
 	{
-		applicationProps.setProperty("externalDeployDirectory", dir);
-	}
-	
-	public Integer getCallbackPort()
-	{
-		return Integer.valueOf(applicationProps.getProperty("callbackPort"));
-	}
-	
-	public void setCallbackPort(int port)
-	{
-		applicationProps.setProperty("callbackPort", String.valueOf(port));
+		applicationProps.setProperty("outputDirectory", dir);
 	}
 	
 	public String getOS()

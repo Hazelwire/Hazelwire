@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 import javax.management.RuntimeErrorException;
 
+import org.hazelwire.main.Configuration;
+
 /**
  * @author Tim Strijdhorst
  * @todo write proper error handling
@@ -131,7 +133,7 @@ public class VMHandler
 	 */
 	public void exportVM() throws Exception
 	{
-		this.exportVM(vmName,vmName+".ova");
+		this.exportVM(vmName,Configuration.getInstance().getOutputDirectory()+vmName+".ova");
 	}
 	
 	public void exportVM(String vmName, String exportPath) throws Exception

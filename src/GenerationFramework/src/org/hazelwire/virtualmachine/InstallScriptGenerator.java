@@ -27,17 +27,15 @@ public class InstallScriptGenerator
 	private static String generateInstallScript() throws IOException
 	{
 		Collection<Module> modules = Generator.getInstance().getModuleSelector().getSelectedModules().values();
-		String script = "#!/bin/bash\r\n";
+		String script = "#!/bin/bash\n";
 		Iterator<Module> iterate = modules.iterator();
 		
 		while(iterate.hasNext())
 		{
 			Module module = iterate.next();
 			String externalFilePath = Configuration.getInstance().getExternalModuleDirectory()+module.getFileName();
-			script += "sudo gdebi -n "+externalFilePath+"\r\n";
+			script += "sudo gdebi -n "+externalFilePath+"\n";
 		}
-		
-		script += "nc "+InetAddress.getLocalHost().getHostAddress()+" "+Configuration.getInstance().getCallbackPort()+"\r\n";
 		
 		return script;
 	}
