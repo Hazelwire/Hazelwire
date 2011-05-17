@@ -64,7 +64,7 @@ class OpenVPNManager {
             $interface->handleError(new Error("vpn_error", "Error #1: Cannot start openVPN service! (".$errno.")", false));
         }else{
             $config_path = $config['site_folder'] . $config['openvpn_location'] . $contestant->getTeamname() . ".conf";
-            fwrite($fp, "STARTVPN " + $config_path);
+            fwrite($fp, "STARTVPN " . $config_path);
             fclose($fp);
             // @todo test if start failed
         }

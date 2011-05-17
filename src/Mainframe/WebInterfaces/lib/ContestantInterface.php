@@ -62,6 +62,8 @@ class ContestantInterface extends WebInterface{
                                 $this->handleError(new Error("flag_error", "You already submitted that flag!"));
                                 return;
                             }
+
+                            $q = $db->prepare("SELECT * FROM scores WHERE flag = ? AND team_id = ?");
                             
                         }else{
                             $this->handleError(new Error("flag_error", "The flag you submitted is incorrect!"));
