@@ -9,6 +9,7 @@ class Contestant {
     private $id;
     private $subnet;
     private $vm_ip;
+    private $points;
     
     function __construct($name, $subnet, $vm_ip, $id = -1) {
         $this->teamname = $name;
@@ -46,7 +47,14 @@ class Contestant {
         $q->execute(array($id));
         $res = $q->fetchAll();
         if($res !== false && count($res) > 0){
-            return new Contestant($res[0]['name'],$res[0]['subnet'],$res[0]['VMip'],$res[0]['id']);
+            $result =  new Contestant($res[0]['name'],$res[0]['subnet'],$res[0]['VMip'],$res[0]['id']);
+
+            $q = $db->prepare("SELECT ifnull(sum(points),0) as sum FROM scores WHERE team_id = ?");
+            $q->execute(array($id));
+            $res = $q->fetch();
+            $result->setPoints($res['sum']);
+            
+            return $result;
         }
         return false;
     }
@@ -103,7 +111,16 @@ class Contestant {
     public function setVm_ip($vm_ip) {
         $this->vm_ip = $vm_ip;
     }
-    
+
+    public function getPoints() {
+        return $this->points;
+    }
+
+    public function setPoints($points) {
+        $this->points = $points;
+    }
+
+
 }
 
 ?>
