@@ -9,7 +9,7 @@ function create_database(){
     //create tables
     $res = $database->exec("CREATE TABLE 'state' ( 'state' SMALLINT );");
     if($res === false)return false;
-    $res = $database->exec("CREATE TABLE 'config' ( 'name' VARCHAR ( 60 ) , 'p2p_interval' INT , 's2p_interval' INT ) ; ");
+    $res = $database->exec("CREATE TABLE 'config' ( 'name' TEXT , 'p2p_interval' INT , 's2p_interval' INT, 'server_ip' TEXT ) ; ");
     if($res === false)return false;
     //@TODO remove this BS when done
     $res = $database->exec("BEGIN TRANSACTION;

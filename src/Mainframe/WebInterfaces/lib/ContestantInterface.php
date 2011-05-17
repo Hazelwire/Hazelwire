@@ -47,6 +47,7 @@ class ContestantInterface extends WebInterface{
     }
     
     public function doWork(){
+        // @TODO check for db_ready.
         if($this->getCurrentState() == GAMEINPROGRESS){
             if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                 if(isset($_POST['sub_flag'])){
@@ -55,6 +56,13 @@ class ContestantInterface extends WebInterface{
                         if((startsWith($flag, "FLG") && strlen($flag) && ctype_alnum($flag))){
                             
                             $db = $this->database; /* @var $db PDO */
+                            $q = $db->prepare("SELECT * FROM scores WHERE flag = ? AND team_id = ?"); /* @var $q PDOStatement */
+                            $q->execute(array($flag,$this->contestant->getId()));
+                            if($q->fetch()){
+                                $this->handleError(new Error("flag_error", "You already submitted that flag!"));
+                                return;
+                            }
+
                             $q = $db->prepare("SELECT * FROM scores WHERE flag = ? AND team_id = ?");
                             
                         }else{

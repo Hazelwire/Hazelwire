@@ -35,14 +35,14 @@ class WebInterface {
         $this->smarty->config_dir = $this->config['site_folder'].   'configs/';
         $this->smarty->cache_dir = $this->config['site_folder'].    'cache/';
         $this->smarty->addPluginsDir("lib/smartyPlugins");
+
+
+        $this->contestant_list = array();
         
-         
-                
         if($this->db_ready){ 
             $db = &$this->database; /* @var $db PDO */
             $q = $db->query("SELECT id FROM teams"); /* @var $q PDOStatement */
-
-            $this->contestant_list = array();
+            
             foreach($q as $data){
                 $c = Contestant::getById($data['id'], $db);
                 if($c !== false)
