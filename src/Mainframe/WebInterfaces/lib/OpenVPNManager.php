@@ -56,21 +56,21 @@ class OpenVPNManager {
      * @global WebInterface $interface The Interface that handles the errors
      * @param Contestant $contestant The Contestant from whom the VPN must start
      */
-    public static function startVPN($contestant){
+    public static function startVPN(&$contestant){
         global $interface; /* @var $interface WebInterface */
-        $config =$interface->getConfig();
+        $config = $interface->getConfig();
         $fp = @fsockopen("127.0.0.1", 10000, $errno, $errstr, 5);
         if(!$fp){
             $interface->handleError(new Error("vpn_error", "Error #1: Cannot start openVPN service! (".$errno.")", false));
         }else{
-            $config_path = $config['site_folder'] . $config['openvpn_location'] . $c->getTeamname() . ".conf";
+            $config_path = $config['site_folder'] . $config['openvpn_location'] . $contestant->getTeamname() . ".conf";
             fwrite($fp, "STARTVPN " + $config_path);
             fclose($fp);
             // @todo test if start failed
         }
     }
     
-    public static function stopVPN($contestant){
+    public static function stopVPN(&$contestant){
         global $interface; /* @var $interface WebInterface */
         $config =$interface->getConfig();
         $fp = @fsockopen("127.0.0.1", $config['management_port_base'] + $contestant->getId(), $errno, $errstr, 5);
@@ -86,7 +86,7 @@ class OpenVPNManager {
      * @todo Test this
      * @param Contestant $contestant 
      */
-    public static function getVPNStatus($contestant){
+    public static function getVPNStatus(&$contestant){
         global $interface; /* @var $interface WebInterface */
         $config =$interface->getConfig();
         $config_path = $config['site_folder'] . $config['openvpn_location'] . $contestant->getTeamname() . ".conf";

@@ -56,7 +56,12 @@ class ContestantInterface extends WebInterface{
                         if((startsWith($flag, "FLG") && strlen($flag) && ctype_alnum($flag))){
                             
                             $db = $this->database; /* @var $db PDO */
-                            $q = $db->prepare("SELECT * FROM scores WHERE flag = ? AND team_id = ?");
+                            $q = $db->prepare("SELECT * FROM scores WHERE flag = ? AND team_id = ?"); /* @var $q PDOStatement */
+                            $q->execute(array($flag,$this->contestant->getId()));
+                            if($q->fetch()){
+                                $this->handleError(new Error("flag_error", "You already submitted that flag!"));
+                                return;
+                            }
                             
                         }else{
                             $this->handleError(new Error("flag_error", "The flag you submitted is incorrect!"));

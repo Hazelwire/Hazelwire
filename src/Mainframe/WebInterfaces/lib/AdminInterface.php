@@ -226,7 +226,7 @@ class AdminInterface extends WebInterface {
                                 $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
                                 $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
                                 $tpl->assign("server_ip_range",  substr($subnet, 0, -3));
-                                $tpl->assign("man_port",$config['management_port_base'] + $c->getId());
+                                $tpl->assign("man_port",$this->config['management_port_base'] + $c->getId());
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
                                 $config_file_data = $tpl->fetch();
                                 
