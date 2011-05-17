@@ -12,6 +12,8 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.hazelwire.main.Generator;
+
 /**
  * 
  * @author Tim Strijdhorst
@@ -29,6 +31,7 @@ public class ModuleHandler
 	{
 		File directory = new File(filePath); //path should lead to the directory where the modules are stored
 		ArrayList<Module> moduleList;
+		char fileSeperator = Generator.getInstance().getFileSeperator();
 		
 		if(directory.isFile())
 		{
@@ -41,7 +44,7 @@ public class ModuleHandler
 			
 			for(int i=0;i<fileList.length;i++)
 			{
-				File subdir = new File(filePath+fileList[i]);
+				File subdir = new File(filePath+fileSeperator+fileList[i]);
 				
 				if(subdir.isDirectory()) //There shouldn't be any files but for now we will keep it easy
 				{
@@ -57,14 +60,18 @@ public class ModuleHandler
 						}
 						else if(fileList2[a].equals("config.xml"))
 						{
-							FileInputStream configFile = new FileInputStream(new File(filePath+fileList[i]));							
+							FileInputStream configFile = new FileInputStream(new File(subdir.getPath()+fileSeperator+fileList2[a]));							
 							ParserModuleConfig xmlParser = new ParserModuleConfig(configFile);
 							module = (Module) xmlParser.parseDocument();
 						}
 					}
 					
 					if(fileName == null) throw new Exception("Cannot find module");
-					else module.setFilePath(filePath+fileName);
+					else
+					{
+						module.setFilePath(subdir.getPath()+fileSeperator+fileName);
+						moduleList.add(module);
+					}
 				}
 			}
 		}

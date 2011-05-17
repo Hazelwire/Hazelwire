@@ -11,7 +11,7 @@ import javax.management.RuntimeErrorException;
 
 /**
  * @author Tim Strijdhorst
- * @todo write a function that waits to see if the virtual machine is booted or not
+ * @todo write proper error handling
  *
  */
 public class VMHandler
@@ -30,36 +30,40 @@ public class VMHandler
 	public void startVM() throws Exception
 	{
 		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
-		
-		try
-		{			
-			String[] arguments = {virtualBoxPath,"startvm",vmName,"--type","headless"};
-			Process process = Runtime.getRuntime().exec(arguments);
-			
-			System.out.println(virtualBoxPath+" startvm "+vmName+" --type headless");
-			
-			if(debug) new VMLogger(process);
-		}
-		catch (IOException e)
+		else
 		{
-			throw new RuntimeException(e);
+			try
+			{			
+				String[] arguments = {virtualBoxPath,"startvm",vmName,"--type","headless"};
+				Process process = Runtime.getRuntime().exec(arguments);
+				
+				System.out.println(virtualBoxPath+" startvm "+vmName+" --type headless");
+				
+				if(debug) new VMLogger(process);
+			}
+			catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	
 	public void stopVM() throws Exception
 	{
 		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
-		
-		try
+		else
 		{
-			String[] arguments = {virtualBoxPath,"controlvm",vmName,"poweroff"};
-			Process process = Runtime.getRuntime().exec(arguments);
-			
-			if(debug) new VMLogger(process);
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException(e);
+			try
+			{
+				String[] arguments = {virtualBoxPath,"controlvm",vmName,"poweroff"};
+				Process process = Runtime.getRuntime().exec(arguments);
+				
+				if(debug) new VMLogger(process);
+			}
+			catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	
@@ -99,22 +103,25 @@ public class VMHandler
 	
 	/**
 	 * The to be imported vm should be in .ova format
+	 * 
 	 */
 	public void importVM() throws Exception
 	{
-		if(this.checkIfImported()) throw new Exception("VM is already imported");
-		
-		try
-		{			
-			String[] arguments = {virtualBoxPath,"import",vmPath};
-			Process process = Runtime.getRuntime().exec(arguments);
-			process.waitFor(); //Wait untill the process is done with importing, else calling starvm would end horribly
-			
-			if(debug) new VMLogger(process);
-		}
-		catch (IOException e)
+		if(this.checkIfImported()) System.out.println("VM is already imported"); 
+		else
 		{
-			throw new RuntimeException(e);
+			try
+			{			
+				String[] arguments = {virtualBoxPath,"import",vmPath};
+				Process process = Runtime.getRuntime().exec(arguments);
+				process.waitFor(); //Wait untill the process is done with importing, else calling starvm would end horribly
+				
+				if(debug) new VMLogger(process);
+			}
+			catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	
@@ -130,18 +137,20 @@ public class VMHandler
 	public void exportVM(String vmName, String exportPath) throws Exception
 	{
 		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
-		
-		try
+		else
 		{
-			String[] arguments = {virtualBoxPath,"export",vmName,"-o",exportPath};
-			Process process = Runtime.getRuntime().exec(arguments);
-			process.waitFor();
-			
-			if(debug) new VMLogger(process);
-		}
-		catch(IOException e)
-		{
-			throw new RuntimeException(e);
+			try
+			{
+				String[] arguments = {virtualBoxPath,"export",vmName,"-o",exportPath};
+				Process process = Runtime.getRuntime().exec(arguments);
+				process.waitFor();
+				
+				if(debug) new VMLogger(process);
+			}
+			catch(IOException e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	
@@ -163,20 +172,22 @@ public class VMHandler
 		};
 		
 		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
-		
-		try
+		else
 		{
-			for(int i=0;i<commands.length;i++)
+			try
 			{
-				Process process = Runtime.getRuntime().exec(commands[i]);
-				process.waitFor(); //The commands need to be in sequence
-				
-				if(debug) new VMLogger(process);
+				for(int i=0;i<commands.length;i++)
+				{
+					Process process = Runtime.getRuntime().exec(commands[i]);
+					process.waitFor(); //The commands need to be in sequence
+					
+					if(debug) new VMLogger(process);
+				}
 			}
-		}
-		catch(IOException e)
-		{
-			throw new RuntimeException(e);
+			catch(IOException e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	
@@ -197,20 +208,22 @@ public class VMHandler
 		};
 		
 		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
-		
-		try
+		else
 		{
-			for(int i=0;i<commands.length;i++)
+			try
 			{
-				Process process = Runtime.getRuntime().exec(commands[i]);
-				process.waitFor(); //The commands need to be in sequence
-				
-				if(debug) new VMLogger(process);
+				for(int i=0;i<commands.length;i++)
+				{
+					Process process = Runtime.getRuntime().exec(commands[i]);
+					process.waitFor(); //The commands need to be in sequence
+					
+					if(debug) new VMLogger(process);
+				}
 			}
-		}
-		catch(Exception e)
-		{
-			throw new RuntimeException(e);
+			catch(Exception e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	

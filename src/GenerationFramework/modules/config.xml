@@ -1,0 +1,40 @@
+<hazelwire-module>
+	<general-info>
+		<name>Test Module</name>
+		<author>Tim Strijdhorst</author>
+		<date>11-05-2011</date>
+		<type>Service</type>
+		<file>testmodule_0.3-1ubuntu5_all.deb</file>
+		<deploy>deploy.sh</deploy>
+		<package>
+			<name>Hazelwire Test Package</name>
+			<id>1</id>
+		</package>
+	</general-info>
+	<flags>
+		<flag>
+			<points>10</points>
+		</flag>
+		<flag>
+			<points>5</points>
+		</flag>
+	</flags>
+	<options>
+		<option>
+			<name>Listen port</name>
+			<value type="integer">31337</value>
+		</option>
+		<option>
+			<name>Welcome message</name>
+			<value type="text">Welcome to the megacorp website</value>
+		</option>
+		<option>
+			<name>Hardcore mode</name>
+			<value type="boolean">false</value>
+		</option>
+		<option>
+			<name>Something that apparently neeads a floating point/name>
+			<value type="float">3.141592</value>
+		</option>
+	</options>
+</hazelwire-module>

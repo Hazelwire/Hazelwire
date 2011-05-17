@@ -48,7 +48,7 @@ public class FileName {
     return fullPath.substring(dot + 1);
   }
 
-  public String getFilename() { // gets filename without extension
+  public String getFileName() { // gets filename without extension
     int dot = fullPath.lastIndexOf(extensionSeparator);
     int sep = fullPath.lastIndexOf(pathSeparator);
     return fullPath.substring(sep + 1, dot);
@@ -58,4 +58,34 @@ public class FileName {
     int sep = fullPath.lastIndexOf(pathSeparator);
     return fullPath.substring(0, sep);
   }
+
+	public String getFullPath()
+	{
+		return fullPath;
+	}
+	
+	public void setFullPath(String fullPath)
+	{
+		this.fullPath = fullPath;
+	}
+	
+	public char getPathSeparator()
+	{
+		return pathSeparator;
+	}
+	
+	public void setPathSeparator(char pathSeparator)
+	{
+		this.pathSeparator = pathSeparator;
+	}
+	
+	public char getExtensionSeparator()
+	{
+		return extensionSeparator;
+	}
+	
+	public void setExtensionSeparator(char extensionSeparator)
+	{
+		this.extensionSeparator = extensionSeparator;
+	}
 }

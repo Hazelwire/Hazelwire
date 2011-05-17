@@ -12,7 +12,7 @@ import org.hazelwire.main.Generator;
  */
 public class Module
 {
-	private String name, author, type;
+	private String name, author, type, deployFileName;
 	private HashMap<Integer,Integer> flags; //<id,amountOfPoints>
 	private HashMap<Integer,Option> options; //<id,Option>
 	private Date date;
@@ -30,7 +30,8 @@ public class Module
 	
 	public Module()
 	{
-		//Make it possible to create an empty module and set all the info later
+		this.flags = new HashMap<Integer,Integer>();
+		this.options = new HashMap<Integer,Option>();
 	}
 	
 	public String getName()
@@ -50,7 +51,12 @@ public class Module
 	
 	public String getFileName()
 	{
-		return filePath.getFilename();
+		return filePath.getFileName()+filePath.getExtensionSeparator()+filePath.getExtension();
+	}
+	
+	public String getFullPath()
+	{
+		return filePath.getFullPath();
 	}
 
 	public void setFilePath(String filePath)
@@ -136,5 +142,15 @@ public class Module
 	public void setId(int id)
 	{
 		this.id = id;
+	}
+
+	public String getDeployFileName()
+	{
+		return deployFileName;
+	}
+
+	public void setDeployFileName(String deployFileName)
+	{
+		this.deployFileName = deployFileName;
 	}
 }

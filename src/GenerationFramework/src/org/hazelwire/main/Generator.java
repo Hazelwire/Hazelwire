@@ -12,6 +12,12 @@ import org.hazelwire.virtualmachine.InstallScriptGenerator;
 import org.hazelwire.virtualmachine.SSHConnection;
 import org.hazelwire.virtualmachine.VMHandler;
 
+/**
+ * @author Tim Strijdhorst
+ * 
+ * It is absolutely vital that you initiate this class first because it will setup all the configuration
+ *
+ */
 public class Generator
 {
 	private static Generator instance;
@@ -26,6 +32,16 @@ public class Generator
 		if(instance == null)
 		{
 			instance = new Generator();
+			
+			try
+			{
+				instance.getModuleSelector().init();
+			}
+			catch(Exception e)
+			{
+				instance.getTui().println("ERROR: Cannot load the configuration, exiting."); //this is pretty ugly... have to find a better solution
+				System.exit(0);
+			}
 		}
 		
 		return instance;
@@ -33,9 +49,7 @@ public class Generator
 	
 	private Generator()
 	{
-		moduleSelector = new ModuleSelector();
 		tui = new CLI();
-		
 		try
 		{
 			//Initialize configuration
@@ -51,6 +65,9 @@ public class Generator
 			tui.println("ERROR: Cannot load the configuration, exiting.");
 			System.exit(0);
 		}
+		
+		
+		moduleSelector = new ModuleSelector();
 	}
 
 	public ModuleSelector getModuleSelector()
@@ -98,9 +115,11 @@ public class Generator
     	if(vmHandler.discoverBootedVM(config.getSSHHostPort())) //wait for it to actually be booted so we can use the SSH service
     	{
 	    	SSHConnection ssh = new SSHConnection("localhost",config.getSSHHostPort(),config.getSSHUsername(),config.getSSHPassword());
+	    	prepareVM(ssh);
 	    	uploadModules(ssh);
 	    	generateInstallScript(INSTALLNAME);
 	    	String externalPath = Configuration.getInstance().getExternalScriptDirectory()+INSTALLNAME;
+	    	ssh.scpUpload(INSTALLNAME, externalPath);
 	    	executeInstallScript(ssh,externalPath);	    	
 	    	vmHandler.stopVM();
 	    	vmHandler.removeForward("ssh");
@@ -119,16 +138,35 @@ public class Generator
 		
 		while(iterate.hasNext())
 		{
-			FileName modulePath = new FileName(iterate.next().getFilePath(),fileSeperator,'.');
+			Module tempModule = iterate.next();
 			
 			try
 			{
-				ssh.scpUpload(modulePath.getPath(),config.getExternalModuleDirectory()+modulePath.getFilename());
+				ssh.scpUpload(tempModule.getFullPath(),config.getExternalModuleDirectory()+tempModule.getFileName());
 			}
 			catch(Exception e)
 			{
 				tui.println("ERROR: something went wrong while transferring the modules to the VM");
 			}
+		}
+	}
+	
+	/**
+	 * Makes sure all the directories that are needed are indeed created.
+	 * It doesn't matter whether they already exist or not this is just for safety.
+	 */
+	public void prepareVM(SSHConnection ssh)
+	{
+		try
+		{
+			Configuration config = Configuration.getInstance();
+			ssh.executeRemoteCommand("mkdir "+config.getExternalDeployDirectory());
+			ssh.executeRemoteCommand("mkdir "+config.getExternalModuleDirectory());
+			ssh.executeRemoteCommand("mkdir "+config.getExternalScriptDirectory());
+		}
+		catch(Exception e)
+		{
+			tui.println("ERROR: something went wrong while preparing the directory structure on the VM. Message: "+e.getMessage());
 		}
 	}
 	
@@ -177,5 +215,15 @@ public class Generator
 	public char getFileSeperator()
 	{
 		return fileSeperator;
+	}
+
+	public TextInterface getTui()
+	{
+		return tui;
+	}
+
+	public void setTui(TextInterface tui)
+	{
+		this.tui = tui;
 	}
 }

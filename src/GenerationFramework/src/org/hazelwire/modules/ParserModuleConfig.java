@@ -36,6 +36,8 @@ public class ParserModuleConfig extends XMLParser
         	tempModule.setAuthor(this.getTextValue(el, "author"));
         	tempModule.setDate(dateFormat.parse(this.getTextValue(el, "date")));
         	tempModule.setType(this.getTextValue(el, "type"));
+        	tempModule.setFileName(this.getTextValue(el, "file"));
+        	tempModule.setDeployFileName(this.getTextValue(el, "deploy"));
         }
         
         NodeList packageNl = docElement.getElementsByTagName("package");
@@ -47,7 +49,7 @@ public class ParserModuleConfig extends XMLParser
         	tempModule.setModulePackage(tempPackage);
         }
         
-        NodeList flagsNl = docElement.getElementsByTagName("flags");
+        NodeList flagsNl = docElement.getElementsByTagName("flag");
         
         int flagID = 0;
         if(flagsNl != null)
@@ -59,15 +61,25 @@ public class ParserModuleConfig extends XMLParser
         	}        	
         }
         
-        NodeList optionNl = docElement.getElementsByTagName("options");
+        NodeList optionNl = docElement.getElementsByTagName("option");
         
         int optionID = 0;
         if(optionNl != null)
         {
         	for(int i=0;i<optionNl.getLength();i++)
         	{
-        		Element el = (Element)optionNl.item(i);
-        		Option option = new Option(optionID++,this.getTextValue(el, "name"),el.getAttribute("type"),this.getTextValue(el, "value"));
+        		Element el = (Element)optionNl.item(i);        		
+        		
+        		String name = this.getTextValue(el, "name");
+        		String value = getTextValue(el, "value");
+        		
+        		NodeList valueNl = el.getElementsByTagName("value");
+        		el = (Element)valueNl.item(0);
+        		String type = el.getAttribute("type");
+        		
+        		
+        		Option option = new Option(optionID++,name,type,value);
+        		
         		tempModule.addOption(optionID++,option);
         	}
         }
