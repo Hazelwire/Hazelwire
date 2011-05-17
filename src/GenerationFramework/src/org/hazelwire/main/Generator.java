@@ -111,18 +111,31 @@ public class Generator
 	public void generateVM() throws Exception
 	{
     	VMHandler vmHandler = new VMHandler(config.getVirtualBoxPath(), config.getVMName(), config.getVMPath(), true);
-    	vmHandler.importVM();
+    	if(!vmHandler.checkIfImported())
+    	{
+    		tui.println("Importing VM");
+    		vmHandler.importVM();
+    	}
+    	
+    	tui.println("Adding portforward for ssh: "+config.getSSHHostPort()+" to "+config.getSSHGuestPort()+" in the vm");
     	vmHandler.addForward("ssh", config.getSSHHostPort(), config.getSSHGuestPort(), "TCP"); //add forward so we can reach the VM
+    	tui.println("Starting VM");
     	vmHandler.startVM();
     	if(vmHandler.discoverBootedVM(config.getSSHHostPort())) //wait for it to actually be booted so we can use the SSH service
     	{
 	    	SSHConnection ssh = new SSHConnection("localhost",config.getSSHHostPort(),config.getSSHUsername(),config.getSSHPassword());
+	    	tui.println("Creating directories");
 	    	prepareVM(ssh);
+	    	tui.println("Uploading modules");
 	    	uploadModules(ssh);
+	    	tui.println("Generating installation script");
 	    	generateInstallScript(config.getOutputDirectory()+INSTALLNAME);
+	    	tui.println("Generating manifest");
 	    	generateManifest(config.getOutputDirectory()+MANIFESTFILENAME);
+	    	tui.println("Uploading installation script");
 	    	String externalPath = config.getExternalScriptDirectory()+INSTALLNAME;
 	    	ssh.scpUpload(config.getOutputDirectory()+INSTALLNAME, externalPath);
+	    	tui.println("Executing installation script");
 	    	executeInstallScript(ssh,externalPath);
 	    	vmHandler.stopVM();
 	    	vmHandler.removeForward("ssh");

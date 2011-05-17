@@ -34,7 +34,7 @@ public class InstallScriptGenerator
 		{
 			Module module = iterate.next();
 			String externalFilePath = Configuration.getInstance().getExternalModuleDirectory()+module.getFileName();
-			script += "sudo gdebi -n "+externalFilePath+"\n";
+			script += "sudo gdebi -n "+externalFilePath+" > log\n";
 		}
 		
 		return script;

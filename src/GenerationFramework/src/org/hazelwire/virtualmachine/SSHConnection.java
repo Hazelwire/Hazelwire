@@ -61,6 +61,7 @@ public class SSHConnection
 		try
 		{
 			Command cmd = session.exec(command);
+			cmd.join();
 		}
 		finally
 		{

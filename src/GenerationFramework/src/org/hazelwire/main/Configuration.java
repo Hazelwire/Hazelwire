@@ -226,6 +226,16 @@ public class Configuration
 		applicationProps.setProperty("outputDirectory", dir);
 	}
 	
+	public String getKnownHostsPath()
+	{
+		return applicationProps.getProperty("knownHostsFile");
+	}
+	
+	public void setKnownHostsPath(String filePath)
+	{
+		applicationProps.setProperty("knownHostsFile", filePath);
+	}
+	
 	public String getOS()
 	{
 		return System.getProperty("os.name");
