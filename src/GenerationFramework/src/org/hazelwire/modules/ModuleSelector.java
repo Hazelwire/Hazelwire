@@ -14,6 +14,7 @@ import org.hazelwire.main.Configuration;
 public class ModuleSelector
 {
 	private HashMap<Integer,Module> selectedModules, availableModules;
+	private ArrayList<Module> hiddenModules;
 	private int idCounter;
 	private HashMap<String,ModulePackage> modulePackageList; //<Name,Package>
 	
@@ -21,6 +22,7 @@ public class ModuleSelector
 	{
 		this.selectedModules = new HashMap<Integer,Module>();
 		this.availableModules = new HashMap<Integer,Module>();
+		this.hiddenModules = new ArrayList<Module>();
 		this.idCounter = 0; //Will not be updated when an item is removed
 	}
 	
@@ -82,6 +84,31 @@ public class ModuleSelector
 	public void removeModule(int id)
 	{
 		this.availableModules.remove(id);
+	}
+	
+	public void addHiddenModule(Module module)
+	{
+		this.hiddenModules.add(module);
+	}
+	
+	public void removeHiddenModule(Module module)
+	{
+		this.hiddenModules.remove(module);
+	}
+	
+	/**
+	 * Get all modules marked for installation (selected + hidden)
+	 */
+	public ArrayList<Module> getMarkedModules()
+	{
+		ArrayList<Module> tempArr = hiddenModules;
+		tempArr.addAll(this.getSelectedModules().values());
+		return tempArr;
+	}
+	
+	public ArrayList<Module> getHiddenModules()
+	{
+		return this.hiddenModules;
 	}
 
 	public HashMap<Integer, Module> getSelectedModules()

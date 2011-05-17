@@ -3,9 +3,7 @@ package org.hazelwire.virtualmachine;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.hazelwire.main.Configuration;
@@ -26,7 +24,7 @@ public class InstallScriptGenerator
 	
 	private static String generateInstallScript() throws IOException
 	{
-		Collection<Module> modules = Generator.getInstance().getModuleSelector().getSelectedModules().values();
+		ArrayList<Module> modules = Generator.getInstance().getModuleSelector().getMarkedModules();
 		String script = "#!/bin/bash\n";
 		Iterator<Module> iterate = modules.iterator();
 		

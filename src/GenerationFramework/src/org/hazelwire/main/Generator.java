@@ -152,7 +152,7 @@ public class Generator
 	
 	public void uploadModules(SSHConnection ssh)
 	{
-		Collection<Module> modules = moduleSelector.getSelectedModules().values();
+		ArrayList<Module> modules = moduleSelector.getMarkedModules();
 		Iterator<Module> iterate = modules.iterator();
 		
 		while(iterate.hasNext())
