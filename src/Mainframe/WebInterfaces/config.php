@@ -14,7 +14,7 @@ $config['RSA_location'] = 'lib/admin/rsa/';
 $config['openvpn_location'] = 'lib/admin/openvpn/';
 
 // ClientHandler location
-$config['ch_location'] = "/var/andereshit/";
+$config['ch_location'] = "../ClientHandler/";
 
 $config['base_port'] = 40000;
 

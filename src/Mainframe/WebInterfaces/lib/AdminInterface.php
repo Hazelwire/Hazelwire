@@ -134,7 +134,7 @@ class AdminInterface extends WebInterface {
 
                         
                         move_uploaded_file($manifest['tmp_name'], "manifest.xml");
-                        exec($this->config['ch_location'] . "ManifestParser.py " . "manifest.xml " . $this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
+                        exec($this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
                         
                         $q = $db->prepare("INSERT INTO 'config' VALUES (?,?,?,?);");
                         /* @var $q PDOStatement */
