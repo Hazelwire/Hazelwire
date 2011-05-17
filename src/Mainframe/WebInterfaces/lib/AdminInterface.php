@@ -121,6 +121,7 @@ class AdminInterface extends WebInterface {
                     $gamename = $_POST['name'];
                     $auto_p2p_interval = intval($_POST['p2p_interval']);
                     $auto_s2p_interval = intval($_POST['s2p_interval']);
+                    $server_ip = $_POST['server_ip'];
                     $manifest = $_FILES['manifest'];
                     $temp = explode(".", $manifest['name']);
                     $ext = $temp[count($temp) - 1];
@@ -135,9 +136,9 @@ class AdminInterface extends WebInterface {
                         move_uploaded_file($manifest['tmp_name'], "manifest.xml");
                         exec($config['ch_location'] . "ManifestParser.py " . "manifest.xml " . $config['database_file_name'] . " > /dev/null 2>/dev/null &");
                         
-                        $q = $db->prepare("INSERT INTO 'config' VALUES (?,?,?);");
+                        $q = $db->prepare("INSERT INTO 'config' VALUES (?,?,?,?);");
                         /* @var $q PDOStatement */
-                        $result = $q->execute(array($gamename, $auto_p2p_interval, $auto_s2p_interval));
+                        $result = $q->execute(array($gamename, $auto_p2p_interval, $auto_s2p_interval, $server_ip));
 
                         if ($result !== false) {
                             $this->setState(POSTCONFIG);
@@ -230,6 +231,25 @@ class AdminInterface extends WebInterface {
                                 $config_file_data = $tpl->fetch();
                                 
                                 $config_file_loc = $this->config['openvpn_location'] . $_POST['name'] . ".conf";
+                                $handle = @fopen($config_file_loc, 'w');
+                                if($handle === false){
+                                    $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
+                                    return;
+                                }
+                                fwrite($handle, $config_file_data);
+                                fclose($handle);
+
+
+                                $q = $db->query("SELECT server_ip FROM config");
+                                $res = $q->fetch();
+                                
+                                $tpl = $smarty->createTemplate("client.conf"); /* @var $tpl Smarty_Internal_Template */
+                                $tpl->assign("teamname", $_POST['name']);
+                                $tpl->assign("port",$this->config['base_port'] + $c->getId());
+                                $tpl->assign("server_ip", $res['server_ip']);
+                                $config_file_data = $tpl->fetch();
+
+                                $config_file_loc = $this->config['openvpn_location'] . $_POST['name'] . "_client.conf";
                                 $handle = @fopen($config_file_loc, 'w');
                                 if($handle === false){
                                     $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));

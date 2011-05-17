@@ -32,6 +32,7 @@
                 <a href="download.php?type=tcert&team={$contestant->getTeamname()}">Team Cert</a> <br/>
                 <a href="download.php?type=vkey&team={$contestant->getTeamname()}">VM Key</a><br/>
                 <a href="download.php?type=vcert&team={$contestant->getTeamname()}">VM Cert</a><br/>
+                <a href="download.php?type=vpnconf&team={$contestant->getTeamname()}">VPN conf</a><br/>
                 <a href="download.php?type=ca">CA</a></td>
         </tr>
         {/foreach}

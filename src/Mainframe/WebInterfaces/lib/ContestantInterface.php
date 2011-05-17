@@ -47,6 +47,7 @@ class ContestantInterface extends WebInterface{
     }
     
     public function doWork(){
+        // @TODO check for db_ready.
         if($this->getCurrentState() == GAMEINPROGRESS){
             if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                 if(isset($_POST['sub_flag'])){

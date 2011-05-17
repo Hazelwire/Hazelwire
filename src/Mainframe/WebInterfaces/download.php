@@ -47,6 +47,14 @@ if(strcmp($_SERVER['REMOTE_ADDR'], '127.0.0.1') === 0 || ip_in_range($_SERVER['R
             exit;
         
         loadFile($file);
+    }elseif($_GET['type'] == 'vpnconf'){
+
+        $file = $config['openvpn_location'] . $_GET['team'] . "_client.conf";
+
+        if(!file_exists($file))
+            exit;
+
+        loadFile($file);
     }
     
 }
