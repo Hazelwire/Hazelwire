@@ -77,7 +77,7 @@ class OpenVPNManager {
         if(!$fp){
             $interface->handleError(new Error("vpn_error", "Error #2: Cannot stop openVPN service! (".$errno.")", false));
         }else{
-            fwrite($fp, "signal SIGTERM");
+            fwrite($fp, "signal SIGTERM\r\n");
             fclose($fp);
         }
     }
