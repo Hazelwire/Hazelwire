@@ -110,6 +110,11 @@ public class CLI implements TextInterface
 					Generator.getInstance().generateVM();
 					println("I tried to generate the vm, if it worked it's located at: "+Configuration.getInstance().getVMExportPath());
 				}
+				
+				else if(command.equals("exit"))
+				{
+					System.exit(0);
+				}
 			}
 			catch(Exception e)
 			{

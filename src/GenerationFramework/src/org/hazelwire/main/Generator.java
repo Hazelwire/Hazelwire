@@ -1,5 +1,6 @@
 package org.hazelwire.main;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -140,6 +141,8 @@ public class Generator
 	    	vmHandler.stopVM();
 	    	vmHandler.removeForward("ssh");
 	    	vmHandler.exportVM();
+	    	
+	    	new File("config.getOutputDirectory()+INSTALLNAME").delete(); //delete the installationscript from the output dir
     	}
     	else
     	{
