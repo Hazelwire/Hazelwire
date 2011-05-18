@@ -22,6 +22,7 @@ class ContestantInterface extends WebInterface{
     
     
     public function show(){
+		$smarty = &$this->getSmarty();
         /*
          * Error handling
          */
