@@ -16,7 +16,7 @@ class ContestantInterface extends WebInterface{
         $this->contestant = false;
         foreach($this->contestant_list as $c){ /* @var $c Contestant */
             if(ip_in_range($_SERVER['REMOTE_ADDR'], $c->getSubnet())){
-                $this->contestant = &$c;
+                $this->contestant = $c;
             }
         }
     }
@@ -24,7 +24,7 @@ class ContestantInterface extends WebInterface{
     
     public function show(){
         if($this->contestant === false)
-            echo "Not allowed to access this webpage. Shoo!";
+            die("Not allowed to access this webpage. Shoo!");
         $smarty = &$this->getSmarty();
         /*
          * Error handling
@@ -81,7 +81,7 @@ class ContestantInterface extends WebInterface{
                             if($result === false){
                                 $this->handleError(new Error("flag_error", "Unknown flag!"));
                             }  elseif ($result['team_id'] == $this->contestant->getId()) {
-                                $this->handleError(new Error("flag_error", "Rooting your own box is not a cool story bro!"));
+                                $this->handleError(new Error("flag_error", "Rooting your own box is not cool man!"));
                             } else {
                                 $timestamp = time();
                                 $q = $db->prepare("INSERT INTO scores VALUES (?, ? ,? ,?);");
