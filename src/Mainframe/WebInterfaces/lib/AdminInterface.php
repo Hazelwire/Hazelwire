@@ -136,7 +136,7 @@ class AdminInterface extends WebInterface {
                         move_uploaded_file($manifest['tmp_name'], "manifest.xml");
                         // @TODO check for errors
                         exec($this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &", $cmd_result);
-                        if(isset($cmd_result) && is_array($cmd_result) && $cmd_result[0] != ""){
+                        if(isset($cmd_result) && is_array($cmd_result) && reset($cmd_result) != "" && reset($cmd_result)!= false){
                             $this->handleError(new Error("config_input_error", "Invalid manifest XML!", true));
                             return;
                         }
@@ -356,6 +356,7 @@ class AdminInterface extends WebInterface {
                             if(OpenVPNManager::getVPNStatus($c))
                                 OpenVPNManager::stopVPN($c);
                         }
+                        OpenVPNManager::stopBaseVPN();
                         
                         $fp = @fsockopen("127.0.0.1", 10000, $errno, $errstr, 5);
                         if(!$fp){

@@ -127,12 +127,6 @@ class OpenVPNManager {
         chdir($pwd);
     }
 
-    /**
-     * Tries to start a VPN server from a given contestant
-     *
-     * @global WebInterface $interface The Interface that handles the errors
-     * @param Contestant $contestant The Contestant from whom the VPN must start
-     */
     public static function startBaseVPN(){
         global $interface; /* @var $interface WebInterface */
         $config = $interface->getConfig();
@@ -146,7 +140,18 @@ class OpenVPNManager {
             // @todo test if start failed
         }
     }
-    
+
+    public static function stopBaseVPN(){
+        global $interface; /* @var $interface WebInterface */
+        $config =$interface->getConfig();
+        $fp = @fsockopen("127.0.0.1", $config['management_port_base'], $errno, $errstr, 5);
+        if(!$fp){
+            $interface->handleError(new Error("vpn_error", "Error #2: Cannot stop openVPN service! (".$errno.")", false));
+        }else{
+            fwrite($fp, "signal SIGTERM\r\n");
+            fclose($fp);
+        }
+    }
     
 }
 
