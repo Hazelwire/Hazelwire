@@ -17,8 +17,7 @@
         </form>
         
         <p></p>
-        <h2>Submit flag:</h2>
+        <h2>Contestant overview:</h2>
         {contestants_list}
-       
     </body>
 </html>

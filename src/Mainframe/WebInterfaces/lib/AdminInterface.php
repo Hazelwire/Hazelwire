@@ -134,8 +134,13 @@ class AdminInterface extends WebInterface {
 
                         
                         move_uploaded_file($manifest['tmp_name'], "manifest.xml");
-                        exec($this->config['ch_location'] . "ManifestParser.py " . "manifest.xml " . $this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
-                        
+                        // @TODO check for errors
+                        exec($this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &", $cmd_result);
+                        if(isset($cmd_result) && $cmd_result[0] != ""){
+                            $this->handleError(new Error("config_input_error", "Invalid manifest XML!", true));
+                            return;
+                        }
+
                         $q = $db->prepare("INSERT INTO 'config' VALUES (?,?,?,?);");
                         /* @var $q PDOStatement */
                         $result = $q->execute(array($gamename, $auto_p2p_interval, $auto_s2p_interval, $server_ip));
@@ -305,7 +310,7 @@ class AdminInterface extends WebInterface {
                     if (isset($_POST['next'])) {
                         
                         OpenVPNManager::setKernelRouting(true);
-                        exec($config['ch_location'] . "FlagAdministration.py " . $config['database_file_name'] . " > /dev/null 2>/dev/null &");
+                        exec($this->config['ch_location'] . "FlagAdministration.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
                         
                         $this->setState(GAMEINPROGRESS);
                     }
