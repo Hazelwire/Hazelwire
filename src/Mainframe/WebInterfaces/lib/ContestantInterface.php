@@ -48,7 +48,8 @@ class ContestantInterface extends WebInterface{
         if ($this->getCurrentState() != GAMEINPROGRESS) {
             return $smarty->fetch("game_not_started.tpl");
         } else {
-            $smarty->assign("flag_success", 1);
+            if($this->flag_success)
+                $smarty->assign("flag_success", 1);
             return $smarty->fetch("game_contestants_view.tpl");
         }
     }
