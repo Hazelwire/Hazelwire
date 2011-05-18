@@ -24,6 +24,7 @@
                     <a href="download.php?type=tcert&team={$contestant->getTeamname()}">Team Cert</a> <br/>
                     <a href="download.php?type=vkey&team={$contestant->getTeamname()}">VM Key</a><br/>
                     <a href="download.php?type=vcert&team={$contestant->getTeamname()}">VM Cert</a><br/>
+                    <a href="download.php?type=vpnconf&team={$contestant->getTeamname()}">VPN conf</a><br/>
                     <a href="download.php?type=ca">CA</a></td>
                 <td>{if $contestant->getVPNStatus()} <input type="Submit" value="Stop" name="stop[{$contestant->getId()}]"  /> 
                     {else}<input type="Submit" value="Start" name="start[{$contestant->getId()}]" />{/if}

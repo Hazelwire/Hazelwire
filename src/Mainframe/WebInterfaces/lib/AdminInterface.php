@@ -181,7 +181,7 @@ class AdminInterface extends WebInterface {
                          */
                         
                         if(!ctype_alnum($_POST['name']))
-                            $this->handleError(new Error("team_input_error", "Illigal name. Only alphanumeric allowed!", false));
+                            $this->handleError(new Error("team_input_error", "Illegal name. Only alphanumeric allowed!", false));
                         elseif((!(intval($_POST['server_ip']) > 0 && intval($_POST['server_ip']) < 255)) || !((intval($_POST['ip_range']) > 0 && intval($_POST['ip_range']) < 255)))
                             $this->handleError(new Error("team_input_error", "IP input has to be between 0 and 255, excluding.", false));
                         else {
