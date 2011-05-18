@@ -214,7 +214,27 @@ class AdminInterface extends WebInterface {
                                 if($num_teams == 0){
 
                                     OpenVPNManager::buildInitKeys();
+
+                                    OpenVPNManager::createBaseVPNServer();
                                     
+                                    $smarty = &$this->getSmarty();
+                                    $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
+                                    $tpl->assign("filename", "basevpn");
+                                    $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
+                                    $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
+                                    $tpl->assign("server_ip_range",  "10.0.0.0");
+                                    $tpl->assign("man_port",$this->config['management_port_base']);
+                                    $tpl->assign("port",$this->config['base_port']);
+                                    $config_file_data = $tpl->fetch();
+
+                                    $config_file_loc = $this->config['openvpn_location'] . "basevpn.conf";
+                                    $handle = @fopen($config_file_loc, 'w');
+                                    if($handle === false){
+                                        $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
+                                        return;
+                                    }
+                                    fwrite($handle, $config_file_data);
+                                    fclose($handle);
                                 }
                                 
                                 OpenVPNManager::buildServerKeys($_POST['name']);
@@ -227,7 +247,7 @@ class AdminInterface extends WebInterface {
                                 
                                 $smarty = &$this->getSmarty();
                                 $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
-                                $tpl->assign("teamname", $_POST['name']);
+                                $tpl->assign("filename", "server_".$_POST['name']);
                                 $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
                                 $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
                                 $tpl->assign("server_ip_range",  substr($subnet, 0, -3));
@@ -300,6 +320,7 @@ class AdminInterface extends WebInterface {
                             if(!OpenVPNManager::getVPNStatus($c))
                                 OpenVPNManager::startVPN($c);
                         }
+                        OpenVPNManager::startBaseVPN();
                         $this->setState(PREGAMESTART);
                     }
                 }

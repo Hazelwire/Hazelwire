@@ -114,7 +114,38 @@ class OpenVPNManager {
         }
         
     }
-    
+
+    public static function createBaseVPNServer(){
+        global $interface;
+        $config =$interface->getConfig();
+
+        $pwd = getcwd();
+        chdir($config['RSA_location']);
+
+        shell_exec(". ./vars && ./pkitool --server basevpn");
+
+        chdir($pwd);
+    }
+
+    /**
+     * Tries to start a VPN server from a given contestant
+     *
+     * @global WebInterface $interface The Interface that handles the errors
+     * @param Contestant $contestant The Contestant from whom the VPN must start
+     */
+    public static function startBaseVPN(){
+        global $interface; /* @var $interface WebInterface */
+        $config = $interface->getConfig();
+        $fp = @fsockopen("127.0.0.1", 10000, $errno, $errstr, 5);
+        if(!$fp){
+            $interface->handleError(new Error("vpn_error", "Error #1: Cannot start openVPN service! (".$errno.")", false));
+        }else{
+            $config_path = $config['site_folder'] . $config['openvpn_location'] . "basevpn.conf";
+            fwrite($fp, "STARTVPN " . $config_path);
+            fclose($fp);
+            // @todo test if start failed
+        }
+    }
     
     
 }
