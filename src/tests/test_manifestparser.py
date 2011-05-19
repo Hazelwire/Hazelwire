@@ -42,4 +42,7 @@ class ManifestParserTestCase(unittest.TestCase):
               
        def test_manifestparser_2_bad_xml(self):
               self.assertFalse(ManifestParser.parseManifest("tests/bad_MANIFEST.xml","temp.db"))
+       
+       def test_manifestparser_3_empty_xml(self):
+              self.assertFalse(ManifestParser.parseManifest("tests/empty_MANIFEST.xml","temp.db"))
 

@@ -2,7 +2,6 @@ import xml.sax, sys
 import DatabaseHandler
 
 modules = []
-correctXML = True
 
 class ManifestHandler(xml.sax.ContentHandler):
 
@@ -35,11 +34,6 @@ class ManifestHandler(xml.sax.ContentHandler):
             self.inFlagDefinition = False
         elif name == "points":
             self.startPointElement = False
-        elif name == "MODULE":
-            modules[-1]['numFlags'] = len(modules[-1]['flagpoints'])
-            if modules[-1]['numFlags'] == 0 or modules[-1]['name'] == '' or modules[-1]['deployscript'] == '':
-                #incorrect XML
-                correctXML = False
 
     def characters (self, ch):
         if self.isNameElement:
@@ -51,9 +45,18 @@ class ManifestHandler(xml.sax.ContentHandler):
 
 
 def parseManifest(manifest, db):
+    correctXML = True
     parser = xml.sax.make_parser()
     parser.setContentHandler(ManifestHandler())
-    parser.parse(open(manifest,"r"))
+    try:
+        parser.parse(open(manifest,"r"))
+    except:
+        correctXML = False
+    for module in modules:
+            module['numFlags'] = len(module['flagpoints'])
+            if module['numFlags'] == 0 or module['name'] == '' or module['deployscript'] == '':
+                #incorrect XML
+                correctXML = False
     if correctXML:
         db = DatabaseHandler.DatabaseHandler(db)
         db.addModuleInfo(modules)
