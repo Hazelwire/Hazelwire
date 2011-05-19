@@ -38,11 +38,12 @@ def deployFlags():
 
 if __name__ == "__main__":
     requestFlags('localhost',9999)
-    for module in moduleFlags:
-        print "Module: " + module['name']
-        print "\tDeployscript: " + module['deployscript']
-        print '\tFlags:'
-        for flag in module['flags']:
-            print '\t\tFlag: ' + flag
-        print
+    deployFlags()
+    #for module in moduleFlags:
+        #print "Module: " + module['name']
+        #print "\tDeployscript: " + module['deployscript']
+        #print '\tFlags:'
+        #for flag in module['flags']:
+            #print '\t\tFlag: ' + flag
+        #print
         
