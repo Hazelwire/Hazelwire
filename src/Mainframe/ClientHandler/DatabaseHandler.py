@@ -39,7 +39,7 @@ class DatabaseHandler:
         self.connect()
         c = self.conn.cursor()
         for module in modules:
-            c.execute("INSERT INTO modules VALUES (?, ?, ?, ?, ?);",[None, module['name'], module['numFlags'], module['basepath'], module['deployscript']])
+            c.execute("INSERT INTO modules VALUES (?, ?, ?, ?);",[None, module['name'], module['numFlags'], module['deployscript']])
         c.close()
         self.disconnect()
         self.connect()
@@ -56,6 +56,6 @@ class DatabaseHandler:
         c = self.conn.cursor()
         c.execute("SELECT * FROM modules;")
         for module in c.fetchall():
-            res.append({'name':module[1], 'numFlags':module[2], 'basepath':module[3], 'deployscript':module[4]})
+            res.append({'name':module[1], 'numFlags':module[2], 'deployscript':module[3]})
         self.disconnect()
         return res

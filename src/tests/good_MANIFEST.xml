@@ -1,23 +1,35 @@
 <MANIFEST>
     <MODULE>
         <name>test1</name>
-        <basepath>/home/exploit1/</basepath>
         <deployscript>deploy/deployFlags</deployscript>
         <flags>
-            <flag points="12" />
-            <flag points="25" />
-            <flag points="10" />
-            <flag points="15" />
-	    <flag points="83" />
+            <flag>
+		<points>12</points>
+	    </flag>
+	    <flag>
+            	<points>25</points>
+            </flag>
+            <flag>
+	        <points>10</points>
+            </flag>
+            <flag>
+           	<points>15</points>
+            </flag>
+	    <flag>
+		<points>83</points>
+	    </flag>
         </flags>
     </MODULE>
     <MODULE>
         <name>test2</name>
-        <basepath>/home/exploit2/</basepath>
         <deployscript>deploy/install.py</deployscript>
         <flags>
-            <flag points="10" />
-            <flag points="32" />
+            <flag>
+		<points>10</points>
+	    </flag>
+            <flag>
+		<points>32</points>
+	    </flag>
         </flags>
     </MODULE>
 </MANIFEST>

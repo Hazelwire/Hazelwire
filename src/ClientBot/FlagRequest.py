@@ -13,8 +13,7 @@ def requestFlags(host, port):
         while awaitingModules:
             data = sfile.readline().strip()
             if data.startswith("MODNAME"):
-                moduleFlags.append({'name':'', 'flags':[], 'basepath':'', 'deployscript':''})
-                moduleFlags[-1]['basepath'] = sfile.readline().strip().split(' ')[1]
+                moduleFlags.append({'name':'', 'flags':[], 'deployscript':''})
                 moduleFlags[-1]['deployscript'] = sfile.readline().strip().split(' ')[1]
                 moduleFlags[-1]['name'] = data.split(' ')[1].strip()
                 awaitingFlags = True
@@ -33,7 +32,7 @@ def requestFlags(host, port):
     
 def deployFlags():
     for module in moduleFlags:
-        os.system(module['basepath'] + module['deployscript']) #execute deploy script
+        os.system(module['deployscript']) #execute deploy script
         
     
 
@@ -41,7 +40,6 @@ if __name__ == "__main__":
     requestFlags('localhost',9999)
     for module in moduleFlags:
         print "Module: " + module['name']
-        print "\tBasepath: " + module['basepath']
         print "\tDeployscript: " + module['deployscript']
         print '\tFlags:'
         for flag in module['flags']:

@@ -22,9 +22,9 @@ INSERT INTO flagpoints VALUES(5,1,83);
 INSERT INTO flagpoints VALUES(1,2,10);
 INSERT INTO flagpoints VALUES(2,2,32);
 CREATE TABLE flags (flag_id NUMERIC, mod_id NUMERIC, team_id NUMERIC, flag TEXT);
-CREATE TABLE modules (id INTEGER PRIMARY KEY, name TEXT, numFlags NUMERIC, basepath TEXT, deployscript TEXT);
-INSERT INTO modules VALUES(1,'test1',5,'/home/exploit1/','deploy/deployFlags');
-INSERT INTO modules VALUES(2,'test2',2,'/home/exploit2/','deploy/install.py');
+CREATE TABLE modules (id INTEGER PRIMARY KEY, name TEXT, numFlags NUMERIC, deployscript TEXT);
+INSERT INTO modules VALUES(1,'test1',5,'deploy/deployFlags');
+INSERT INTO modules VALUES(2,'test2',2,'deploy/install.py');
 CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip NUMERIC);
 INSERT INTO teams VALUES(1,'Henkies','10.0.8.1');
 INSERT INTO teams VALUES(2,'Sjakies','10.0.10.1');
@@ -46,7 +46,7 @@ COMMIT;""")
         
     def test_flagdistrib_1_requestFlags(self):
         self.assertTrue(FlagRequest.requestFlags('127.0.0.1',9999))
-        res = [{'name':'test1','basepath':'/home/exploit1/','deployscript':'deploy/deployFlags'},{'name':'test2','basepath':'/home/exploit2/','deployscript':'deploy/install.py'}]
+        res = [{'name':'test1','deployscript':'deploy/deployFlags'},{'name':'test2','deployscript':'deploy/install.py'}]
         res2 = FlagRequest.moduleFlags
         #get the flag information from the database
         db = sqlite3.connect("temp.db")

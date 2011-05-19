@@ -25,7 +25,6 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
                 #Client has no flags assigned to him, generate some.
                 for module in modules:
                     self.wfile.write("MODNAME " + module['name']+'\n')
-                    self.wfile.write("BASEPATH " + module['basepath'] + '\n')
                     self.wfile.write("DEPLOYSCRIPT " + module['deployscript'] + '\n')
                     module['flags'] = generateFlags(module['name'], module['numFlags'], self.client_address[0])
                     for flag in module['flags']:
