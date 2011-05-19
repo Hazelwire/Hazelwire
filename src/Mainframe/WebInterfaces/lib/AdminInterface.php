@@ -331,7 +331,7 @@ class AdminInterface extends WebInterface {
                     if (isset($_POST['next'])) {
                         
                         OpenVPNManager::setKernelRouting(true);
-                        exec($this->config['ch_location'] . "FlagAdministration.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
+                        exec("python ". $this->config['ch_location'] . "FlagAdministration.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
                         
                         $this->setState(GAMEINPROGRESS);
                     }
