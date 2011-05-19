@@ -136,7 +136,7 @@ class AdminInterface extends WebInterface {
                         move_uploaded_file($manifest['tmp_name'], "manifest.xml");
                         // @TODO check for errors
                         $res = exec("python ". $this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['site_folder'].$this->config['database_file_name'], $cmd_result);
-                        if(strrpos($res,"False") != false){
+                        if(strrpos($res,"False") !== false){
                             $this->handleError(new Error("config_input_error", "Invalid manifest XML!", true));
                             return;
                         }
