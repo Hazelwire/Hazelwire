@@ -101,7 +101,7 @@ public class CLI implements TextInterface
 				 */
 				else if(command.equals("deselect") && params.size() >= 1)
 				{
-					Generator.getInstance().getModuleSelector().removeModule(Integer.valueOf(params.get(1)));
+					Generator.getInstance().getModuleSelector().deselectModule(Integer.valueOf(params.get(1)));
 					println("I tried to deselect the module with id: "+params.get(1));
 				}
 				
