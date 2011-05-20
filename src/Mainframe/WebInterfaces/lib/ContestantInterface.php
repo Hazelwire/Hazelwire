@@ -13,15 +13,19 @@ class ContestantInterface extends WebInterface{
     function __construct() {
         parent::WebInterface();
         $this->flag_success = false;
+        $this->contestant = false;
         foreach($this->contestant_list as $c){ /* @var $c Contestant */
             if(ip_in_range($_SERVER['REMOTE_ADDR'], $c->getSubnet())){
-                $this->contestant = &$c;
+                $this->contestant = $c;
             }
         }
     }
     
     
     public function show(){
+        if($this->contestant === false)
+            die("Not allowed to access this webpage. Shoo!");
+        $smarty = &$this->getSmarty();
         /*
          * Error handling
          */
@@ -44,11 +48,15 @@ class ContestantInterface extends WebInterface{
         if ($this->getCurrentState() != GAMEINPROGRESS) {
             return $smarty->fetch("game_not_started.tpl");
         } else {
-            return $smarty->fetch("game_contestant_view.tpl");
+            if($this->flag_success)
+                $smarty->assign("flag_success", 1);
+            return $smarty->fetch("game_contestants_view.tpl");
         }
     }
     
     public function doWork(){
+        if($this->contestant === false)
+                return;
         // @TODO check for db_ready.
         if($this->getCurrentState() == GAMEINPROGRESS){
             if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
@@ -67,16 +75,16 @@ class ContestantInterface extends WebInterface{
                             // flags (flag_id INTEGER, mod_id INTEGER, team_id INTEGER, flag TEXT);
                             // flagpoints (flag_id INTEGER, mod_id INTEGER, points INTEGER);
                             // teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
-                            $q = $db->prepare("SELECT flags.team_id as team_id, flags.flag as flag, flagpoints.points as points FROM flags INNER JOIN flagpoints ON flagpoints.flag_id = flags.flag_id WHERE flag = ?");
-                            $q->execute(array($flag,$this->contestant->getId()));
+                            $q = $db->prepare("SELECT flags.team_id as team_id, flags.flag as flag, flagpoints.points as points FROM flags INNER JOIN flagpoints ON flagpoints.flag_id = flags.flag_id AND flagpoints.mod_id = flags.mod_id WHERE flag = ?");
+                            $q->execute(array($flag));
                             $result = $q->fetch();
                             if($result === false){
                                 $this->handleError(new Error("flag_error", "Unknown flag!"));
                             }  elseif ($result['team_id'] == $this->contestant->getId()) {
-                                $this->handleError(new Error("flag_error", "Rooting your own box is not a cool story bro!"));
+                                $this->handleError(new Error("flag_error", "Rooting your own box is not cool man!"));
                             } else {
                                 $timestamp = time();
-                                $q = $db->prepare("INSERT INTO scores VALUES (?, ? ,? ,?)team_id , flag , timestamp , points ");
+                                $q = $db->prepare("INSERT INTO scores VALUES (?, ? ,? ,?);");
                                 $q->execute(array($this->contestant->getId(), $flag, $timestamp, $result['points']));
                                 $this->flag_success = true;
                             }

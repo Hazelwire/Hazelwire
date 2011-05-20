@@ -19,7 +19,7 @@ function ip_in_range($ip,$range) {
    $net_addr = decbin(myip2long($network[0]));
    $cidr = $network[1];
 
-   if (substr($net_addr, 0, $cidr) == substr($ip_addr, 0, $cidr)) {
+   if (strcmp(substr($net_addr, 0, $cidr),substr($ip_addr, 0, $cidr)) == 0) {
        $match = true;
    }
    return $match;

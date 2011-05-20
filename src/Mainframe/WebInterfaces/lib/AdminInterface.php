@@ -135,8 +135,8 @@ class AdminInterface extends WebInterface {
                         
                         move_uploaded_file($manifest['tmp_name'], "manifest.xml");
                         // @TODO check for errors
-                        exec($this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &", $cmd_result);
-                        if(isset($cmd_result) && $cmd_result[0] != ""){
+                        $res = exec("python ". $this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['site_folder'].$this->config['database_file_name'], $cmd_result);
+                        if(strrpos($res,"False") !== false){
                             $this->handleError(new Error("config_input_error", "Invalid manifest XML!", true));
                             return;
                         }
@@ -181,7 +181,7 @@ class AdminInterface extends WebInterface {
                          */
                         
                         if(!ctype_alnum($_POST['name']))
-                            $this->handleError(new Error("team_input_error", "Illigal name. Only alphanumeric allowed!", false));
+                            $this->handleError(new Error("team_input_error", "Illegal name. Only alphanumeric allowed!", false));
                         elseif((!(intval($_POST['server_ip']) > 0 && intval($_POST['server_ip']) < 255)) || !((intval($_POST['ip_range']) > 0 && intval($_POST['ip_range']) < 255)))
                             $this->handleError(new Error("team_input_error", "IP input has to be between 0 and 255, excluding.", false));
                         else {
@@ -214,7 +214,27 @@ class AdminInterface extends WebInterface {
                                 if($num_teams == 0){
 
                                     OpenVPNManager::buildInitKeys();
+
+                                    OpenVPNManager::createBaseVPNServer();
                                     
+                                    $smarty = &$this->getSmarty();
+                                    $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
+                                    $tpl->assign("filename", "basevpn");
+                                    $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
+                                    $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
+                                    $tpl->assign("server_ip_range",  "10.0.0.0");
+                                    $tpl->assign("man_port",$this->config['management_port_base']);
+                                    $tpl->assign("port",$this->config['base_port']);
+                                    $config_file_data = $tpl->fetch();
+
+                                    $config_file_loc = $this->config['openvpn_location'] . "basevpn.conf";
+                                    $handle = @fopen($config_file_loc, 'w');
+                                    if($handle === false){
+                                        $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
+                                        return;
+                                    }
+                                    fwrite($handle, $config_file_data);
+                                    fclose($handle);
                                 }
                                 
                                 OpenVPNManager::buildServerKeys($_POST['name']);
@@ -227,7 +247,7 @@ class AdminInterface extends WebInterface {
                                 
                                 $smarty = &$this->getSmarty();
                                 $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
-                                $tpl->assign("teamname", $_POST['name']);
+                                $tpl->assign("filename", "server_".$_POST['name']);
                                 $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
                                 $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
                                 $tpl->assign("server_ip_range",  substr($subnet, 0, -3));
@@ -300,6 +320,7 @@ class AdminInterface extends WebInterface {
                             if(!OpenVPNManager::getVPNStatus($c))
                                 OpenVPNManager::startVPN($c);
                         }
+                        OpenVPNManager::startBaseVPN();
                         $this->setState(PREGAMESTART);
                     }
                 }
@@ -310,7 +331,7 @@ class AdminInterface extends WebInterface {
                     if (isset($_POST['next'])) {
                         
                         OpenVPNManager::setKernelRouting(true);
-                        exec($this->config['ch_location'] . "FlagAdministration.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
+                        exec("python ". $this->config['ch_location'] . "FlagAdministration.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
                         
                         $this->setState(GAMEINPROGRESS);
                     }
@@ -335,6 +356,7 @@ class AdminInterface extends WebInterface {
                             if(OpenVPNManager::getVPNStatus($c))
                                 OpenVPNManager::stopVPN($c);
                         }
+                        OpenVPNManager::stopBaseVPN();
                         
                         $fp = @fsockopen("127.0.0.1", 10000, $errno, $errstr, 5);
                         if(!$fp){

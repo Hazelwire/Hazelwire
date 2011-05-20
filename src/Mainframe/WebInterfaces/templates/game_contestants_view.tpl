@@ -11,6 +11,9 @@
             <span style="color: red;font-size:1.3em;border: 1px solid red;display:block;">{$error->getMessage()}</span>
         {/foreach}
         {/if}
+        {if isset($flag_success) && $flag_success >0}
+        <span style="color: green;font-size:1.3em;border: 1px solid green;display:block;">Flag successfully submited!</span>
+        {/if}
         <form method="POST" action="index.php" >
             <div style="padding-bottom:0.2em;"> <label> Flag </label> <input type="text" name="flag" size="32"/> </div>
             <input type="Submit" value="Submit flag!" name="sub_flag"/> 

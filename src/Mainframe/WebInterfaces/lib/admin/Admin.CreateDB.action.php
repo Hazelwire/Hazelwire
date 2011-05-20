@@ -38,10 +38,7 @@ function create_database(){
                 INSERT INTO flags VALUES(6,2,3,'FLGfd2jCzV9itkoerUfb5nvn58oQV6vdrzBEQ3RnNB9hISwSIC4kvEg0huCCYym3');
                 INSERT INTO flags VALUES(1,3,3,'FLGbfWQlGZs1kgz5ynaINfHBzSLW24xD8yaUZidZsbUwErEjtwCxeYTPVaGWqgq7');
                 INSERT INTO flags VALUES(2,3,3,'FLGyslt7FAVJQlukFc0jkz3eBIj0M1FeG9Y3qnzWuIwY2Iw9uXxkmPmVKgmmLZTE');
-                CREATE TABLE modules (id INTEGER PRIMARY KEY, name TEXT, numFlags INTEGER, basepath TEXT, deployscript TEXT);
-                INSERT INTO modules VALUES(1,'pwnjebox',3,'/exploit1/','deploy/install.py');
-                INSERT INTO modules VALUES(2,'g0tr00t?',6,'/exploit2/','deploy/derp.py');
-                INSERT INTO modules VALUES(3,'Revenge of ZeroCool',2,'/exploit3/','deploy/foobaar.py');
+                CREATE TABLE modules (id INTEGER PRIMARY KEY, name TEXT, numFlags INTEGER, deployscript TEXT);
                 CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
                 CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
                 COMMIT;

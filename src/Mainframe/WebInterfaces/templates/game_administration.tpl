@@ -14,9 +14,9 @@
         
         <form method="POST" action="index.php" >
              If you press this button, the game will be stopped.
-             <input name="next" id="next" type="Submit" value="Stop teh Game!" />
+             <input name="next" id="next" type="Submit" value="Stop the game!" />
         </form>
         <p></p>
-       
+        {contestants_list}
     </body>
 </html>
