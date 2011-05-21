@@ -1,4 +1,4 @@
-import unittest, sqlite3, os, threading, socket, time
+import unittest, sqlite3, os, threading, socket
 from Mainframe.ClientHandler import SanityCheckService
 from Mainframe.ClientHandler.DatabaseHandler import DatabaseHandler
 
