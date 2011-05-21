@@ -7,9 +7,9 @@ def checkIP(IP, ports):
         failed = False
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            sock.connect(IP, port)
+            sock.connect((IP, port))
         except socket.error as error:
-            failed = error == "[Errno 111] Connection refused"
+            failed = error.strerror == "Connection refused"
         if failed:
             results[-1]['fine'] = False
     return results

@@ -11,7 +11,6 @@ class SanityChecker:
         self.contestants = self.db.getClientIPs()
         self.ports = self.db.getModulePorts()
        
-        
     def checkConfig(self):
         new_normal_interval, new_p2p_interval = self.db.getIntervals()
         if new_normal_interval != self.normal_interval:
