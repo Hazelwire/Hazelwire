@@ -62,7 +62,7 @@ def parseManifest(manifest, db):
         correctXML = False
     for module in modules:
             module['numFlags'] = len(module['flagpoints'])
-            if module['numFlags'] == 0 or module['name'] == '' or module['deployscript'] == '':
+            if module['numFlags'] == 0 or module['name'] == '' or module['deployscript'] == '' or module['serviceport'] == '':
                 #incorrect XML
                 correctXML = False
     if correctXML:
