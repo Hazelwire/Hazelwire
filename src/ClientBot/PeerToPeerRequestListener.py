@@ -1,4 +1,4 @@
-import socket
+import socket, time
 
 class PeerToPeerRequestListener:
     
@@ -6,6 +6,7 @@ class PeerToPeerRequestListener:
     
     def __init__(self, host, port):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
         self.sock.bind((host, port))
         self.sock.listen(1)
         
@@ -17,36 +18,33 @@ class PeerToPeerRequestListener:
     
     def handle(self, conn):
         data = conn.recv(1024).strip()
+        lines = data.split('\n')
         if data.startswith("CHECK"):
-            ip = data.strip(' ')[1]
-            getPorts = True
+            ip = data.split(' ')[1]
             portsToScan = []
-            while getPorts:
-                data = conn.recv(1024).strip()
-                if data.startswith("PORT"):
-                    portsToScan.append({'port': data.split(" ")[1], 'result':''})
-                elif data == "ENDPORTS":
-                    getPorts = False
+            for line in lines:
+                if line.startswith("PORT"):
+                    portsToScan.append(line.split(' ')[1].strip())
             results = self.checkIP(ip, portsToScan)
+            msg = ''
             for result in results:
-                conn.send("RESULT " + result['port'] + " " + result['fine'] + '\n')
-            conn.send("ENDRESULTS")
-            conn.close()
+                msg += "RESULT " + result['port'] + " " + str(result['fine']) + '\n'
+            conn.send(msg + "ENDRESULTS\n")
         elif data == "LISTENSTOP":
             self.running = False
             conn.close()
             self.sock.close()
             
-    def checkIP(IP, ports):
+    def checkIP(self, IP, ports):
         results = []
         for port in ports:
             results.append({'port':port,'fine':True})
             failed = False
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
-                sock.connect(IP, port)
+                sock.connect((IP, int(port)))
             except socket.error as error:
-                failed = error == "[Errno 111] Connection refused"
+                failed = error.strerror == "Connection refused"
             if failed:
                 results[-1]['fine'] = False
         return results

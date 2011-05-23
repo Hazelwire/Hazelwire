@@ -10,35 +10,34 @@ class PeerToPeerSanityChecker:
         self.targetIP = targetIP
         self.writeLock = threading.Lock()
             
-    def sendRequest(clientIP):
+    def sendRequest(self, clientIP):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((clientIP, 9998))
-        self.sock.send('CHECK ' + str(clientIP) + '\n')
+        msg = ''
+        msg += 'CHECK ' + str(clientIP) + '\n'
         for port in self.ports:
-            self.sock.send("PORT " + str(port) + '\n')
-            self.sock.send("ENDPORTS\n")
+            msg += "PORT " + str(port) + '\n'
+        self.sock.send(msg + "ENDPORTS\n")
         results = []
-        getResults = True
-        while getResults:
-            data = self.sock.recv(1024).strip()
-            if data.startswith("RESULT"):
-                results.append({'port': data.split(' ')[1], 'fine':data.split(' ')[2]})
-            elif data == "ENDRESULTS":
-                getResults = False
-        self.writeResults(results)
-        sock.close()
+        data = self.sock.recv(1024).strip()
+        lines = data.split('\n')
+        for line in lines:                
+            if line.startswith("RESULT"):
+                results.append({'port': line.split(' ')[1], 'fine':line.split(' ')[2]})
+        self.writeResults(results, clientIP)
+        self.sock.close()
         
-    def writeResults(self, results):
+    def writeResults(self, results, IP):
         self.writeLock.acquire()
-        self.allresults.append(results)
+        self.allresults.append({'results':results, 'IP':IP})
         self.writeLock.release()
         
     def getResults(self):
         for thread in self.threads:
             thread.join()
-        return results
+        return self.allresults
         
     def checkIP(self):
         for client in self.clients:
-            self.threads.append(threading.Thread(target=self.sendRequest(client)))
+            self.threads.append(threading.Thread(target=self.sendRequest, args=[client]))
             self.threads[-1].start()
