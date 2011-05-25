@@ -1,5 +1,6 @@
 package org.hazelwire.virtualmachine;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -7,7 +8,7 @@ import java.util.Iterator;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.Session.Command;
-
+import org.hazelwire.main.Configuration;
 
 public class SSHConnection
 {
@@ -71,8 +72,9 @@ public class SSHConnection
 	
 	public SSHClient getSSHConnection() throws IOException
 	{
-		SSHClient ssh = new SSHClient();		
-        ssh.loadKnownHosts();
+		SSHClient ssh = new SSHClient();
+		
+        ssh.loadKnownHosts(new File(Configuration.getInstance().getKnownHostsPath()));
         ssh.connect(this.hostname,this.port);
         ssh.authPassword(username, password);
         
