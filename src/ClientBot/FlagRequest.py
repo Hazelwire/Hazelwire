@@ -1,4 +1,4 @@
-import socket,os
+import socket, os, sys
 
 moduleFlags = [] #array of dictionaries {'ModuleName': String, 'BasePath': String, 'InstallScript': String, 'flags': []}
 
@@ -37,7 +37,7 @@ def deployFlags():
     
 
 if __name__ == "__main__":
-    requestFlags('localhost',9999)
+    requestFlags(sys.argv[1],9999)
     deployFlags()
     #for module in moduleFlags:
         #print "Module: " + module['name']

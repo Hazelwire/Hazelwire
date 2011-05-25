@@ -2,6 +2,7 @@
     <MODULE>
         <name>test1</name>
         <deployscript>deploy/deployFlags</deployscript>
+	<serviceport>31337</serviceport>
         <flags>
             <flag>
 		<points>12</points>
@@ -22,6 +23,7 @@
     </MODULE>
     <MODULE>
         <name>test2</name>
+	<serviceport>61281</serviceport>
         <deployscript>deploy/install.py</deployscript>
         <flags>
             <flag>
