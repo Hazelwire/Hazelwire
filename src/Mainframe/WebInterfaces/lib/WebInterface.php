@@ -12,6 +12,7 @@ class WebInterface {
     protected $db_ready = true;
     protected $smarty;
     protected $config;
+    public $gameConfig = null;
     protected $contestant_list;
     
     protected $fatal_error = false;
@@ -20,6 +21,7 @@ class WebInterface {
     function WebInterface(){
         global $config;
         $this->config = $config;
+        
         
         if(file_exists($this->config['database_file_name']))
             $this->connectDB();
@@ -48,6 +50,8 @@ class WebInterface {
                 if($c !== false)
                     array_push ($this->contestant_list, $c);
             }
+            
+            $this->gameConfig = new gameConfig($db); /* @var $gameConfig gameConfig */
         }
     }
     
@@ -73,7 +77,7 @@ class WebInterface {
      * Returns the current state of the wargame
      * @return integer Returns -1 on no state found, otherwise returns state as defined in index.php
      */
-    protected function getCurrentState(){
+    public function getCurrentState(){
         $db =& $this->database;
         /* @var $db PDO */
         /* @var $resobj PDOStatement */

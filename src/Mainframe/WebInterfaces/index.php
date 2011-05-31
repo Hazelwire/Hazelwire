@@ -8,6 +8,7 @@ define("PostGame",5,true);
 //includes
 include_once 'lib/etc_funcs.php';
 include_once 'config.php';
+include_once 'lib/GameConfig.php';
 include_once 'lib/WebInterface.php';
 include_once 'lib/AdminInterface.php';
 include_once 'lib/ContestantInterface.php';

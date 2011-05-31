@@ -9,7 +9,7 @@ function create_database(){
     //create tables
     $res = $database->exec("CREATE TABLE 'state' ( 'state' SMALLINT );");
     if($res === false)return false;
-    $res = $database->exec("CREATE TABLE 'config' ( 'name' TEXT , 'p2p_interval' INT , 's2p_interval' INT, 'server_ip' TEXT ) ; ");
+    $res = $database->exec("CREATE TABLE 'config' ( 'config_name' TEXT , 'value' TEXT) ; ");
     if($res === false)return false;
     //@TODO remove this BS when done
     $res = $database->exec("BEGIN TRANSACTION;
@@ -41,6 +41,7 @@ function create_database(){
                 CREATE TABLE modules (id INTEGER PRIMARY KEY, name TEXT, numFlags INTEGER, deployscript TEXT);
                 CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
                 CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
+                CREATE TABLE submission_block (team_id INTEGER, timestamp INTEGER);
                 COMMIT;
     ");
     if($res === false)return false;

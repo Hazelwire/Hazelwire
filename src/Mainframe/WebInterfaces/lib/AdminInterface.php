@@ -122,6 +122,12 @@ class AdminInterface extends WebInterface {
                     $auto_p2p_interval = intval($_POST['p2p_interval']);
                     $auto_s2p_interval = intval($_POST['s2p_interval']);
                     $server_ip = $_POST['server_ip'];
+                    
+                    $decay_mod = $_POST['points_decay_mod'];
+                    $points_min = $_POST['points_min'];
+                    $point_penalty_mod = $_POST['point_penalty_mod'];
+                    $penalty_offline = $_POST['penalty_offline'];
+                    
                     $manifest = $_FILES['manifest'];
                     $temp = explode(".", $manifest['name']);
                     $ext = $temp[count($temp) - 1];
@@ -130,7 +136,7 @@ class AdminInterface extends WebInterface {
                     if (strcmp($ext, "xml") != 0) {
                         $this->handleError(new Error("config_input_error", "You can only upload XML files!", false));
                         return;
-                    } elseif ($auto_p2p_interval > 0 && $auto_s2p_interval > 0 && $manifest['error'] === 0) {
+                    } elseif ($auto_p2p_interval > 0 && $auto_s2p_interval > 0 && $manifest['error'] === 0 && checkValidIp($server_ip)) {
 
                         
                         move_uploaded_file($manifest['tmp_name'], "manifest.xml");
@@ -141,9 +147,20 @@ class AdminInterface extends WebInterface {
                             return;
                         }
 
-                        $q = $db->prepare("INSERT INTO 'config' VALUES (?,?,?,?);");
-                        /* @var $q PDOStatement */
-                        $result = $q->execute(array($gamename, $auto_p2p_interval, $auto_s2p_interval, $server_ip));
+                        $update = $db->prepare("INSERT INTO config (value,config_name) VALUES (?,?);");
+                        /* @var $update PDOStatement */
+                        $result = $update->execute(array($gamename, 'gamename'));
+                        $result = $result && $update->execute(array($server_ip, 'server_ip'));
+
+
+                        $result = $result && $update->execute(array($auto_p2p_interval, 'p2p_interval'));
+                        $result = $result && $update->execute(array($auto_s2p_interval, 'normal_interval'));
+                        
+                        $result = $result && $update->execute(array($decay_mod , 'points_decay_mod'));
+                        $result = $result && $update->execute(array($points_min , 'points_min'));
+                        $result = $result && $update->execute(array($point_penalty_mod , 'point_penalty_mod'));
+                        $result = $result && $update->execute(array($penalty_offline , 'penalty_offline'));
+                        
 
                         if ($result !== false) {
                             $this->setState(POSTCONFIG);
@@ -265,13 +282,13 @@ class AdminInterface extends WebInterface {
                                 fclose($handle);
 
 
-                                $q = $db->query("SELECT server_ip FROM config");
-                                $res = $q->fetch();
+
+                                $gc = &$this->gameConfig; /* @var $gc GameConfig */
                                 
                                 $tpl = $smarty->createTemplate("client.conf"); /* @var $tpl Smarty_Internal_Template */
                                 $tpl->assign("teamname", $_POST['name']);
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
-                                $tpl->assign("server_ip", $res['server_ip']);
+                                $tpl->assign("server_ip", $gc->server_ip);
                                 $config_file_data = $tpl->fetch();
 
                                 $config_file_loc = $this->config['openvpn_location'] . $_POST['name'] . "_client.conf";

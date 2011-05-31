@@ -47,5 +47,39 @@ function startsWith($haystack, $needle)
        return(count($ProcessState) >= 2);
    }
 
+function checkValidIp($cidr,$range = false) {
+
+    // Checks for a valid IP address or optionally a cidr notation range
+    // e.g. 1.2.3.4 or 1.2.3.0/24
+    
+    $reg = ($range)?"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(/[0-9]{1,2}){0,1}$":"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$";
+   if(!eregi($reg, $cidr)) {
+       $return = FALSE;
+   } else {
+       $return = TRUE;
+   }
+   
+    if ( $return == TRUE ) {
+
+        $parts = explode("/", $cidr);
+        $ip = $parts[0];
+        $netmask = $parts[1];
+        $octets = explode(".", $ip);
+
+        foreach ( $octets AS $octet ) {
+            if ( $octet > 255 ) {
+                $return = FALSE;
+            }
+        }
+
+        if ( ( $netmask != "" ) && ( $netmask > 32 ) ) {
+            $return = FALSE;
+        }
+
+    }
+
+    return $return;
+
+}
 
 ?>

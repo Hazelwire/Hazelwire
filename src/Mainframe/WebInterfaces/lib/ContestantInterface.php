@@ -75,6 +75,7 @@ class ContestantInterface extends WebInterface{
                             // flags (flag_id INTEGER, mod_id INTEGER, team_id INTEGER, flag TEXT);
                             // flagpoints (flag_id INTEGER, mod_id INTEGER, points INTEGER);
                             // teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
+                            // scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
                             $q = $db->prepare("SELECT flags.team_id as team_id, flags.flag as flag, flagpoints.points as points FROM flags INNER JOIN flagpoints ON flagpoints.flag_id = flags.flag_id AND flagpoints.mod_id = flags.mod_id WHERE flag = ?");
                             $q->execute(array($flag));
                             $result = $q->fetch();
@@ -83,9 +84,19 @@ class ContestantInterface extends WebInterface{
                             }  elseif ($result['team_id'] == $this->contestant->getId()) {
                                 $this->handleError(new Error("flag_error", "Rooting your own box is not cool man!"));
                             } else {
+                                
+                                $q = $db->prepare("SELECT f.flag_id FROM scores s INNER JOIN flags f ON s.flag = f.flag WHERE s.team_id = ? AND " . 
+                                                    "f.flag_id = (SELECT flag_id FROM flags WHERE flag = ?) AND f.mod_id = (SELECT mod_id FROM flags WHERE flag = ?)");
+                                $q->execute(array($this->contestant->getId(), $flag, $flag));
+                                $exp = count($q->fetchAll(PDO::FETCH_COLUMN, 0));
+                                $gc = &$this->gameConfig; /* @var $gc GameConfig */
+                                $mult = pow($gc->points_decay_mod, $exp);
+                                $points = intval(intval($result['points']) * $mult);
+                                
                                 $timestamp = time();
                                 $q = $db->prepare("INSERT INTO scores VALUES (?, ? ,? ,?);");
-                                $q->execute(array($this->contestant->getId(), $flag, $timestamp, $result['points']));
+                                $q->execute(array($this->contestant->getId(), $flag, $timestamp, ($points > $gc->points_min)?$points:$gc->points_min));
+                                $q->execute(array($result['team_id'], $flag, $timestamp, intval(intval($result['points']) * $gc->points_penalty_mod)));
                                 $this->flag_success = true;
                             }
 
