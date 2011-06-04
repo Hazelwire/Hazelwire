@@ -23,7 +23,7 @@ INSERT INTO teams VALUES(1,'lokale lutsers','127.0.0.1');
 CREATE TABLE config (config_name TEXT, type TEXT, value TEXT);
 INSERT INTO config VALUES('normal_interval','sanitycheck',3);
 INSERT INTO config VALUES('p2p_interval','sanitycheck',10);
-CREATE TABLE evil_teams (IP TEXT, port NUMERIC, time NUMERIC);
+CREATE TABLE evil_teams (IP TEXT, port NUMERIC, time NUMERIC, seen NUMERIC);
 COMMIT;""")
         self.temp.commit()
         self.cursor.close()

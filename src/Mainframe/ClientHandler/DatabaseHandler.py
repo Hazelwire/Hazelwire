@@ -73,7 +73,7 @@ class DatabaseHandler:
     def addSuspiciousContestant(self, IP, port):
         self.connect()
         c = self.conn.cursor()
-        c.execute("INSERT INTO evil_teams VALUES(?,?,?);", [IP, port, int(time.time())])
+        c.execute("INSERT INTO evil_teams VALUES(?,?,?,1);", [IP, port, int(time.time())])
         c.close()
         self.disconnect()
 
