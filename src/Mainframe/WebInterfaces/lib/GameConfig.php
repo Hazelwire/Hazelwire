@@ -54,7 +54,7 @@ class GameConfig {
 
             $q->execute(array('penalty_offline'));
             $res = $q->fetch();
-            $this->penalty_offline = intsval($res[0]);
+            $this->penalty_offline = intval($res[0]);
         } catch (OutOfBoundsException $e){
             global $interface; /* @var $interface WebInterface */
             if($interface->getCurrentState() != preConfig){

@@ -74,7 +74,7 @@ class ContestantInterface extends WebInterface{
                                 $q->execute(array($flag,$this->contestant->getId()));
                                 if($q->fetch()){
                                     $this->handleError(new Error("flag_error", "You already submitted that flag!"));
-                                    addFlagFailure($now);
+                                    $this->addFlagFailure($now);
                                     return;
                                 }
                                 // flags (flag_id INTEGER, mod_id INTEGER, team_id INTEGER, flag TEXT);
@@ -86,10 +86,10 @@ class ContestantInterface extends WebInterface{
                                 $result = $q->fetch();
                                 if($result === false){
                                     $this->handleError(new Error("flag_error", "Unknown flag!"));
-                                    addFlagFailure($now);
+                                    $this->saddFlagFailure($now);
                                 }  elseif ($result['team_id'] == $this->contestant->getId()) {
                                     $this->handleError(new Error("flag_error", "Rooting your own box is not cool man!"));
-                                    addFlagFailure($now);
+                                    $this->addFlagFailure($now);
                                 } else {
                                     
                                     //Calculate points
@@ -111,28 +111,29 @@ class ContestantInterface extends WebInterface{
 
                             }else{
                                 $this->handleError(new Error("flag_error", "The flag you submitted is incorrect!"));
-                                addFlagFailure($now);
+                                $this->addFlagFailure($now);
                             }
                         }else{
+                            //fetch olf block time
+                            $q = $db->prepare("SELECT * FROM submission_block WHERE team_id = ? ORDER BY try_timestamp DESC LIMIT 0,1");
+                            $q->execute(array($this->contestant->getId()));
+                            $res = $q->fetch();
+                            $time_blocked = $res['block_timestamp'] - $res['try_timestamp'];
                             
-                            $time_blocked = $this->contestant->getBlockTime() - $now;
-                            if($time_blocked <= 0) {
-                                // lucky bastards. 
-                            }
-                            else {
-                                // increase block time
-                                $new_block_time = ($time_blocked * 2) + $now;
-                                $q = $db->prepare("INSERT INTO submission_block VALUES (?,?,?)");
-                                $q->execute(array($this->contestant->getId(), $now, $new_block_time));
-                            }
+                            $time_left = $res['block_timestamp'] - $now;
                             
-                            $this->handleError(new Error("flag_error", "You are temporarily blocked from submitting flags due to spam!"));
+                            // double block time
+                            $new_block_time = ($time_blocked * 2) + $now;
+                            $q = $db->prepare("INSERT INTO submission_block VALUES (?,?,?)");
+                            $q->execute(array($this->contestant->getId(), $now, $new_block_time));
+                            
+                            $this->handleError(new Error("flag_error", "You are temporarily blocked from submitting flags due to spam! (" + $time_left + "s left)"));
                         }
                     }
                     
                      //clear block info that is too long ago now (90 seconds). 
-                    $q = $db->prepare("DELETE FROM submission_block WHERE team_id = ? AND try_timestamp < ?");
-                    $q->execute(array($this->contestant->getId(), $now - 90));
+                    $q = $db->prepare("DELETE FROM submission_block WHERE team_id = ? AND try_timestamp NOT IN (SELECT try_timestamp FROM submission_block WHERE team_id = ? ORDER BY try_timestamp DESC LIMIT 0,10)");
+                    $q->execute(array($this->contestant->getId(), $this->contestant->getId()));
                 }
             }
         }

@@ -53,7 +53,7 @@ function checkValidIp($cidr,$range = false) {
     // e.g. 1.2.3.4 or 1.2.3.0/24
     
     $reg = ($range)?"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(/[0-9]{1,2}){0,1}$":"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$";
-   if(!eregi($reg, $cidr)) {
+   if(!ereg($reg, $cidr)) {
        $return = FALSE;
    } else {
        $return = TRUE;
@@ -63,7 +63,7 @@ function checkValidIp($cidr,$range = false) {
 
         $parts = explode("/", $cidr);
         $ip = $parts[0];
-        $netmask = $parts[1];
+        $netmask = count($parts)>1?$parts[1]:"";
         $octets = explode(".", $ip);
 
         foreach ( $octets AS $octet ) {

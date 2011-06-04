@@ -18,6 +18,12 @@
             <div style="padding-bottom:0.2em;"> <label> S2P interval (Min) </label> <input type="text" name="s2p_interval" size="4" value="2" /> </div>
             <div style="padding-bottom:0.2em;"> <label> Server's IP </label> <input type="text" name="server_ip" size="10" /> </div>
             <div style="padding-bottom:0.2em;"> <label> Manifest file </label> <input type="file" name="manifest" /> </div>
+            <br />
+            Optional:<br/>
+            <div style="padding-bottom:0.2em;"> <label> Points Decay Modifier: </label> <input type="text" name="points_decay_mod" size="5" value="0.25" /> </div>
+            <div style="padding-bottom:0.2em;"> <label> Minimum Points per Score: </label> <input type="text" name="points_min" size="5" value="1" /> pts</div>
+            <div style="padding-bottom:0.2em;"> <label> Points Penalty Modifier: </label> <input type="text" name="point_penalty_mod" size="5" value="0.5" /> </div>
+            <div style="padding-bottom:0.2em;"> <label> Offline Penalty: </label> <input type="text" name="penalty_offline" size="5" value="5" /> pts/min offline</div>
             <div> <label><!-- pseudo label --> </label>
                 <input type="Submit" value="Next" /> </div>
         </form>
