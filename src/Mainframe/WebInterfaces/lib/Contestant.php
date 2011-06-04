@@ -10,6 +10,8 @@ class Contestant {
     private $subnet;
     private $vm_ip;
     private $points;
+    private $is_flag_blocked;
+    private $block_time;
     
     function __construct($name, $subnet, $vm_ip, $id = -1) {
         $this->teamname = $name;
@@ -48,6 +50,17 @@ class Contestant {
         $res = $q->fetchAll();
         if($res !== false && count($res) > 0){
             $result =  new Contestant($res[0]['name'],$res[0]['subnet'],$res[0]['VMip'],$res[0]['id']);
+            
+            $q = $db->prepare("SELECT * FROM submission_block WHERE team_id = ? ORDER BY block_timestamp DESC LIMIT 0,1");
+            $q->execute(array($id));
+            $res = $q->fetch();
+            if($res == false || time() > $res['block_timestamp']){
+                $result->is_flag_blocked = false;
+                $result->is_flag_blocked = 0;
+            } else {
+                $result->is_flag_blocked = true;
+                $result->block_time = $res['block_timestamp'];
+            }
 
             $q = $db->prepare("SELECT ifnull(sum(points),0) as sum FROM scores WHERE team_id = ?");
             $q->execute(array($id));
@@ -119,7 +132,14 @@ class Contestant {
     public function setPoints($points) {
         $this->points = $points;
     }
-
+    
+    public function isFlagSubmissionBlocked(){
+        return $this->is_flag_blocked;
+    }
+    
+    public function getBlockTime(){
+        return $this->block_time;
+    }
 
 }
 

@@ -41,7 +41,7 @@ function create_database(){
                 CREATE TABLE modules (id INTEGER PRIMARY KEY, name TEXT, numFlags INTEGER, deployscript TEXT);
                 CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
                 CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
-                CREATE TABLE submission_block (team_id INTEGER, timestamp INTEGER);
+                CREATE TABLE submission_block (team_id INTEGER, try_timestamp INTEGER, block_timestamp INTEGER);
                 COMMIT;
     ");
     if($res === false)return false;
