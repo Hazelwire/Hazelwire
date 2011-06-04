@@ -70,10 +70,10 @@ class DatabaseHandler:
         self.disconnect()
         return res
 
-    def addSuspiciousContestant(self, IP, port):
+    def addSuspiciousContestant(self, IP, port, reporterIP):
         self.connect()
         c = self.conn.cursor()
-        c.execute("INSERT INTO evil_teams VALUES(?,?,?,1);", [IP, port, int(time.time())])
+        c.execute("INSERT INTO evil_teams VALUES(?,?,?,?,1);", [IP, port, int(time.time()), reporterIP])
         c.close()
         self.disconnect()
 

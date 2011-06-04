@@ -32,9 +32,12 @@ class ManualSanityCheckerService:
                 p2p = P2PSanityCheck.PeerToPeerSanityChecker(IP,self.contestants, self.portsToScan)
                 p2p.checkIP()
                 results = p2p.getResults()
-            for result in results:
-                    if not result['fine']:
-                        self.db.addSuspiciousContestant(IP, result['port'])
+            for client in results:
+                for result in client['results']:
+                    #print "%s reports %s, fine = %s" % (client['IP'], result['port'], result['fine'])
+                    if result['fine'] != "True":
+                        self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
+
         elif data == "STOPMANUAL":
             self.running = False       
             
