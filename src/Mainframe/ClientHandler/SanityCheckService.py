@@ -29,7 +29,7 @@ class SanityChecker:
             results = SanityCheck.checkIP(contestant, self.ports)
             for result in results:
                 if not result['fine']:
-                    self.db.addSuspiciousContestant(contestant, result['port'])
+                    self.db.addSuspiciousContestant(contestant, result['port'],'')
                     
     def P2PCheck(self):
         for contestant in self.contestants:
@@ -40,9 +40,9 @@ class SanityChecker:
             allresults = p2p.getResults()
             for client in allresults:
                 for result in client['results']:
-                    #print "%s reports %s, fine = %s" % (client['IP'], result['port'], result['fine'])
+                    print "%s reports %s, fine = %s" % (client['IP'], result['port'], result['fine'])
                     if result['fine'] != "True":
-                        self.db.addSuspiciousContestant(contestant, result['port'])
+                        self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
 
     def start(self):
         self.autoNormalTimer = threading.Timer(self.normal_interval*60, self.NormalCheck)

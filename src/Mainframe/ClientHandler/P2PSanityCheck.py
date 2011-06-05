@@ -14,7 +14,7 @@ class PeerToPeerSanityChecker:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((clientIP, 9998))
         msg = ''
-        msg += 'CHECK ' + str(clientIP) + '\n'
+        msg += 'CHECK ' + str(self.targetIP) + '\n'
         for port in self.ports:
             msg += "PORT " + str(port) + '\n'
         self.sock.send(msg + "ENDPORTS\n")
