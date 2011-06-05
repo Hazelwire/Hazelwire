@@ -29,7 +29,7 @@ class AdminInterface extends WebInterface {
                 $smarty->assign($error->getType(), $error->getMessage());
                 $errors_by_name[$error->getType()] = $error;
             }
-            $smarty->assign("errors", array_merge($this->errors, $errors_by_name));
+            $smarty->assign("errors", $this->errors);
         }
 
         /*
@@ -132,7 +132,6 @@ class AdminInterface extends WebInterface {
                     $temp = explode(".", $manifest['name']);
                     $ext = $temp[count($temp) - 1];
 
-                    // @TODO make this use MIMEtypes
                     if (strcmp($ext, "xml") != 0) {
                         $this->handleError(new Error("config_input_error", "You can only upload XML files!", false));
                         return;
@@ -140,7 +139,7 @@ class AdminInterface extends WebInterface {
 
                         
                         move_uploaded_file($manifest['tmp_name'], "manifest.xml");
-                        // @TODO check for errors
+                        
                         $res = exec("python ". $this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['site_folder'].$this->config['database_file_name'], $cmd_result);
                         if(strrpos($res,"False") !== false){
                             $this->handleError(new Error("config_input_error", "Invalid manifest XML!", true));
@@ -258,7 +257,6 @@ class AdminInterface extends WebInterface {
                                 OpenVPNManager::buildClientKeys($_POST['name']);
                                 
                                 // @TODO We moeten ook Apache configs aanpassen enzo om Limit te allowen voor .htaccess
-                                // @TODO create client config too
                                 // create the CCD file
                                 OpenVPNManager::createClientConfigFile($_POST['name'], $vmip, $vmip_endpoint);
                                 

@@ -1,0 +1,235 @@
+body
+{
+	background-color: #666;
+	color: #333;
+	font-family: Verdana, Geneva, sans-serif;
+}
+div, p, select
+{
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+div
+{
+	position: inherit;
+}
+
+div#container
+{
+	background-color: #999;
+	position: absolute;
+	top: .5em;
+	bottom: .5em;
+	left: .5em;
+	right: .5em;
+}
+div#split
+{
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 80%;
+}
+
+div#flags
+{
+	background-color: #aaa;
+	top: 0;
+	bottom: 0;
+	left: 30%;
+	right: 30%;
+}
+div#flagdisplayselection
+{
+	top: 0;
+	right: 0;
+}
+div#flagdisplay
+{
+	bottom: 2em;
+}
+div.unclaimed:before, div.claimed:before
+{
+	float: left;
+	width: 1em;
+	font-weight: bold;
+	margin-left: .1em;
+	content: "x";
+}
+div.unclaimed:before
+{
+	color: #f7f7f7;
+}
+div#flaginput
+{
+	bottom: 0;
+	left: 0;
+	right: 6.5em;
+}
+div#flagsubmission
+{
+	bottom: 0;
+	right: 0;
+	width: 6em;
+}
+form#flagform
+{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: 0;
+	padding: 0;
+}
+form#flagform input
+{
+	margin: 0;
+	width: 100%;
+}
+
+div#scoreboard
+{
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 30%
+}
+div#scorecontainer
+{
+	overflow: auto;
+	top: 2em;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #ddd;
+}
+.scorelist
+{
+	list-style-type: none;
+	counter-reset: position;
+}
+.scorelist li
+{
+	width: 100%;
+	float: left;
+}
+.scorelist > li:before
+{
+	float: left;
+	width: 2em;
+	font-weight: bold;
+	margin-right:.5em;
+	text-align: right;
+}
+ul.scorelist > li:before
+{
+	content: "#";
+}
+ol.scorelist > li:before
+{
+	content: counter(position);
+	counter-increment: position;
+}
+ol.scorelist li:nth-child(odd)
+{
+	background-color: #eee;
+}
+ol.scorelist li:nth-child(even)
+{
+	background-color: #f7f7f7;
+}
+.scorelist div
+{
+	float: right;
+	margin-right: .5em;
+}
+div.floatleft
+{
+	float: left;
+}
+
+div#announcements
+{
+	top: 0;
+	bottom: 0;
+	right: 0;
+	width: 30%;
+}
+div#announcementdisplay
+{
+	bottom: 0;
+}
+
+div#flagdisplay, div#announcementdisplay
+{
+	background-color: #ddd;
+	overflow: auto;
+	top: 2em;
+	left: 0;
+	right: 0;
+}
+
+div#timeline
+{
+	background-color: #888;
+	top: 80%;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+div.header
+{
+	top: 0;
+	left: 0;
+}
+
+ul, ol
+{
+	margin: 0;
+	padding: 0;
+}
+ul.collapsible
+{
+	padding: 0;
+	list-style-type: none;
+}
+ul.collapsible li
+{
+	border: 1px solid #e6e6e6;
+	background-color: #e6e6e6;
+}
+ul.collapsible li:hover
+{
+	border-color: red !important;
+}
+ul.collapsible li.open
+{
+	border-color: #eee;
+	background-color: #eee;
+}
+ul.collapsible li div
+{
+	background-color: #f7f7f7;
+	color: #444;
+	font-size: .9em;
+}
+div.unclaimed
+{
+	color: #d6d6d6 !important;
+}
+
+div.content
+{
+	top: 1em;
+	bottom: 1em;
+	left: 1em;
+	right: 1em;
+}
+h1
+{
+	margin: 0;
+	padding: 0;
+	font-size: 1em;
+}

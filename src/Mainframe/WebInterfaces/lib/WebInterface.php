@@ -8,12 +8,12 @@
 class WebInterface {
     
     /* @var $this->database PDO */
-    public $database = null;
-    protected $db_ready = true;
-    protected $smarty;
-    protected $config;
-    public $gameConfig = null;
-    protected $contestant_list;
+    public      $database = null;
+    protected   $db_ready = true;
+    protected   $smarty;
+    protected   $config;
+    public      $gameConfig = null;
+    protected   $contestant_list;
     
     protected $fatal_error = false;
     protected $errors = null;

@@ -52,8 +52,8 @@ function checkValidIp($cidr,$range = false) {
     // Checks for a valid IP address or optionally a cidr notation range
     // e.g. 1.2.3.4 or 1.2.3.0/24
     
-    $reg = ($range)?"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(/[0-9]{1,2}){0,1}$":"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$";
-   if(!ereg($reg, $cidr)) {
+    $reg = ($range)?"/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(/[0-9]{1,2}){0,1}$/":"/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/";
+   if(!preg_match($reg, $cidr)) {
        $return = FALSE;
    } else {
        $return = TRUE;
@@ -81,5 +81,4 @@ function checkValidIp($cidr,$range = false) {
     return $return;
 
 }
-
 ?>

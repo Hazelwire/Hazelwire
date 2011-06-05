@@ -51,6 +51,7 @@ class Contestant {
         if($res !== false && count($res) > 0){
             $result =  new Contestant($res[0]['name'],$res[0]['subnet'],$res[0]['VMip'],$res[0]['id']);
             
+            //collect flag submission block information.
             $q = $db->prepare("SELECT * FROM submission_block WHERE team_id = ? ORDER BY block_timestamp DESC LIMIT 0,1");
             $q->execute(array($id));
             $res = $q->fetch();
@@ -61,7 +62,13 @@ class Contestant {
                 $result->is_flag_blocked = true;
                 $result->block_time = $res['block_timestamp'];
             }
-
+            
+            //collect ban information
+            $q = $db->prepare("SELECT t.name, m.name, e.timestamp FROM evil_teams e INNER JOIN modules m ON m.serviceport = e.port INNER JOIN teams t ON t.VMip = e.ip WHERE e.ip = ? AND e.timestamp > ? ORDER BY e.timestamp DESC");
+            // Only select the notification which are 'recent'
+            $q->execute(array($result->getVm_ip(), time() -15*60 )); // @TODO make configurable or make seen boolean
+            
+            
             $q = $db->prepare("SELECT ifnull(sum(points),0) as sum FROM scores WHERE team_id = ?");
             $q->execute(array($id));
             $res = $q->fetch();

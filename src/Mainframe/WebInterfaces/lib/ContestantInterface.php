@@ -42,20 +42,38 @@ class ContestantInterface extends WebInterface{
                 $smarty->assign($error->getType(), $error->getMessage());
                 $errors_by_name[$error->getType()] = $error;
             }
-            $smarty->assign("errors", array_merge($this->errors, $errors_by_name));
+            $smarty->assign("errors", $this->errors);
         }
         
         if ($this->getCurrentState() != GAMEINPROGRESS) {
             return $smarty->fetch("game_not_started.tpl");
         } else {
-            if($this->flag_success)
-                $smarty->assign("flag_success", 1);
-            return $smarty->fetch("game_contestants_view.tpl");
+            if(!isset($_GET['ajax'])){
+//            if($this->flag_success)
+//                $smarty->assign("flag_success", 1);
+                $db = &$interface->database;
+                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
+                             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
+                             "GROUP BY teams.id ORDER BY sum(scores.points) DESC;");
+
+                $contestants = array();
+                while (($res = $q->fetch()) !== false){
+                    $c = Contestant::getById($res['team_id'], $db);
+                    array_push($contestants, $c);
+                }
+                $smarty->assign("contestants",$contestants);
+                return $smarty->fetch("contestant.tpl");
+            }else if(strcmp($_GET['ajax'],"flagsub")==0){
+                if($this->flag_success){
+                    $smarty->assign("flag_success", 1);
+                }
+                return $smarty->fetch("contestant_ajax_flagsub.tpl");
+            }
         }
     }
     
     public function doWork(){
-        if($this->contestant === false)
+        if($this->contestant === false || !$this->db_ready)
                 return;
         // @TODO check for db_ready.
         if($this->getCurrentState() == GAMEINPROGRESS){
@@ -86,7 +104,7 @@ class ContestantInterface extends WebInterface{
                                 $result = $q->fetch();
                                 if($result === false){
                                     $this->handleError(new Error("flag_error", "Unknown flag!"));
-                                    $this->saddFlagFailure($now);
+                                    $this->addFlagFailure($now);
                                 }  elseif ($result['team_id'] == $this->contestant->getId()) {
                                     $this->handleError(new Error("flag_error", "Rooting your own box is not cool man!"));
                                     $this->addFlagFailure($now);
@@ -105,7 +123,7 @@ class ContestantInterface extends WebInterface{
                                     $timestamp = time();
                                     $q = $db->prepare("INSERT INTO scores VALUES (?, ? ,? ,?);");
                                     $q->execute(array($this->contestant->getId(), $flag, $timestamp, ($points > $gc->points_min)?$points:$gc->points_min));
-                                    $q->execute(array($result['team_id'], $flag, $timestamp, intval(intval($result['points']) * $gc->points_penalty_mod)));
+                                    $q->execute(array($result['team_id'], $flag, $timestamp, -1 *intval(intval($result['points']) * $gc->points_penalty_mod)));
                                     $this->flag_success = true;
                                 }
 
@@ -123,11 +141,11 @@ class ContestantInterface extends WebInterface{
                             $time_left = $res['block_timestamp'] - $now;
                             
                             // double block time
-                            $new_block_time = ($time_blocked * 2) + $now;
+                            $new_block_time = ($time_blocked * 2) + $now; // @todo make configurable
                             $q = $db->prepare("INSERT INTO submission_block VALUES (?,?,?)");
                             $q->execute(array($this->contestant->getId(), $now, $new_block_time));
                             
-                            $this->handleError(new Error("flag_error", "You are temporarily blocked from submitting flags due to spam! (" + $time_left + "s left)"));
+                            $this->handleError(new Error("flag_error", "You are temporarily blocked from submitting flags due to spam! (" . $time_left . "s left)"));
                         }
                     }
                     
@@ -153,6 +171,7 @@ class ContestantInterface extends WebInterface{
         if($res['count'] >= 9){
             //block the player
             $q = $db->prepare("INSERT INTO submission_block VALUES (?,?,?)");
+            // @todo make configurable
             $q->execute(array($this->contestant->getId(),$timestamp,$timestamp + 60)); //minimal block time == 60 seconds
             $this->handleError(new Error("flag_error", "You are temporarily blocked from submitting flags due to spam!"));
         }
