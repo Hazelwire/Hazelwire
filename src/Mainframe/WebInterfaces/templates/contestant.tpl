@@ -129,5 +129,6 @@
 				</div>
 			</div>
 		</div>
+            <div id="prepareblock" style="display:none;"></div>
 	</body>
 </html>

@@ -32,9 +32,11 @@ $(document).ready(function() {
                 url: "index.php",  
                 data: dataString,  
                 success: function(data) {
+                    $('#flagresponse').remove();
+                    $('#prepareblock').append(data);
                     var len = $('#flagresponse').children().length;
                     $('#flagdisplay').animate({bottom: (len*2+2)+'em'});
-                    $('#flagform').before(data);
+                    $('#flagform').before($('#flagresponse'));
                     $('#flagresponse').slideDown();
                     setTimeout(function(){
                         $('#flagresponse').fadeOut(1000,function(){$('#flagresponse').remove()});
@@ -42,6 +44,7 @@ $(document).ready(function() {
                     },15000);
                 },
                 error: function() {
+                    $('#flagresponse').remove();
                     $('#flagdisplay').animate({bottom: '4em'});
                     $('#flagform').before("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> Error while connecting to the mainframe! </div>");
                     $('#flagresponse').slideDown();

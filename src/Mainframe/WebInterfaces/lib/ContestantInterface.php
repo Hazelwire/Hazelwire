@@ -48,10 +48,10 @@ class ContestantInterface extends WebInterface{
         if ($this->getCurrentState() != GAMEINPROGRESS) {
             return $smarty->fetch("game_not_started.tpl");
         } else {
-            if(!isset($_GET['ajax'])){
+            if(!isset($_POST['ajax'])){
 //            if($this->flag_success)
 //                $smarty->assign("flag_success", 1);
-                $db = &$interface->database;
+                $db = &$this->database;
                 $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
                              "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
                              "GROUP BY teams.id ORDER BY sum(scores.points) DESC;");
@@ -63,7 +63,7 @@ class ContestantInterface extends WebInterface{
                 }
                 $smarty->assign("contestants",$contestants);
                 return $smarty->fetch("contestant.tpl");
-            }else if(strcmp($_GET['ajax'],"flagsub")==0){
+            }else if(strcmp($_POST['ajax'],"flagsub")==0){
                 if($this->flag_success){
                     $smarty->assign("flag_success", 1);
                 }
@@ -132,20 +132,22 @@ class ContestantInterface extends WebInterface{
                                 $this->addFlagFailure($now);
                             }
                         }else{
-                            //fetch olf block time
-                            $q = $db->prepare("SELECT * FROM submission_block WHERE team_id = ? ORDER BY try_timestamp DESC LIMIT 0,1");
-                            $q->execute(array($this->contestant->getId()));
+                            //fetch old block time
+                            $q = $db->prepare("SELECT * FROM submission_block WHERE team_id = ? AND block_timestamp >= ? ORDER BY try_timestamp DESC LIMIT 0,1");
+                            $q->execute(array($this->contestant->getId(),$now));
                             $res = $q->fetch();
-                            $time_blocked = $res['block_timestamp'] - $res['try_timestamp'];
-                            
-                            $time_left = $res['block_timestamp'] - $now;
-                            
-                            // double block time
-                            $new_block_time = ($time_blocked * 2) + $now; // @todo make configurable
-                            $q = $db->prepare("INSERT INTO submission_block VALUES (?,?,?)");
-                            $q->execute(array($this->contestant->getId(), $now, $new_block_time));
-                            
-                            $this->handleError(new Error("flag_error", "You are temporarily blocked from submitting flags due to spam! (" . $time_left . "s left)"));
+                            if($res != false){
+                                $time_blocked = $res['block_timestamp'] - $res['try_timestamp'];
+
+                                $time_left = $res['block_timestamp'] - $now;
+
+                                // double block time
+                                $new_block_time = ($time_blocked * 2) + $now; // @todo make configurable
+                                $q = $db->prepare("INSERT INTO submission_block VALUES (?,?,?)");
+                                $q->execute(array($this->contestant->getId(), $now, $new_block_time));
+
+                                $this->handleError(new Error("flag_error", "You are temporarily blocked from submitting flags due to spam! (" . $time_left . "s left)"));
+                            }
                         }
                     }
                     
