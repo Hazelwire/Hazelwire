@@ -1,4 +1,4 @@
-package org.hazelwire.modules;
+package org.hazelwire.xml;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,6 +17,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.hazelwire.main.Generator;
+import org.hazelwire.modules.Module;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

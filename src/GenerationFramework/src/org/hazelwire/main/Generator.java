@@ -7,12 +7,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.hazelwire.modules.ManifestGenerator;
 import org.hazelwire.modules.Module;
 import org.hazelwire.modules.ModuleSelector;
 import org.hazelwire.virtualmachine.InstallScriptGenerator;
 import org.hazelwire.virtualmachine.SSHConnection;
 import org.hazelwire.virtualmachine.VMHandler;
+import org.hazelwire.xml.ManifestGenerator;
 
 /**
  * @author Tim Strijdhorst

@@ -1,4 +1,4 @@
-package org.hazelwire.modules;
+package org.hazelwire.xml;
 
 import java.io.*;
 import javax.xml.parsers.*;

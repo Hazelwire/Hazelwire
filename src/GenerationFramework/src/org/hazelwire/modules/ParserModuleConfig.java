@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 
 import org.hazelwire.main.Generator;
+import org.hazelwire.xml.XMLParser;
 import org.w3c.dom.*;
 
 public class ParserModuleConfig extends XMLParser
