@@ -12,6 +12,7 @@ import org.hazelwire.modules.ModuleSelector;
 import org.hazelwire.virtualmachine.InstallScriptGenerator;
 import org.hazelwire.virtualmachine.SSHConnection;
 import org.hazelwire.virtualmachine.VMHandler;
+import org.hazelwire.xml.ConfigGenerator;
 import org.hazelwire.xml.ManifestGenerator;
 
 /**
@@ -154,19 +155,35 @@ public class Generator
 	{
 		ArrayList<Module> modules = moduleSelector.getMarkedModules();
 		Iterator<Module> iterate = modules.iterator();
+		String configPath = config.getTempDirectory()+"config.xml";
 		
 		while(iterate.hasNext())
 		{
 			Module tempModule = iterate.next();
+			String externalDir = config.getExternalModuleDirectory()+tempModule.getFileNameWithoutExtension();
 			
 			try
 			{
-				ssh.scpUpload(tempModule.getFullPath(),config.getExternalModuleDirectory()+tempModule.getFileName());
+				ConfigGenerator.saveConfigToDisk(tempModule, configPath);
+				
+				ssh.executeRemoteCommand("mkdir "+externalDir);
+				ssh.scpUpload(tempModule.getFullPath(),externalDir+tempModule.getFileName());
+				ssh.scpUpload(configPath,externalDir+"config.xml");
 			}
 			catch(Exception e)
 			{
 				tui.println("ERROR: something went wrong while transferring the modules to the VM");
 			}
+		}
+		
+		try
+		{
+			File removeFile = new File(configPath);
+			removeFile.delete();
+		}
+		catch(Exception e)
+		{
+			tui.println("ERROR: something went wrong while trying to delete the generated configfile"+e.getMessage());
 		}
 	}
 	

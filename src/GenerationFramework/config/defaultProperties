@@ -16,4 +16,5 @@ externalScriptDirectory=/home/hazelwire/
 callbackPort=31337
 externalDeployDirectory=/home/hazelwire/deploy/
 outputDirectory=output/
+tempDirectory=temp/
 knownHostsFile=config/known_hosts

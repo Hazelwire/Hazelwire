@@ -56,6 +56,11 @@ public class Module
 		return filePath.getFileName()+filePath.getExtensionSeparator()+filePath.getExtension();
 	}
 	
+	public String getFileNameWithoutExtension()
+	{
+		return filePath.getFileName()+filePath.getExtensionSeparator();
+	}
+	
 	public String getFullPath()
 	{
 		return filePath.getFullPath();
