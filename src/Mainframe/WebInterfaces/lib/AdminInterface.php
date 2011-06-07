@@ -205,6 +205,12 @@ class AdminInterface extends WebInterface {
                             $vmip =   "10." . $_POST['ip_range'] . "." . $_POST['server_ip'] . ".1";
                             $vmip_endpoint =   "10." . $_POST['ip_range'] . "." . $_POST['server_ip'] . ".2";
                             
+                            if(!checkValidIp($vmip)){
+                                $this->handleError(new Error("team_input_error", "Illegal IP address input", false));
+                                return;
+                            }
+                            
+                            
                             $result = $db->query("SELECT * FROM teams");
                             
                             foreach($result as $res){

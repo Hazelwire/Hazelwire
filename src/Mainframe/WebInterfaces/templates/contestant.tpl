@@ -41,42 +41,23 @@
 						<div id="flagdisplayselection">
 							display
 							<select>
-								<option value="flagtype">by Flag Type</option>
-								<option value="warserver">by Warserver</option>
+								<option id="winsort" name="winsort" value="flagtype">by Flag Type</option>
+								<option id="winsort" name="winsort" value="warserver">by Warserver</option>
 							</select>
 						</div>
 						<div id="flagdisplay">
 							<ul class="collapsible">
-								<li>1 point flag
-									<div class="claimed">10.0.0.1</div>
-									<div class="claimed">10.0.0.2</div>
-									<div class="claimed">10.0.0.3</div>
+                                                            {foreach from=$flags item=flag}
+								<li>{$flag->name}
+                                                                        {foreach from=$flag->wins item=win}
+                                                                        {if not $win->submitted}
+									<div class="unclaimed">{$win->name}</div>
+                                                                        {else}
+                                                                        <div class="claimed">{$win->name}</div>
+                                                                        {/if}
+									{/foreach}
 								</li>
-								<li>2 point flag
-									<div class="unclaimed">10.0.0.1</div>
-									<div class="unclaimed">10.0.0.2</div>
-									<div class="unclaimed">10.0.0.3</div>
-								</li>
-								<li>3 point flag
-									<div class="claimed">10.0.0.1</div>
-									<div class="unclaimed">10.0.0.2</div>
-									<div class="unclaimed">10.0.0.3</div>
-								</li>
-								<li>4 point flag
-									<div class="unclaimed">10.0.0.1</div>
-									<div class="claimed">10.0.0.2</div>
-									<div class="claimed">10.0.0.3</div>
-								</li>
-								<li>5 point flag
-									<div class="unclaimed">10.0.0.1</div>
-									<div class="claimed">10.0.0.2</div>
-									<div class="unclaimed">10.0.0.3</div>
-								</li>
-								<li>6 point flag
-									<div class="claimed">10.0.0.1</div>
-									<div class="unclaimed">10.0.0.2</div>
-									<div class="claimed">10.0.0.3</div>
-								</li>
+                                                             {/foreach}
 							</ul>	
 						</div>
 						<form id="flagform" action="index.php" method="POST">
@@ -98,26 +79,11 @@
 						</div>
 						<div id="announcementdisplay">
 							<ul class="collapsible">
-								<li>Announcement 1 title
-									<div>Announcement 1 content.<br />
-										Sed eu nisl sapien, quis tincidunt purus. Donec id orci dui. Suspendisse potenti. Aliquam auctor neque id erat tristique facilisis. Cras nec felis elit. Curabitur ornare risus quis ipsum aliquet ut pretium nisi rhoncus. Donec placerat mi in purus pellentesque euismod.</div>
+                                                            {foreach from=$announcements item=announcement}
+								<li>{$announcement->title}
+									<div>{$announcement->content}</div>
 								</li>
-								<li>Announcement 2 title
-									<div>Announcement 1 content.<br />
-										Sed eu nisl sapien, quis tincidunt purus. Donec id orci dui. Suspendisse potenti. Aliquam auctor neque id erat tristique facilisis. Cras nec felis elit. Curabitur ornare risus quis ipsum aliquet ut pretium nisi rhoncus. Donec placerat mi in purus pellentesque euismod.</div>
-								</li>
-								<li>Announcement 3 title
-									<div>Announcement 1 content.<br />
-										Sed eu nisl sapien, quis tincidunt purus. Donec id orci dui. Suspendisse potenti. Aliquam auctor neque id erat tristique facilisis. Cras nec felis elit. Curabitur ornare risus quis ipsum aliquet ut pretium nisi rhoncus. Donec placerat mi in purus pellentesque euismod.</div>
-								</li>
-								<li>Announcement 4 title
-									<div>Announcement 1 content.<br />
-										Sed eu nisl sapien, quis tincidunt purus. Donec id orci dui. Suspendisse potenti. Aliquam auctor neque id erat tristique facilisis. Cras nec felis elit. Curabitur ornare risus quis ipsum aliquet ut pretium nisi rhoncus. Donec placerat mi in purus pellentesque euismod.</div>
-								</li>
-								<li>Announcement 5 title
-									<div>Announcement 1 content.<br />
-										Sed eu nisl sapien, quis tincidunt purus. Donec id orci dui. Suspendisse potenti. Aliquam auctor neque id erat tristique facilisis. Cras nec felis elit. Curabitur ornare risus quis ipsum aliquet ut pretium nisi rhoncus. Donec placerat mi in purus pellentesque euismod.</div>
-								</li>
+                                                             {/foreach}
 							</ul>
 						</div>
 					</div>
