@@ -12,6 +12,7 @@ class Contestant {
     private $points;
     private $is_flag_blocked;
     private $block_time;
+    private $banned;
     
     function __construct($name, $subnet, $vm_ip, $id = -1) {
         $this->teamname = $name;
@@ -146,6 +147,10 @@ class Contestant {
     
     public function getBlockTime(){
         return $this->block_time;
+    }
+
+    public function getBanned() {
+        return $this->banned;
     }
 
 }

@@ -353,6 +353,9 @@ class AdminInterface extends WebInterface {
                         
                         OpenVPNManager::setKernelRouting(true);
                         exec("python ". $this->config['ch_location'] . "FlagAdministration.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
+                        $db =&$this->database; /* @var $db PDO */
+                        $q = $db->prepare("INSERT INTO config VALUES (?,?)");
+                        $q->execute(array("start_time",time()));
                         
                         $this->setState(GAMEINPROGRESS);
                     }
