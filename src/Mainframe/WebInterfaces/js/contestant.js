@@ -33,10 +33,11 @@ $(document).ready(function() {
                 data: dataString,  
                 success: function(data) {
                     $('#flagresponse').remove();
-                    $('#prepareblock').append(data);
+                    //$('#prepareblock').append(data);
                     //var len = $('#flagresponse').children().length;
                     //$('#flagdisplay').animate({bottom: (len*2+2)+'em'});
-                    $('#flagform').prepend($('#flagresponse'));
+                    $('#flagform').prepend(data);
+                    ('#flagdisplay').animate({bottom: (40+$('#flagresponse').outerHeight())+'px'});
                     $('#flagresponse').slideDown();
                     setTimeout(function(){
                         $('#flagresponse').fadeOut(1000,function(){$('#flagresponse').remove()});

@@ -63,9 +63,12 @@ class ContestantInterface extends WebInterface{
                 }
                 $smarty->assign("contestants",$contestants);
                
-                if(!isset($_GET['winsort']) && !isset($_POST['winsort']) || strcmp($_GET['winsort'],"flagtype") || strcmp($_POST['winsort'],"flagtype")) {
-                    
-                    $q = $db->query("SELECT * FROM points");
+                if((!isset($_GET['winsort']) && !isset($_POST['winsort'])) || strcmp($_GET['winsort'],"flagtype") ==0 || strcmp($_POST['winsort'],"flagtype")==0) {
+                    //CREATE TABLE flagpoints (flag_id INTEGER, mod_id INTEGER, points INTEGER);
+                    //CREATE TABLE flags (flag_id INTEGER, mod_id INTEGER, team_id INTEGER, flag TEXT);
+                    //CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
+                    //CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
+                    $q = $db->query("SELECT * FROM flagpoints");
                     $q2 = $db->prepare("SELECT DISTINCT t.VMip as ip FROM scores s INNER JOIN teams t ON s.team_id = t.id INNER JOIN flags f ON s.flag = f.flag AND s.team_id = f.team_id INNER JOIN scores s2 ON s.timestamp = s2.timestamp AND s.flag = s2.flag WHERE f.flag_id = ? AND f.mod_id = ? AND s2.team_id = ?"); /* @var $q2 PDOStatement */
 
                     $flags = array();
@@ -73,36 +76,34 @@ class ContestantInterface extends WebInterface{
                         $flag = new stdClass();
                         $flag->name = "Flag for " . $challenge['points'] . " pts.";
                         $flag->wins = array();
-                        $q2->execute(array($challenge['flag_id'],$challenge['mod_id'],$this->contestant->getVm_ip()));
+                        $q2->execute(array($challenge['flag_id'],$challenge['mod_id'],$this->contestant->getId()));
                         while(($res = $q2->fetch()) != false){
                             $win = new stdClass();
                             $win->submitted = true;
                             $win->name = $res['ip'];
                             array_push($flag->wins, $win);
                         }
-                        if(count($flag->wins)==0){
+                        /*if(count($flag->wins)==0){
                             $win = new stdClass();
                             $win->submitted = false;
                             $win->name = "None";
                             array_push ($flag->wins, $win);
-                        }
-                        array_push($flags, $flag);
+                        }*/
+                        if(count($flag->wins)>0)
+                            array_push($flags, $flag);
                     }
                     $smarty->assign("flags",$flags);
                 }else{
-                    //CREATE TABLE flagpoints (flag_id INTEGER, mod_id INTEGER, points INTEGER);
-                    //CREATE TABLE flags (flag_id INTEGER, mod_id INTEGER, team_id INTEGER, flag TEXT);
-                    //CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
-                    //CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
+
                     $q  = $db->prepare("SELECT DISTINCT t.VMip as ip, t.id as id FROM scores s 
                                         INNER JOIN teams t ON t.id = s.team_id 
                                         INNER JOIN scores s2 ON s2.flag=s.flag AND s.timestamp=s2.timestamp AND s.team_id <> s2.team_id
                                         WHERE s2.team_id=?");
                     $q->execute(array($this->contestant->getId()));
                     $q2 = $db->prepare("SELECT fp.points as pts, ifnull(s.timestamp, 'fail') as win FROM flagpoints fp 
-                                        INNER JOIN flags f  ON fp.flag_id = f.flag_id AND fp.mod_id = f.mod_id 
-                                        INNER JOIN scores s ON s.flag=f.flag 
-                                        WHERE s.team_id = ? AND f.team_id = ?"); /* @var $q2 PDOStatement */
+                                        LEFT OUTER JOIN  flags f ON fp.flag_id = f.flag_id AND fp.mod_id = f.mod_id 
+                                        LEFT OUTER JOIN scores s ON s.flag = f.flag 
+                                        WHERE (ifnull(s.team_id,0)=0 OR s.team_id = ?) AND f.team_id = ?;"); /* @var $q2 PDOStatement */
 
                     $flags = array();
                     foreach ($q as $team) {
@@ -123,7 +124,7 @@ class ContestantInterface extends WebInterface{
                 
                 
                 $q  = $db->query("SELECT * FROM announcements");
-                $announcements = new stdClass();
+                $announcements = array();
                 foreach ($q as $announce){
                     $announcement = new stdClass();
                     $announcement->id = $announce['id'];
