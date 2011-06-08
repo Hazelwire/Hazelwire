@@ -131,9 +131,9 @@ public class VMHandler
 	 * Export to the current working dir with filename *vmName*.ova
 	 * @throws Exception
 	 */
-	public void exportVM() throws Exception
+	public void exportVM(String exportPath) throws Exception
 	{
-		this.exportVM(vmName,Configuration.getInstance().getOutputDirectory()+vmName+".ova");
+		this.exportVM(vmName,exportPath);
 	}
 	
 	public void exportVM(String vmName, String exportPath) throws Exception

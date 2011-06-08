@@ -15,8 +15,8 @@ import org.hazelwire.main.Generator;
  */
 public class Module
 {
-	private String name, author, type, deployPath;
-	private HashMap<Integer,Integer> flags; //<id,amountOfPoints>
+	private String name, author, deployPath;
+	private HashMap<Integer,Flag> flags; //<id,amountOfPoints>
 	private HashMap<Integer,Option> options; //<id,Option>
 	private ArrayList<String> tags; 
 	private Date date;
@@ -28,15 +28,16 @@ public class Module
 	{
 		this.name = name;
 		this.filePath = new FileName(filePath,Generator.getInstance().getFileSeperator(),'.');
-		this.flags = new HashMap<Integer,Integer>();
+		this.flags = new HashMap<Integer,Flag>();
 		this.options = new HashMap<Integer,Option>();
 		this.tags = new ArrayList<String>();
 	}
 	
 	public Module()
 	{
-		this.flags = new HashMap<Integer,Integer>();
+		this.flags = new HashMap<Integer,Flag>();
 		this.options = new HashMap<Integer,Option>();
+		this.tags = new ArrayList<String>();
 	}
 	
 	public String getName()
@@ -76,7 +77,7 @@ public class Module
 	
 	public String getFileNameWithoutExtension()
 	{
-		return filePath.getFileName()+filePath.getExtensionSeparator();
+		return filePath.getFileName();
 	}
 	
 	public String getFullPath()
@@ -94,9 +95,10 @@ public class Module
 		if(this.filePath != null) filePath = new FileName(filePath.getPath()+fileName,Generator.getInstance().getFileSeperator(),'.');
 	}
 	
-	public void addFlag(int id, int points)
+	public void addFlag(Flag flag)
 	{
-		this.flags.put(id, points);
+		flag.setId(this.flags.size());
+		this.flags.put(id, flag);
 	}
 	
 	public void removeFlag(int id)
@@ -104,8 +106,9 @@ public class Module
 		this.flags.remove(id);
 	}
 	
-	public void addOption(int id, Option option)
+	public void addOption(Option option)
 	{
+		option.setId(this.options.size());
 		this.options.put(id,option);
 	}
 	
@@ -122,16 +125,6 @@ public class Module
 	public void setAuthor(String author)
 	{
 		this.author = author;
-	}
-
-	public String getType()
-	{
-		return type;
-	}
-
-	public void setType(String type)
-	{
-		this.type = type;
 	}
 
 	public Date getDate()
@@ -179,7 +172,7 @@ public class Module
 		this.deployPath = deployFileName;
 	}
 
-	public Collection<Integer> getFlags()
+	public Collection<Flag> getFlags()
 	{
 		return flags.values();
 	}

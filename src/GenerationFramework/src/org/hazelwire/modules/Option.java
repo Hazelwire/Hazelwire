@@ -3,14 +3,22 @@ package org.hazelwire.modules;
 public class Option
 {
 	private int id;
-	String name, type, value;
+	String name, type, value, defaultValue;
 	
-	public Option(int id, String name, String type, String value)
+	public Option(String name, String type, String defaultValue)
 	{
-		this.id = id;
 		this.name = name;
 		this.type = type;
-		this.value = value;
+		this.defaultValue = defaultValue;
+		this.value = this.defaultValue;
+	}
+	
+	public Option(String name, String defaultValue)
+	{
+		this.name = name;
+		this.type = type;
+		this.defaultValue = defaultValue;
+		this.value = this.defaultValue;
 	}
 	
 	public Option()
@@ -56,5 +64,15 @@ public class Option
 	public void setValue(String value)
 	{
 		this.value = value;
+	}
+
+	public String getDefaultValue()
+	{
+		return defaultValue;
+	}
+
+	public void setDefaultValue(String defaultValue)
+	{
+		this.defaultValue = defaultValue;
 	}
 }

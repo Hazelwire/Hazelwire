@@ -17,6 +17,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.hazelwire.main.Generator;
+import org.hazelwire.modules.Flag;
 import org.hazelwire.modules.Module;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,8 +42,8 @@ public class ManifestGenerator
 		while(iterate.hasNext())
 		{
 			Module module = iterate.next();
-			Collection<Integer> flags = module.getFlags();
-			Iterator<Integer> flagIterator = flags.iterator();
+			Collection<Flag> flags = module.getFlags();
+			Iterator<Flag> flagIterator = flags.iterator();
 			
 			//<name>
 			Element em = document.createElement("name");
@@ -61,7 +62,7 @@ public class ManifestGenerator
 			{
 				Element flagElement = document.createElement("flag");
 				Element pointsElement = document.createElement("points");
-				pointsElement.appendChild(document.createTextNode(String.valueOf(flagIterator.next())));
+				pointsElement.appendChild(document.createTextNode(String.valueOf(flagIterator.next().getPoints())));
 				flagElement.appendChild(pointsElement);
 				em.appendChild(flagElement);
 			}

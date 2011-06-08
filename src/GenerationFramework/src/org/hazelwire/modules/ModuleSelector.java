@@ -99,9 +99,10 @@ public class ModuleSelector
 	/**
 	 * Get all modules marked for installation (selected + hidden)
 	 */
+	@SuppressWarnings("unchecked")
 	public ArrayList<Module> getMarkedModules()
 	{
-		ArrayList<Module> tempArr = hiddenModules;
+		ArrayList<Module> tempArr = (ArrayList<Module>) hiddenModules.clone();
 		tempArr.addAll(this.getSelectedModules().values());
 		return tempArr;
 	}
