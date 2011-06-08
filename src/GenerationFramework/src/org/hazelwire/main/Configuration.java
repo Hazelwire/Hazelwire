@@ -226,6 +226,16 @@ public class Configuration
 		applicationProps.setProperty("outputDirectory", dir);
 	}
 	
+	public String getTempDirectory()
+	{
+		return applicationProps.getProperty("tempDirectory");
+	}
+	
+	public void setTempDirectory(String dir)
+	{
+		applicationProps.setProperty("tempDirectory", dir);
+	}
+	
 	public String getKnownHostsPath()
 	{
 		return applicationProps.getProperty("knownHostsFile");

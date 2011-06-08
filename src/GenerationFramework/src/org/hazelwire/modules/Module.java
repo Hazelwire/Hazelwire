@@ -1,5 +1,6 @@
 package org.hazelwire.modules;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ public class Module
 	private String name, author, type, deployPath;
 	private HashMap<Integer,Integer> flags; //<id,amountOfPoints>
 	private HashMap<Integer,Option> options; //<id,Option>
+	private ArrayList<String> tags; 
 	private Date date;
 	private ModulePackage modulePackage;
 	private int id;
@@ -28,6 +30,7 @@ public class Module
 		this.filePath = new FileName(filePath,Generator.getInstance().getFileSeperator(),'.');
 		this.flags = new HashMap<Integer,Integer>();
 		this.options = new HashMap<Integer,Option>();
+		this.tags = new ArrayList<String>();
 	}
 	
 	public Module()
@@ -45,6 +48,21 @@ public class Module
 	{
 		this.name = name;
 	}
+	
+	public ArrayList<String> getTags()
+	{
+		return this.tags;
+	}
+	
+	public void addTag(String tag)
+	{
+		this.tags.add(tag);
+	}
+	
+	public void removeTag(String tag)
+	{
+		this.tags.remove(tag);
+	}
 
 	public String getFilePath()
 	{
@@ -54,6 +72,11 @@ public class Module
 	public String getFileName()
 	{
 		return filePath.getFileName()+filePath.getExtensionSeparator()+filePath.getExtension();
+	}
+	
+	public String getFileNameWithoutExtension()
+	{
+		return filePath.getFileName()+filePath.getExtensionSeparator();
 	}
 	
 	public String getFullPath()
