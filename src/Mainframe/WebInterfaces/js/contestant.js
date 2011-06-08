@@ -29,29 +29,31 @@ $(document).ready(function() {
             
             $.ajax({  
                 type: "POST",  
-                url: "index.php",  
+                url: "rindex.php",  
                 data: dataString,  
                 success: function(data) {
                     $('#flagresponse').remove();
                     $('#prepareblock').append(data);
-                    var len = $('#flagresponse').children().length;
-                    $('#flagdisplay').animate({bottom: (len*2+2)+'em'});
-                    $('#flagform').before($('#flagresponse'));
+                    //var len = $('#flagresponse').children().length;
+                    //$('#flagdisplay').animate({bottom: (len*2+2)+'em'});
+                    $('#flagform').prepend($('#flagresponse'));
                     $('#flagresponse').slideDown();
                     setTimeout(function(){
                         $('#flagresponse').fadeOut(1000,function(){$('#flagresponse').remove()});
                         $('#flagdisplay').delay(1000).animate({bottom: '2em'});
-                    },15000);
+                    },10000);
                 },
                 error: function() {
                     $('#flagresponse').remove();
-                    $('#flagdisplay').animate({bottom: '4em'});
-                    $('#flagform').before("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> Error while connecting to the mainframe! </div>");
+                    $('#flagform').prepend("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> Error while connecting to the mainframe!</div>");
+                    
+                    $('#flagdisplay').animate({bottom: (40+$('#flagresponse').outerHeight())+'px'});
                     $('#flagresponse').slideDown();
+                    
                     setTimeout(function(){
                         $('#flagresponse').fadeOut(1000,function(){$('#flagresponse').remove()});
                         $('#flagdisplay').delay(1000).animate({bottom: '2em'});
-                    },15000);
+                    },10000);
                 },
                 complete:  function(){
                     $("#flagsubmit").attr("disabled", false);
