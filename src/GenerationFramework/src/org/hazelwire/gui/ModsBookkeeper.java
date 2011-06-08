@@ -14,7 +14,7 @@ public class ModsBookkeeper extends Observable
 	private HashMap<Tag, ArrayList<Mod>> modsPerTag;
 	private static ModsBookkeeper instance;
 
-	public static ModsBookkeeper getInstance()
+	public synchronized static ModsBookkeeper getInstance()
 	{
 		if (instance == null)
 		{

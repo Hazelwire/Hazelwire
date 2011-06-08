@@ -1,11 +1,14 @@
 package org.hazelwire.gui;
 
+import java.io.IOException;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Text;
+import org.hazelwire.main.Configuration;
 
 
 /*
@@ -41,6 +44,16 @@ public class BrowseMouseListener implements MouseListener {
         String selected = fd.open();
         if(selected!=null){
         	text.setText(selected);
+        	try
+			{
+				Configuration.getInstance().setVMPath(selected);
+				Configuration.getInstance().saveUserProperties();
+			}
+			catch (IOException e)
+			{
+				// TODO proper visual errors
+				e.printStackTrace();
+			}
         }
 	}
 

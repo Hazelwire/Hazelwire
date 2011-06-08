@@ -4,12 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.management.RuntimeErrorException;
-
-import org.hazelwire.main.Configuration;
 
 /**
  * @author Tim Strijdhorst
@@ -18,8 +15,9 @@ import org.hazelwire.main.Configuration;
  */
 public class VMHandler
 {
-	String virtualBoxPath, vmName, vmPath;
-	boolean debug;
+	private String virtualBoxPath, vmName, vmPath, uuid;
+	private boolean debug;
+	private Pattern importCheck, vmLineExtractor; //reuse compiled patterns because compiling takes ages
 	
 	public VMHandler(String virtualBoxPath, String vmName, String vmPath, boolean debug)
 	{
@@ -29,6 +27,55 @@ public class VMHandler
 		this.vmPath = vmPath;
 	}
 	
+	/**
+	 * @todo fix this....
+	 * @throws Exception
+	 */
+	public void importAndDiscover() throws Exception
+	{
+		ArrayList<String> vmsPreImport = listVMs();
+		importVM();
+		ArrayList<String> vmsPostImport = listVMs();
+		
+		String newVM = "";
+		for(String vmLine : vmsPostImport)
+		{
+			if(!vmsPreImport.contains(vmLine)) newVM = vmLine;
+		}
+		
+		vmLineExtractor = Pattern.compile("\"(.*)\" {(.*)}");
+		Matcher m = vmLineExtractor.matcher(newVM);
+		
+		if(m.find())
+		{
+			this.vmName = m.group(1);
+			this.uuid = m.group(2);
+		}
+	}
+	
+	public ArrayList<String> listVMs() throws Exception
+	{
+		String[] arguments = {virtualBoxPath,"list","vms"};
+		
+		Process process = Runtime.getRuntime().exec(arguments);
+		
+		ArrayList<String> vms = new ArrayList<String>();
+		BufferedReader procOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		
+		String s;
+		while((s = procOut.readLine()) != null)
+		{
+			vms.add(s);
+		}
+		
+		return vms;
+	}
+	
+	/**
+	 * Check what the vm list was before the import and after the import, the difference is the one you just imported.
+	 * Extract the id and the vmname
+	 * @throws Exception
+	 */
 	public void startVM() throws Exception
 	{
 		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
@@ -38,8 +85,6 @@ public class VMHandler
 			{			
 				String[] arguments = {virtualBoxPath,"startvm",vmName,"--type","headless"};
 				Process process = Runtime.getRuntime().exec(arguments);
-				
-				System.out.println(virtualBoxPath+" startvm "+vmName+" --type headless");
 				
 				if(debug) new VMLogger(process);
 			}
@@ -67,40 +112,6 @@ public class VMHandler
 				throw new RuntimeException(e);
 			}
 		}
-	}
-	
-	/**
-	 * Keep trying to make a connection to a certain port on the host system that is routed to the VM by a NAT forward.
-	 * Assuming that the port is really forwarded and the service is start on bootup it will fail to connect untill the VM has fully booted.
-	 * @param hostPort
-	 */
-	public boolean discoverBootedVM(int hostPort)
-	{
-		boolean up = false;
-		int errorCounter = 0;
-		
-		while(!up && errorCounter < 50)
-		{
-			try
-			{
-				Socket socket = new Socket("localhost",hostPort);
-				up = true;
-			}
-			catch (IOException e)
-			{
-				//don't do anything just keep running the loop
-				try
-				{
-					Thread.sleep(1000); //sleep for one second, no use checking every nanosecond whether it's up yet...
-				}
-				catch(Exception ex)
-				{
-					throw new RuntimeException(ex);
-				}
-			}
-		}
-		
-		return up;		
 	}
 	
 	/**
@@ -240,7 +251,7 @@ public class VMHandler
 		{
 			String[] arguments = {virtualBoxPath,"list","vms"};
 			Process process = Runtime.getRuntime().exec(arguments);
-			Pattern pattern = Pattern.compile(".*"+vmName+".*");
+			importCheck = Pattern.compile(".*"+vmName+".*");
 			boolean found = false;
 			
 			String s = null;
@@ -249,7 +260,7 @@ public class VMHandler
 			
 			while((s = procOut.readLine()) != null)
 			{
-				found = pattern.matcher(s).find();
+				found = importCheck.matcher(s).find();
 			}
 			
 			return found;
@@ -258,6 +269,40 @@ public class VMHandler
 		{
 			throw new RuntimeException(e);
 		}
+	}
+	
+	/**
+	 * Keep trying to make a connection to a certain port on the host system that is routed to the VM by a NAT forward.
+	 * Assuming that the port is really forwarded and the service is start on bootup it will fail to connect untill the VM has fully booted.
+	 * @param hostPort
+	 */
+	public boolean discoverBootedVM(int hostPort)
+	{
+		boolean up = false;
+		int errorCounter = 0;
+		
+		while(!up && errorCounter < 50)
+		{
+			try
+			{
+				Socket socket = new Socket("localhost",hostPort);
+				up = true;
+			}
+			catch (IOException e)
+			{
+				//don't do anything just keep running the loop
+				try
+				{
+					Thread.sleep(1000); //sleep for one second, no use checking every nanosecond whether it's up yet...
+				}
+				catch(Exception ex)
+				{
+					throw new RuntimeException(ex);
+				}
+			}
+		}
+		
+		return up;		
 	}
 
 	public String getVirtualBoxPath()

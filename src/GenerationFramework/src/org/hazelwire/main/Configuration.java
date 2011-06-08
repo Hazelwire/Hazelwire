@@ -87,6 +87,11 @@ public class Configuration
 		}
 	}
 	
+	public void saveUserProperties() throws IOException
+	{
+		saveUserProperties(defaultProps.getProperty("propertyPath"));
+	}
+	
 	public String getModulePath()
 	{
 		return applicationProps.getProperty("modulePath");

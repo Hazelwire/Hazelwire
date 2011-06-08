@@ -64,20 +64,22 @@ public class GUIBuilder implements Observer
 		 * Maak ModsBookkeeper aan en voegt zichzelf toe als observer.
 		 */
 		
-		Generator generator = Generator.getInstance();
-		ModsBookkeeper.getInstance().initMods(generator.getModulesForGUI());
+		Generator.getInstance();
+		ModsBookkeeper.getInstance().initMods(GUIBridge.getModulesForGUI());
 		ModsBookkeeper.getInstance().addObserver(this);
 		display = new Display();
 		Shell shell = new Shell(display);
 		this.addGUIElements(shell);
 		shell.pack();
 		shell.open();
+		shell.setText("Hazelwire Alpha v0.1");
 		while (!shell.isDisposed())
 		{
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
 		display.dispose();
+		Generator.getInstance().shutDown(); //Nice way to shut down
 	}
 
 	private void addGUIElements(Shell shell)

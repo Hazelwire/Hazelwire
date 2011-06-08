@@ -171,6 +171,20 @@ public class Module
 	{
 		this.deployPath = deployFileName;
 	}
+	
+	/**
+	 * Completely replace the optionlist
+	 * @param options
+	 */
+	public void setOptions(ArrayList<Option> options)
+	{
+		this.options.clear(); //just to be sure
+		
+		for(Option option : options)
+		{
+			this.options.put(option.getId(), option); //Add them with the original IDs
+		}
+	}
 
 	public Collection<Flag> getFlags()
 	{
