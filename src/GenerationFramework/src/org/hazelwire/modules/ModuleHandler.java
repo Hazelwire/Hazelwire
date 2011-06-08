@@ -13,6 +13,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.hazelwire.main.Generator;
+import org.hazelwire.xml.ParserModuleConfig;
 
 /**
  * 
