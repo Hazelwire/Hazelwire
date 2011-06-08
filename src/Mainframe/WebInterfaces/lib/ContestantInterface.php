@@ -149,7 +149,7 @@ class ContestantInterface extends WebInterface{
                 $start_time = $res['value'];
                 $smarty->assign("start_time",$start_time);
                 $now = time();
-                $point_fetch = $db->prepare("SELECT sum(points) as points FROM scores WHERE team_id=? AND timestamp < ?"); /* @var $point_fetch PDOStatement */
+                $point_fetch = $db->prepare("SELECT points,timestamp FROM scores WHERE team_id=?"); /* @var $point_fetch PDOStatement */
                 $q = $db->prepare("SELECT id, name FROM teams");
                 $q->execute();
                 $series = new stdClass();
@@ -158,20 +158,24 @@ class ContestantInterface extends WebInterface{
                 foreach($q as $contest){
                     $serie = new stdClass();
                     $serie->id   = "line".$contest['id'];
-                    $series->seriesString .= $serie->id;
+                    $series->seriesString .= $serie->id.",";
                     $serie->name = $contest['name'];
                     $serie->string = "[";
-                    for ($i = $start_time;$i < $now; $i+=60){
-                        $point_fetch->execute(array($this->contestant->getId(),$start_time+$i));
-                        $res = $point_fetch->fetch();
-                        $serie->string .= "[".$start_time+$i.",".$res['points']."],";
+
+                    $serie->string .= "[".($start_time).",0],";
+                    $total = 0;
+
+                    $point_fetch->execute(array($this->contestant->getId()));
+                    foreach($point_fetch as $points){
+                        $total += intval($points['points']);
+                        $serie->string .= "[".($points['timestamp']).",".$total."],";
                     }
-                    $serie->string = substr($serie->string, 0 , strlen($serie->string)-1);
-                    $serie->string .= "]";
+                    $serie->string .= "[".($now).",".$total."]]";
                     array_push($series->series, $serie);
                 }
                 $series->seriesString = substr($series->seriesString, 0, strlen($series->seriesString)-1);
-
+                $smarty->assign("series",$series);
+                
                 return $smarty->fetch("contestant.tpl");
 
             }else if(strcmp($_POST['ajax'],"flagsub")==0){
