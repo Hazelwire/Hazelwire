@@ -98,7 +98,7 @@ public class Module
 	public void addFlag(Flag flag)
 	{
 		flag.setId(this.flags.size());
-		this.flags.put(id, flag);
+		this.flags.put(flag.getId(), flag);
 	}
 	
 	public void removeFlag(int id)
