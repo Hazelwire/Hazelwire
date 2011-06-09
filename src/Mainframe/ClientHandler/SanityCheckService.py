@@ -1,34 +1,39 @@
-import threading
+import threading, sys
 import DatabaseHandler, SanityCheck, P2PSanityCheck, ManualSanityChecker
 #3 threads: Automatic Sanity checking, Listening for manual sanity check requests, checking for config changes
 
 class SanityChecker:
     
-    def __init__(self, normal, p2p, db):
+    def __init__(self, db):
         self.db = DatabaseHandler.DatabaseHandler(db)
-        self.normal_interval = normal
-        self.p2p_interval = p2p
+	self.normal_interval, self.p2p_interval = self.db.getIntervals()
         self.contestants = self.db.getClientIPs()
         self.ports = self.db.getModulePorts()
        
     def checkConfig(self):
         new_normal_interval, new_p2p_interval = self.db.getIntervals()
+	print "[CONFIGCHECK] Got intervals from db " + new_normal_interval + " " + new_p2p_interval
         if new_normal_interval != self.normal_interval:
+            print "[CONFIGCHECK]  Got a new time for normal_interval"
             self.autoNormalTimer.cancel()
             self.normal_interval = new_normal_interval
             self.autoNormalTimer = threading.Timer(self.normal_interval*60, self.checkIP)
             self.autoNormalTimer.start()
+            print "[CONFIGCHECK] Started normal check timer with timeout " + self.normal_interval*60
         if new_p2p_interval != self.p2p_interval:
+            print "[CONFIGCHECK] Got a new time for p2p_interval"
             self.autoP2PTimer.cancel()
             self.p2p_interval = new_p2p_interval
             self.autoP2PTimer = threading.Timer(self.p2p_interval*60, self.P2PCheck)
             self.autoP2PTimer.start()
+            print "[CONFIGCHECK] Started p2p check Timer with timeout " + self.p2p_interval*60
             
     def NormalCheck(self):
         for contestant in self.contestants:
             results = SanityCheck.checkIP(contestant, self.ports)
             for result in results:
                 if not result['fine']:
+                    print "Got a suspicious client at " + contestant + " on port " + result['port']
                     self.db.addSuspiciousContestant(contestant, result['port'],'')
                     
     def P2PCheck(self):
@@ -60,5 +65,5 @@ class SanityChecker:
         print "Started Manual Sanity Check Request Service..."
         
 if __name__ == "__main__":
-    sanityService = SanityChecker(3,10,'test.db')
+    sanityService = SanityChecker(sys.argv[1])
     sanityService.start()
