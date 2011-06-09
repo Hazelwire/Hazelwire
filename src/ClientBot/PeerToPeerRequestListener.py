@@ -18,7 +18,7 @@ class PeerToPeerRequestListener:
     
     def handle(self, conn):
         data = conn.recv(1024).strip()
-	print "Got %s from %s" % (data, conn.addr)
+	print "Got %s"
         lines = data.split('\n')
         if data.startswith("CHECK"):
             ip = data.split(' ')[1]
@@ -48,7 +48,7 @@ class PeerToPeerRequestListener:
                 failed = error.strerror == "Connection refused"
             if failed:
                 results[-1]['fine'] = False
-            print "Checked %d on %s, fine = %s" % (port, IP, results[-1]['fine'])
+            print "Checked %s on %s, fine = %s" % (port, IP, results[-1]['fine'])
         return results
             
 if __name__ == "__main__":
