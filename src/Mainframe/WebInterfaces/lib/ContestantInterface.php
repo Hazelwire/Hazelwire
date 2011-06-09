@@ -25,6 +25,8 @@ class ContestantInterface extends WebInterface{
     public function show(){
         if($this->contestant === false)
             die("Not allowed to access this webpage. Shoo!");
+        if($this->contestant->getBanned())
+            die("You are banned. ");
         $smarty = &$this->getSmarty();
         /*
          * Error handling
@@ -49,9 +51,11 @@ class ContestantInterface extends WebInterface{
             return $smarty->fetch("game_not_started.tpl");
         } else {
             if(!isset($_POST['ajax'])){
-//            if($this->flag_success)
-//                $smarty->assign("flag_success", 1);
                 $db = &$this->database;
+                $q = $db->query("SELECT value FROM config WHERE config_name = 'gamename'");
+                $res = $q->fetch();
+                $smarty->assign("title",$res[0]);
+
                 $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
                              "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
                              "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
@@ -71,9 +75,11 @@ class ContestantInterface extends WebInterface{
                     $q = $db->query("SELECT * FROM flagpoints");
                     $q2 = $db->prepare("SELECT DISTINCT t.VMip as ip FROM scores s INNER JOIN teams t ON s.team_id = t.id INNER JOIN flags f ON s.flag = f.flag AND s.team_id = f.team_id INNER JOIN scores s2 ON s.timestamp = s2.timestamp AND s.flag = s2.flag WHERE f.flag_id = ? AND f.mod_id = ? AND s2.team_id = ?"); /* @var $q2 PDOStatement */
 
-                    $flags = array();
+                    $flags = array();$id = 0;
                     foreach ($q as $challenge) {
+                        
                         $flag = new stdClass();
+                        $flag->id = $id;//$challenge['flag_id'].",".$challenge['mod_id'];
                         $flag->name = "Flag for " . $challenge['points'] . " pts.";
                         $flag->wins = array();
                         $q2->execute(array($challenge['flag_id'],$challenge['mod_id'],$this->contestant->getId()));
@@ -89,10 +95,13 @@ class ContestantInterface extends WebInterface{
                             $win->name = "None";
                             array_push ($flag->wins, $win);
                         }*/
-                        if(count($flag->wins)>0)
+                        if(count($flag->wins)>0){
                             array_push($flags, $flag);
+                            $id++;
+                        }
                     }
                     $smarty->assign("flags",$flags);
+                    $smarty->assign("winsort","flagtype");
                 }else{
 
                     $q  = $db->prepare("SELECT DISTINCT t.VMip as ip, t.id as id FROM scores s 
@@ -105,9 +114,10 @@ class ContestantInterface extends WebInterface{
                                         LEFT OUTER JOIN scores s ON s.flag = f.flag 
                                         WHERE (ifnull(s.team_id,0)=0 OR s.team_id = ?) AND f.team_id = ?;"); /* @var $q2 PDOStatement */
 
-                    $flags = array();
+                    $flags = array();$id = 0;
                     foreach ($q as $team) {
                         $flag = new stdClass();
+                        $flag->id = $id;//$team['id'];
                         $flag->name = $team['ip'];
                         $flag->wins = array();
                         $q2->execute(array($this->contestant->getId(),intval($team['id'])));
@@ -115,11 +125,14 @@ class ContestantInterface extends WebInterface{
                             $win = new stdClass();
                             $win->submitted = ($res['win'] != 'fail');
                             $win->name = "Flag for " . $res['pts'] . " pts.";
-                            array_push($flag->wins, $win);
+                            if($win->submitted)
+                                array_push($flag->wins, $win);
                         }
                         array_push($flags, $flag);
+                        $id++;
                     }
                     $smarty->assign("flags",$flags);
+                    $smarty->assign("winsort","warserver");
                 }
                 
                 
@@ -133,12 +146,63 @@ class ContestantInterface extends WebInterface{
                     array_push($announcements, $announcement);
                 }
                 $smarty->assign("announcements",$announcements);
+                /* @var $db PDO */ /* @var $q PDOStatement */
+                //CREATE TABLE flagpoints (flag_id INTEGER, mod_id INTEGER, points INTEGER);
+                //CREATE TABLE flags (flag_id INTEGER, mod_id INTEGER, team_id INTEGER, flag TEXT);
+                //CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
+                //CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
+                $q = $db->query("SELECT value FROM config WHERE config_name = 'start_time'");
+                $res = $q->fetch();
+                $start_time = $res['value']*1000;
+                $smarty->assign("start_time",$start_time);
+                $now = time();
+                $point_fetch = $db->prepare("SELECT points,timestamp FROM scores WHERE team_id=? ORDER BY timestamp"); /* @var $point_fetch PDOStatement */
+                $q = $db->prepare("SELECT id, name FROM teams");
+                $q->execute();
+                $series = new stdClass();
+                $series->series = array();
+                $series->seriesString = "";
+                foreach($q as $contest){
+                    $serie = new stdClass();
+                    $serie->id   = "line".$contest['id'];
+                    $series->seriesString .= $serie->id.",";
+                    $serie->name = $contest['name'];
+                    $serie->string = "[";
+
+                    $serie->string .= "[".($start_time).",0],";
+                    $total = 0;
+
+                    $point_fetch->execute(array($contest['id']));
+                    foreach($point_fetch as $points){
+                        $total += intval($points['points']);
+                        $serie->string .= "[".($points['timestamp']*1000).",".$total."],";
+                    }
+                    $serie->string .= "[".($now*1000).",".$total."]]";
+                    array_push($series->series, $serie);
+                }
+                $series->seriesString = substr($series->seriesString, 0, strlen($series->seriesString)-1);
+                $smarty->assign("series",$series);
+                
                 return $smarty->fetch("contestant.tpl");
+
             }else if(strcmp($_POST['ajax'],"flagsub")==0){
                 if($this->flag_success){
                     $smarty->assign("flag_success", 1);
                 }
                 return $smarty->fetch("contestant_ajax_flagsub.tpl");
+            }else if(strcmp($_POST['ajax'],"leaderboard")==0){
+                $db = &$this->database;
+                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
+                             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
+                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
+
+                $contestants = array();
+                while (($res = $q->fetch()) !== false){
+                    $c = Contestant::getById($res['team_id'], $db);
+                    array_push($contestants, $c);
+                }
+                $smarty->assign("contestants",$contestants);
+                return $smarty->fetch("contestant_ajax_leaderboard.tpl");
             }
         }
     }

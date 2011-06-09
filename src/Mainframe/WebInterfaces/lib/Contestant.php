@@ -12,6 +12,10 @@ class Contestant {
     private $points;
     private $is_flag_blocked;
     private $block_time;
+    private $banned;
+    private $bantime;
+    private $offline = false;
+    private $sane = true;
     
     function __construct($name, $subnet, $vm_ip, $id = -1) {
         $this->teamname = $name;
@@ -64,15 +68,33 @@ class Contestant {
             }
             
             //collect ban information
-            $q = $db->prepare("SELECT t.name, m.name, e.timestamp FROM evil_teams e INNER JOIN modules m ON m.serviceport = e.port INNER JOIN teams t ON t.VMip = e.ip WHERE e.ip = ? AND e.timestamp > ? ORDER BY e.timestamp DESC");
+            $q = $db->prepare("SELECT m.name, e.timestamp, e.reporter FROM evil_teams e INNER JOIN modules m ON m.serviceport = e.port INNER JOIN teams t ON t.VMip = e.ip WHERE e.ip = ? AND e.timestamp > ? ORDER BY e.timestamp DESC");
             // Only select the notification which are 'recent'
-            $q->execute(array($result->getVm_ip(), time() -15*60 )); // @TODO make configurable or make seen boolean
+            $q->execute(array($result->getVm_ip(), time() -10*60 )); // @TODO make configurable or make seen boolean
+
+            if($q->fetch() !== false)
+                $this->sane = false;
+
+            $result->offline = gethostbyaddr($result->getVm_ip()) == $result->getVm_ip();
             
+
+            $q = $db->prepare("SELECT * FROM bans WHERE team_id = ? AND end_timestamp > ? ORDER BY end_timestamp DESC");
+            $q->execute(array($result->getId(),time()));
+            $res = $q->fetch();
+            if($res !== false){
+                $result->banned = true;
+                $result->bantime = intval((intval($res['end_timestamp']) - time())/60);
+            }else{
+                $result->banned = false;
+                $result->bantime= "-";
+            }
             
             $q = $db->prepare("SELECT ifnull(sum(points),0) as sum FROM scores WHERE team_id = ?");
             $q->execute(array($id));
             $res = $q->fetch();
             $result->setPoints($res['sum']);
+
+
             
             return $result;
         }
@@ -147,6 +169,23 @@ class Contestant {
     public function getBlockTime(){
         return $this->block_time;
     }
+
+    public function getBanned() {
+        return $this->banned;
+    }
+    
+    public function getBantime() {
+        return $this->bantime;
+    }
+
+    public function getOffline() {
+        return $this->offline;
+    }
+
+    public function getSane() {
+        return $this->sane;
+    }
+
 
 }
 
