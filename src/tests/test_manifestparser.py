@@ -36,7 +36,7 @@ class ManifestParserTestCase(unittest.TestCase):
               c.execute("SELECT * FROM flagpoints;")
               flagpoints = c.fetchall()
               real_flagpoints = [(1,1,12),(2,1,25),(3,1,10),(4,1,15),(5,1,83),(1,2,10),(2,2,32)]
-              real_modules = [{'name':'test1','numFlags':5,'deployscript':'deploy/deployFlags'},{'name':'test2','numFlags':2,'deployscript':'deploy/install.py'}]
+              real_modules = [{'name':'test1','numFlags':5,'deployscript':'deploy/deployFlags', 'serviceport':31337},{'name':'test2','numFlags':2,'deployscript':'deploy/install.py','serviceport':61281}]
               self.assertEqual(real_flagpoints, flagpoints)
               self.assertEqual(real_flagpoints, flagpoints)
               

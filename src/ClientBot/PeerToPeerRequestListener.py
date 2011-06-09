@@ -18,7 +18,7 @@ class PeerToPeerRequestListener:
     
     def handle(self, conn):
         data = conn.recv(1024).strip()
-	print "Got %s"
+	print "Got " + data
         lines = data.split('\n')
         if data.startswith("CHECK"):
             ip = data.split(' ')[1]

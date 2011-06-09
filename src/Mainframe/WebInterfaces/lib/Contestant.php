@@ -76,7 +76,7 @@ class Contestant {
             if($q->fetch() !== false)
                 $this->sane = false;
 
-            $result->offline = gethostbyaddr($result->getVm_ip()) == $result->getVm_ip();
+            $result->offline = ping($result->getVm_ip());
             
 
             $q = $db->prepare("SELECT * FROM bans WHERE team_id = ? AND end_timestamp > ? ORDER BY end_timestamp DESC");
