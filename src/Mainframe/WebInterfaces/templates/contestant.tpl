@@ -11,6 +11,7 @@
                 <script language="javascript" type="text/javascript" src="js/jqplot.cursor.js"></script>
                 <script language="javascript" type="text/javascript" src="js/jqplot.highlighter.js"></script>
 		<script type="text/javascript" src="js/collapse.js"></script>
+		<script type="text/javascript" src="js/timeline.js"></script>
 		<script type="text/javascript" src="js/textfield.js"></script>
                 <script type="text/javascript" src="js/contestant.js"></script>
                 <style type="text/css" media="screen">
@@ -81,15 +82,15 @@
 					</div>
 					<div id="scorecontainer">
 						<ul class="scorelist">
-							<li><div class="floatleft">Team</div>
+							<li><div>Team</div>
 								<div>points</div>
 							</li>
 						</ul>
 						<ol class="scorelist">
                                                         {foreach from=$contestants item=contestant}
                                                             <li>
-                                                                    <div class="floatleft">{$contestant->getTeamname()}</div>
-                                                                    <div class="floatright">{$contestant->getPoints()}</div>
+                                                                    <div>{$contestant->getTeamname()}</div>
+                                                                    <div>{$contestant->getPoints()}</div>
                                                             </li>
                                                         {/foreach}
 						</ol>
