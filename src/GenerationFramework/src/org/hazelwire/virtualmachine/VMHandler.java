@@ -27,8 +27,16 @@ public class VMHandler
 		this.vmPath = vmPath;
 	}
 	
+	public VMHandler(String virtualBoxPath, String vmPath, boolean debug)
+	{
+		this.virtualBoxPath = virtualBoxPath;
+		this.debug = debug;
+		this.vmPath = vmPath;
+	}
+	
 	/**
-	 * @todo fix this....
+	 * Reads the vm list, imports, and reads the vm list again. It will take a diff and the difference is the string for our vmname.
+	 * Extract the information we need with a regular expression.
 	 * @throws Exception
 	 */
 	public void importAndDiscover() throws Exception
@@ -43,7 +51,7 @@ public class VMHandler
 			if(!vmsPreImport.contains(vmLine)) newVM = vmLine;
 		}
 		
-		vmLineExtractor = Pattern.compile("\"(.*)\" {(.*)}");
+		vmLineExtractor = Pattern.compile("\"(.*)\" \\{(.*)\\}");
 		Matcher m = vmLineExtractor.matcher(newVM);
 		
 		if(m.find())

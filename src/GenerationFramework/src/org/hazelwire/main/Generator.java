@@ -74,7 +74,6 @@ public class Generator
 			System.exit(0);
 		}
 		
-		
 		moduleSelector = new ModuleSelector();
 	}
 	
@@ -121,7 +120,7 @@ public class Generator
 	 */
 	public void generateVM() throws Exception
 	{
-    	VMHandler vmHandler = new VMHandler(config.getVirtualBoxPath(), config.getVMName(), config.getVMPath(), true);
+    	VMHandler vmHandler = new VMHandler(config.getVirtualBoxPath(), config.getVMPath(), true);
     	if(!vmHandler.checkIfImported())
     	{
     		tui.println("Importing VM");

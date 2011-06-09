@@ -2,7 +2,7 @@ package org.hazelwire.gui;
 
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
-import org.hazelwire.main.Generator;
+import org.eclipse.swt.widgets.Display;
 
 /*
  * Spreekt redelijk voor zich: wanneer een Administrator op
@@ -34,7 +34,7 @@ public class GenerateListener implements MouseListener
 	public void mouseUp(MouseEvent arg0)
 	{
 		try
-		{
+		{			
 			new VMGenerationThread().start();
 		}
 		catch (Exception e)

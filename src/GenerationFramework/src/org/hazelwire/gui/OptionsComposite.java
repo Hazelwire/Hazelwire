@@ -58,7 +58,7 @@ public class OptionsComposite extends Composite
 		lblOption.setAlignment(SWT.CENTER);
 		lblOption.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 1, 1));
-		lblOption.setText(option);
+		lblOption.setText(mod.getOption(option).getName());
 
 		txtWaardeRightNow = new Text(this, SWT.BORDER);
 		txtWaardeRightNow.setText(mod.getOption(option).getValue()); // motte wel de
