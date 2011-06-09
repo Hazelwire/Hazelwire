@@ -109,7 +109,7 @@ public class Module
 	public void addOption(Option option)
 	{
 		option.setId(this.options.size());
-		this.options.put(id,option);
+		this.options.put(option.getId(),option);
 	}
 	
 	public void removeOption(int id)

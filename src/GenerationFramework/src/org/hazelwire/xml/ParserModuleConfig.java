@@ -53,22 +53,16 @@ public class ParserModuleConfig extends XMLParser
         }
         
         
-        /**
-         * @todo fix this crap...
-         *
-        NodeList tagsNl = docElement.getElementsByTagName("tags");
+        NodeList tagsNl = docElement.getElementsByTagName("tag");
         
         if(tagsNl != null && tagsNl.getLength() > 0)
         {
         	for(int i=0;i<tagsNl.getLength();i++)
         	{
         		Element el = (Element)tagsNl.item(i);
-        		tempModule.addTag(this.getTextValue(el, "tag"));
+        		tempModule.addTag(el.getFirstChild().getNodeValue());
         	}
-        }*/
-        
-        tempModule.addTag("test");
-        tempModule.addTag("static data");
+        }
         
         NodeList flagsNl = docElement.getElementsByTagName("flag");
         

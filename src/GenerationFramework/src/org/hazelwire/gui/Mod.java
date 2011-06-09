@@ -60,7 +60,7 @@ public class Mod
 	{
 		if(this.options.get(option.getName()) == null)
 		{
-			this.options.put(name, option);
+			this.options.put(option.getName(), option);
 		}
 	}
 

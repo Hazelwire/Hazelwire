@@ -35,11 +35,10 @@ public class OptionsCompListener implements MouseListener, FocusListener
 	{
 		if (m.getSource() instanceof Button)
 		{
-			oc.getText().setText(oc.getMod().getOption(oc.getOption()).getDefaultValue());
+			oc.getText().setText(oc.getOption().getDefaultValue());
 			
-			Option tempOption = oc.getMod().getOption(oc.getOption());
-			tempOption.setValue(tempOption.getDefaultValue());
-			oc.getMod().editOption(tempOption);
+			oc.getOption().setValue(oc.getOption().getDefaultValue());
+			oc.getMod().editOption(oc.getOption());
 		}
 	}
 
@@ -56,11 +55,9 @@ public class OptionsCompListener implements MouseListener, FocusListener
 			//oc.getMod().getOptions().put(oc.getOption(),
 			//		((Text) f.getSource()).getText());
 			
-			Option tempOption = oc.getMod().getOption(oc.getOption());
-			tempOption.setValue(((Text) f.getSource()).getText());
-			oc.getMod().editOption(tempOption);
 			
-			System.out.println("" + oc.getMod().getOptions().toString());
+			oc.getOption().setValue(((Text) f.getSource()).getText());
+			oc.getMod().editOption(oc.getOption());
 		}
 	}
 

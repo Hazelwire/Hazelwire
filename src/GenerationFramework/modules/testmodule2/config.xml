@@ -6,8 +6,8 @@
 		<file>testmodule2_0.1-0ubuntu4_all.deb</file>
 		<deploy>/usr/share/hazelwire/testmodule2/manage.py</deploy>
 		<package>
-			<name>Hazelwire Test Package 2</name>
-			<id>1</id>
+			<name>Hazelwire Test Package</name>
+			<id>2</id>
 		</package>
 		<tags>
 			<tag>Web</tag>

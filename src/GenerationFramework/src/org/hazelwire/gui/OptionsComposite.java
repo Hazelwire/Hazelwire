@@ -1,17 +1,13 @@
 package org.hazelwire.gui;
 
-import java.util.HashMap;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.hazelwire.modules.Option;
 
 public class OptionsComposite extends Composite
 {
@@ -31,12 +27,12 @@ public class OptionsComposite extends Composite
 	// }
 
 	private Composite parent;
-	private String option;
+	private Option option;
 	private Text txtWaardeRightNow;
 	private OptionsCompListener ocl;
 	private Mod mod;
 
-	public OptionsComposite(Composite parent, int style, String option,
+	public OptionsComposite(Composite parent, int style, Option option,
 			Mod mod, GUIBuilder gUIBuilder)
 	{
 		super(parent, SWT.BORDER);
@@ -58,10 +54,10 @@ public class OptionsComposite extends Composite
 		lblOption.setAlignment(SWT.CENTER);
 		lblOption.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 1, 1));
-		lblOption.setText(mod.getOption(option).getName());
+		lblOption.setText(option.getName());
 
 		txtWaardeRightNow = new Text(this, SWT.BORDER);
-		txtWaardeRightNow.setText(mod.getOption(option).getValue()); // motte wel de
+		txtWaardeRightNow.setText(option.getValue()); // motte wel de
 																	// waarde
 																	// uit de
 																	// Module
@@ -88,7 +84,7 @@ public class OptionsComposite extends Composite
 		return this.mod;
 	}
 
-	public String getOption()
+	public Option getOption()
 	{
 		return this.option;
 	}
