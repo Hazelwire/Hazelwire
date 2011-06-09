@@ -1,5 +1,8 @@
 $(document).ready(function(){
-
+        $("#okcban").click(function(){
+		$('form').attr({action: "index.php?aaction=cban"});
+		$('form').submit();
+	});
 	$("#caddok").click(function(){
 		$('form').attr({action: "index.php?aaction=caddsub"});
 		$('form').submit();
@@ -45,7 +48,7 @@ $(document).ready(function(){
 	$("#cban").click(function(){
 		window.open('', 'cbanw', 'width=300,height=150,status=no,resizable=no,scrollbars=no');
 		$('form#cform').attr({
-			action: "admincban.html",
+			action: "index.php?aaction=cban",
 			method: "post",
 			target: "cbanw"
 		});

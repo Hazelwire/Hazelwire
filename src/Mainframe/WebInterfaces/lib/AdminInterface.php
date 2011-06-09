@@ -96,11 +96,13 @@ class AdminInterface extends WebInterface {
                 }
                 return $smarty->fetch("admincadd.tpl");
             }else if(startsWith ($_GET['aaction'],"cedit")){
+                $this->handleError(new Error("not_implemented", "This function has not yet been implemented."));
                 if (isset($_POST['cedit']) && strtolower($_POST['cedit']) == 'save'){
                     if(count($this->errors) == 0){
                         $smarty->assign("ceditsuccess","1");
                     }
                 }else if(isset($_POST['contestant'])){
+                    
                     $id = intval($_POST['contestant']);
                     $contestant = Contestant::getById($id, $db);
                     $boom = explode(".", $contestant->getSubnet());
@@ -110,6 +112,13 @@ class AdminInterface extends WebInterface {
                     $smarty->assign("contestant",$contestant);
                     $smarty->assign("vmip",$vmip);
                     $smarty->assign("subnet",$subnet);
+                }
+                return $smarty->fetch("admincedit.tpl");
+            }else if(startsWith ($_GET['aaction'],"cban")){
+                if (isset($_POST['cid'])){
+                    if(count($this->errors) == 0){
+                        $smarty->assign("cbansuccess","1");
+                    }
                 }
                 return $smarty->fetch("admincedit.tpl");
             }
@@ -352,7 +361,8 @@ class AdminInterface extends WebInterface {
                                 }
                                 fwrite($handle, $config_file_data);
                                 fclose($handle);
-                                    
+
+                                OpenVPNManager::startVPN($c);
                             }
                         }
                         
@@ -563,7 +573,7 @@ class AdminInterface extends WebInterface {
                     } else if (isset($_POST['cedit']) && strtolower($_POST['cedit']) == 'save') {
                         // @TODO make name usage into ID usage to prevent problems with renaming
                         $db = &$this->database;
-
+                        return;
                         /* @var $result PDOStatement */
                         $result = $db->query("SELECT COUNT(*) FROM teams");
                         $num_teams = $result->fetchColumn();
@@ -649,6 +659,69 @@ class AdminInterface extends WebInterface {
                                 fclose($handle);
 
                             }
+                        }
+                    } else if(strcmp ($_GET['aaction'],"cban")==0){
+                        if(isset($_POST['cid']) && intval($_POST['cid']) != 0){
+                            $time = $_POST['cbantime'];
+                            if(!is_int($time)){
+                                $this->handleError(new Error("ban_error", "Invalid ban input.", false));
+                                return;
+                            }
+
+                            $now = time();
+                            $id = $_POST['cid'];
+                            $db =& $this->database; /* @var $db PDO */
+                            $c = Contestant::getById($id, $db);
+                            if($time == 0){
+                                $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
+                                $q->execute(array(intval($id)));
+                                OpenVPNManager::diconnectVPN($c);
+                                return;
+                            }
+                            else if($time == -1){
+                                $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
+                                $q->execute(array(intval($id),-1,"Pwned",0));
+                            }
+                            
+                            $teamname = $c->getTeamname();
+                            //exec("echo \"mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$teamname. " ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$teamname. "\" > at");
+                            exec("mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$teamname. "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$teamname."_vm");
+                            //exec("at now+".$time."min -f at", $output);
+                            /*$boom = explode(" ", $output[count($output)-1]);
+                            $jobid = $boom[1];
+                            if(!is_int($jobid)){
+                                $this->handleError(new Error("ban_error", "An error ocurred while trying to prepare unban.", false));
+                                return;
+                            }*/
+
+                            $smarty = &$this->getSmarty();
+                            $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
+                            $tpl->assign("filename", "server_".$teamname);
+                            $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
+                            $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
+                            $tpl->assign("server_ip_range",  "10.255.0.0");
+                            $tpl->assign("man_port",$this->config['management_port_base'] + $id);
+                            $tpl->assign("port",$this->config['base_port'] + $id);
+                            $config_file_data = $tpl->fetch();
+
+                            $config_file_loc = $this->config['openvpn_location'] . $teamname . ".conf";
+                            $handle = @fopen($config_file_loc, 'w');
+                            if($handle === false){
+                                $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
+                                return;
+                            }
+                            fwrite($handle, $config_file_data);
+                            fclose($handle);
+
+                            OpenVPNManager::diconnectVPN($c);
+                            
+                            $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
+                            $q->execute(array(intval($id)));
+                            if($time != 0 && $time!=-1){
+                                $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
+                                $q->execute(array(intval($id),$now+($time*60),"Pwned",0));
+                            }
+
                         }
                     }
                 }
