@@ -352,7 +352,7 @@
                 var y = gridpos.y + plot._gridPadding.top - elem.outerHeight(true)/2;
                 break;
             case 'adaptive':
-		if(gridpos.x > (elem.outerWidth(true))
+		if(gridpos.x > (elem.outerWidth(true)))
 			var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - hl.tooltipOffset - fact * ms;
 		else
 			var x = gridpos.x + plot._gridPadding.left + hl.tooltipOffset + fact * ms;

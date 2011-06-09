@@ -15,7 +15,7 @@ class Contestant {
     private $banned;
     private $bantime;
     private $offline = false;
-    private $sane = false;
+    private $sane = true;
     
     function __construct($name, $subnet, $vm_ip, $id = -1) {
         $this->teamname = $name;
@@ -75,7 +75,7 @@ class Contestant {
             if($q->fetch() !== false)
                 $this->sane = false;
 
-            $this->offline = gethostbyaddr($result->getVm_ip()) == $result->getVm_ip();
+            $result->offline = gethostbyaddr($result->getVm_ip()) == $result->getVm_ip();
             
 
             $q = $db->prepare("SELECT * FROM bans WHERE team_id = ? AND end_timestamp > ? ORDER BY end_timestamp DESC");

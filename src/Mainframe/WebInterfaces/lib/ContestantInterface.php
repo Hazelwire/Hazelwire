@@ -25,6 +25,8 @@ class ContestantInterface extends WebInterface{
     public function show(){
         if($this->contestant === false)
             die("Not allowed to access this webpage. Shoo!");
+        if($this->contestant->getBanned())
+            die("You are banned. ");
         $smarty = &$this->getSmarty();
         /*
          * Error handling

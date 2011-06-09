@@ -1,7 +1,7 @@
 $(document).ready(function(){
 	
 	$("#ok").click(function(){
-		$('form').attr({action: "submitshitgoeshere"});
+		$('form').attr({action: "index.php?aaction=caddsub"});
 		$('form').submit();
 	});
 	$("#cancel").click(function(){
@@ -19,7 +19,7 @@ $(document).ready(function(){
 	$("#cadd").click(function(){
 		window.open('www.google.com', 'caddw', 'width=350,height=175,status=no,resizable=no,scrollbars=no');
 		$('form#cform').attr({
-			action: "admincadd.html",
+			action: "index.php?aaction=addc",
 			method: "post",
 			target: "caddw"
 		});
