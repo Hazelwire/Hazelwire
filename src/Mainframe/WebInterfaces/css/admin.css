@@ -77,6 +77,7 @@ div.buttons input
 	position: relative;
 	right: 50%;
 }
+
 div.header
 {
 	top: 0;
@@ -140,7 +141,7 @@ ul.collapsible label div
 #contestantinfo ul li::before
 {
 	margin-right: .5em;
-	width: 1.5em;
+	width: 2em;
 	content: "#";
 	font-weight: bold;
 	float: left;
@@ -178,13 +179,9 @@ input[type="radio"]
 	background-color: #f7f7f7;
 	border-color: #f7f7f7;
 }
-#contestantinfo li.offline:nth-child(2n)
+#contestantinfo li.offline
 {
-	color: #aaa;
-}
-#contestantinfo li.offline:nth-child(2n+1)
-{
-	color: #b5b5b5;
+	color: #999;
 }
 #contestantinfo li.insane
 {
@@ -192,24 +189,36 @@ input[type="radio"]
 }
 #contestantinfo li.offline.insane
 {
-	color: #ccc;
+	color: #aaa;
 }
 #contestantinfo li.insane label
 {
-	background-color: #666;
-	border-color: #666;
+	background-color: #444;
+	border-color: #444;
+}
+#contestantinfo li.offline label::before
+{
+	content: "!";
+	float: left;
+	width: 1em;
+	font-weight: bold;
+	color: red;
 }
 #contestantinfo li.insane label::before
 {
 	content: "!";
 	float: left;
+	width: 1em;
 	font-weight: bold;
-	color: red;
+	color: gold;
 }
-#contestantinfo li.offline.insane label
+#contestantinfo li.offline.insane label::before
 {
-	background-color: #999;
-	border-color: #999;
+	content: "!!";
+	float: left;
+	width: 1em;
+	font-weight: bold;
+	color: yellow;
 }
 #contestantinfo input[type="radio"]:checked + label
 {
@@ -218,19 +227,13 @@ input[type="radio"]
 }
 #contestantinfo li.insane input[type="radio"]:checked + label
 {
-	background-color: #568;
-	border-color: #346;
-}
-#contestantinfo li.insane.offline input[type="radio"]:checked + label
-{
-	background-color: #67a;
-	border-color: #458;
+	background-color: #456;
+	border-color: #345;
 }
 #contestantinfo label:hover
 {
 	border-color: #89f !important;
 }
-
 
 div#announcements
 {
@@ -346,4 +349,8 @@ input[type="button"]
 	font-weight: bold;
 	color: #565656;
 	cursor: pointer;
+}
+input[type="button"]:disabled
+{
+	color: #aaa;
 }

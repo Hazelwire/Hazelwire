@@ -143,12 +143,12 @@ ol.scorelist li:nth-child(even)
 }
 .scorelist div
 {
-	float: right;
+	float: left;
 	margin-right: .5em;
 }
-div.floatleft
+.scorelist div:last-child
 {
-	float: left;
+	float: right;
 }
 
 div#announcements

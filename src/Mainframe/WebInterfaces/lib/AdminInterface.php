@@ -53,18 +53,36 @@ class AdminInterface extends WebInterface {
         } elseif ($this->getCurrentState() == PREGAMESTART) {
             return $smarty->fetch("game_start.tpl");
         } elseif ($this->getCurrentState() == GAMEINPROGRESS) {
-            
-//            $db = &$this->database; /* @var $db PDO */
-//            $q = $db->query("SELECT id FROM teams"); /* @var $q PDOStatement */
-//
-//            $this->contestant_list = array();
-//            foreach($q as $data){
-//                $c = Contestant::getById($data['id'], $db);
-//                if($c !== false)
-//                    array_push ($this->contestant_list, $c);
-//            }
-            
+            $db = &$this->database;
+            if(!isset($_POST['ajax'])){
+                $q = $db->query("SELECT value FROM config WHERE config_name = 'gamename'");
+                $res = $q->fetch();
+                $smarty->assign("title",$res[0]);
+
+                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
+                             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
+                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
+
+                $contestants = array();
+                while (($res = $q->fetch()) !== false){
+                    $c = Contestant::getById($res['team_id'], $db);
+                    array_push($contestants, $c);
+                }
+                $smarty->assign("contestants",$contestants);
+
+                $q  = $db->query("SELECT * FROM announcements");
+                $announcements = array();
+                foreach ($q as $announce){
+                    $announcement = new stdClass();
+                    $announcement->id = $announce['id'];
+                    $announcement->title = $announce['title'];
+                    $announcement->content = $announce['announcement'];
+                    array_push($announcements, $announcement);
+                }
+                $smarty->assign("announcements",$announcements);
+
             return $smarty->fetch("game_administration.tpl");
+            }
         } elseif ($this->getCurrentState() == POSTGAME) {
             return $smarty->fetch("game_end.tpl");
         }

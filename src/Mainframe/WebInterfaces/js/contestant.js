@@ -1,8 +1,11 @@
 $(document).ready(function() {
         setTimeout("updateLeaderboard()",60000);
+        var flgsubmsgt;
         //$('#chart1').append('<div id="toolTip" style="position:absolute;display:none;background:#E5DACA;padding:4px;"></div>');
 
         $("#flagsubmit").click(function() {
+            if(flgsubmsgt != undefined)
+	    	clearTimeout(flgsubmsgt);
             $("#flagsubmit").attr("disabled", true);
         // validate and process form here
             var flag = $("input#flaginputfield").val();
@@ -20,7 +23,7 @@ $(document).ready(function() {
                     $('#flagform').prepend(data);
                     $('#flagdisplay').animate({bottom: (40+$('#flagresponse').outerHeight())+'px'});
                     $('#flagresponse').slideDown();
-                    setTimeout(function(){
+                    flgsubmsgt = setTimeout(function(){
                         $('#flagresponse').fadeOut(1000,function(){$('#flagresponse').remove()});
                         $('#flagdisplay').delay(1000).animate({bottom: '2em'});
                     },10000);
@@ -32,7 +35,7 @@ $(document).ready(function() {
                     $('#flagdisplay').animate({bottom: (40+$('#flagresponse').outerHeight())+'px'});
                     $('#flagresponse').slideDown();
                     
-                    setTimeout(function(){
+                    flgsubmsgt = setTimeout(function(){
                         $('#flagresponse').fadeOut(1000,function(){$('#flagresponse').remove()});
                         $('#flagdisplay').delay(1000).animate({bottom: '2em'});
                     },10000);
@@ -54,9 +57,9 @@ function updateLeaderboard(){
         url: "index.php",
         data: dataString,
         success: function(data) {
-            $('ol .scorelist').remove();
+            $('ol.scorelist').remove();
             $('#scorecontainer').append(data);
-            setTimeout("updateLeaderboard()",60000);
+            flgsubmsgt = setTimeout("updateLeaderboard()",60000);
         }
     });
 }

@@ -97,7 +97,7 @@
         this.showTooltip = true;
         // prop: tooltipLocation
         // Where to position tooltip, 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'
-        this.tooltipLocation = 'nw';
+        this.tooltipLocation = 'adaptive';
         // prop: fadeTooltip
         // true = fade in/out tooltip, flase = show/hide tooltip
         this.fadeTooltip = true;
@@ -350,6 +350,15 @@
             case 'w':
                 var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - hl.tooltipOffset - ms;
                 var y = gridpos.y + plot._gridPadding.top - elem.outerHeight(true)/2;
+                break;
+            case 'adaptive':
+		if(gridpos.x > (elem.outerWidth(true))
+			var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - hl.tooltipOffset - fact * ms;
+		else
+			var x = gridpos.x + plot._gridPadding.left + hl.tooltipOffset + fact * ms;
+                //var x = gridpos.x + (gridpos.x * $('#chart1').getWidth()) + plot._gridPadding.left - elem.outerWidth(true) - hl.tooltipOffset - fact * ms;
+                //var x = gridpos.x + plot._gridPadding.left - hl.tooltipOffset - fact * ms;
+                var y = gridpos.y + plot._gridPadding.top - hl.tooltipOffset - elem.outerHeight(true) - fact * ms;
                 break;
             default: // same as 'nw'
                 var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - hl.tooltipOffset - fact * ms;

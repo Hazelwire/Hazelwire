@@ -15,7 +15,7 @@
                 <script type="text/javascript" src="js/contestant.js"></script>
                 <style type="text/css" media="screen">
                  {literal}  .jqplot-axis {
-                     font-size: 0.6em;
+                     font-size: 0.8em;
                    }{/literal}
                 </style>
                      <script type="text/javascript" language="javascript">
@@ -31,21 +31,21 @@
                                     xaxis:{
                                       renderer:$.jqplot.DateAxisRenderer,
                                               showTicks: false,
-                                              min:{/literal}{$start_time},{literal}
+                                              min:{/literal}{math equation='x - y' x=$start_time y=60000},{literal}
                                       tickOptions:{
                                         formatString:'%r'
                                       }
                                     },
                                     yaxis:{
                                       tickOptions:{
-                                        formatString:'$%.2f'
+                                        formatString:'%i'
                                         }
                                     }
                                   },
                                   highlighter: {
                                     show: true,
                                     sizeAdjust: 7.5,
-                                            formatString: '%s, %s'
+                                            formatString: '%s, %s pts'
                                   },
                                   cursor: {
                                             zoom: true,
@@ -60,6 +60,15 @@
                                     {literal}
                                   ]
                               });
+                            function onresize() {
+                                    plot1.replot();
+                            };
+
+                            var resizeTimer;
+                            $(window).resize(function() {
+                                clearTimeout(resizeTimer);
+                                resizeTimer = setTimeout(onresize, 100);
+			});
                             });{/literal}
                         </script>
 	</head>
@@ -137,7 +146,7 @@
                                                         {foreach from=$announcements item=announcement}
 							<li>
 								<input type="radio" name="announcement" id="announcement{$announcement->id}"/>
-								<label for="{$announcement->id}">{$announcement->title}
+								<label for="announcement{$announcement->id}">{$announcement->title}
 									<div>{$announcement->content}</div>
 								</label>
 							</li>
@@ -147,8 +156,8 @@
 				</div>
 			</div>
 			<div id="timeline">
-				<div id="chart1" class="content">
-					Javascript timeline goes here.
+				<div id="chart1" class="content" style="height:auto;width:auto;">
+					
 				</div>
 			</div>
 		</div>

@@ -50,7 +50,7 @@ class ContestantInterface extends WebInterface{
         } else {
             if(!isset($_POST['ajax'])){
                 $db = &$this->database;
-                $q = $db->query("SELECT value FROM config WHERE config_name = 'start_time'");
+                $q = $db->query("SELECT value FROM config WHERE config_name = 'gamename'");
                 $res = $q->fetch();
                 $smarty->assign("title",$res[0]);
 
@@ -73,10 +73,11 @@ class ContestantInterface extends WebInterface{
                     $q = $db->query("SELECT * FROM flagpoints");
                     $q2 = $db->prepare("SELECT DISTINCT t.VMip as ip FROM scores s INNER JOIN teams t ON s.team_id = t.id INNER JOIN flags f ON s.flag = f.flag AND s.team_id = f.team_id INNER JOIN scores s2 ON s.timestamp = s2.timestamp AND s.flag = s2.flag WHERE f.flag_id = ? AND f.mod_id = ? AND s2.team_id = ?"); /* @var $q2 PDOStatement */
 
-                    $flags = array();
+                    $flags = array();$id = 0;
                     foreach ($q as $challenge) {
+                        
                         $flag = new stdClass();
-                        $flag->id = $challenge['flag_id'].",".$challenge['mod_id'];
+                        $flag->id = $id;//$challenge['flag_id'].",".$challenge['mod_id'];
                         $flag->name = "Flag for " . $challenge['points'] . " pts.";
                         $flag->wins = array();
                         $q2->execute(array($challenge['flag_id'],$challenge['mod_id'],$this->contestant->getId()));
@@ -92,8 +93,10 @@ class ContestantInterface extends WebInterface{
                             $win->name = "None";
                             array_push ($flag->wins, $win);
                         }*/
-                        if(count($flag->wins)>0)
+                        if(count($flag->wins)>0){
                             array_push($flags, $flag);
+                            $id++;
+                        }
                     }
                     $smarty->assign("flags",$flags);
                     $smarty->assign("winsort","flagtype");
@@ -109,10 +112,10 @@ class ContestantInterface extends WebInterface{
                                         LEFT OUTER JOIN scores s ON s.flag = f.flag 
                                         WHERE (ifnull(s.team_id,0)=0 OR s.team_id = ?) AND f.team_id = ?;"); /* @var $q2 PDOStatement */
 
-                    $flags = array();
+                    $flags = array();$id = 0;
                     foreach ($q as $team) {
                         $flag = new stdClass();
-                        $flag->id = $team['id'];
+                        $flag->id = $id;//$team['id'];
                         $flag->name = $team['ip'];
                         $flag->wins = array();
                         $q2->execute(array($this->contestant->getId(),intval($team['id'])));
@@ -120,9 +123,11 @@ class ContestantInterface extends WebInterface{
                             $win = new stdClass();
                             $win->submitted = ($res['win'] != 'fail');
                             $win->name = "Flag for " . $res['pts'] . " pts.";
-                            array_push($flag->wins, $win);
+                            if($win->submitted)
+                                array_push($flag->wins, $win);
                         }
                         array_push($flags, $flag);
+                        $id++;
                     }
                     $smarty->assign("flags",$flags);
                     $smarty->assign("winsort","warserver");
@@ -146,10 +151,10 @@ class ContestantInterface extends WebInterface{
                 //CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
                 $q = $db->query("SELECT value FROM config WHERE config_name = 'start_time'");
                 $res = $q->fetch();
-                $start_time = $res['value'];
+                $start_time = $res['value']*1000;
                 $smarty->assign("start_time",$start_time);
                 $now = time();
-                $point_fetch = $db->prepare("SELECT points,timestamp FROM scores WHERE team_id=?"); /* @var $point_fetch PDOStatement */
+                $point_fetch = $db->prepare("SELECT points,timestamp FROM scores WHERE team_id=? ORDER BY timestamp"); /* @var $point_fetch PDOStatement */
                 $q = $db->prepare("SELECT id, name FROM teams");
                 $q->execute();
                 $series = new stdClass();
@@ -165,12 +170,12 @@ class ContestantInterface extends WebInterface{
                     $serie->string .= "[".($start_time).",0],";
                     $total = 0;
 
-                    $point_fetch->execute(array($this->contestant->getId()));
+                    $point_fetch->execute(array($contest['id']));
                     foreach($point_fetch as $points){
                         $total += intval($points['points']);
-                        $serie->string .= "[".($points['timestamp']).",".$total."],";
+                        $serie->string .= "[".($points['timestamp']*1000).",".$total."],";
                     }
-                    $serie->string .= "[".($now).",".$total."]]";
+                    $serie->string .= "[".($now*1000).",".$total."]]";
                     array_push($series->series, $serie);
                 }
                 $series->seriesString = substr($series->seriesString, 0, strlen($series->seriesString)-1);
