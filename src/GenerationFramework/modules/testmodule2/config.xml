@@ -1,0 +1,23 @@
+<hazelwire-module>
+	<general-info>
+		<name>Test Module 2</name>
+		<author>Maarten Rijke</author>
+		<date>07-06-2011</date>
+		<file>testmodule2_0.1-0ubuntu4_all.deb</file>
+		<deploy>/usr/share/hazelwire/testmodule2/manage.py</deploy>
+		<package>
+			<name>Hazelwire Test Package 2</name>
+			<id>1</id>
+		</package>
+		<tags>
+			<tag>Web</tag>
+			<tag>SQLite</tag>
+			<tag>SQL injection</tag>
+		</tags>
+	</general-info>
+	<flags>
+		<flag>
+			<points>50</points>
+		</flag>
+	</flags>
+</hazelwire-module>
