@@ -1,7 +1,15 @@
 $(document).ready(function(){
-	
-	$("#ok").click(function(){
+
+	$("#caddok").click(function(){
 		$('form').attr({action: "index.php?aaction=caddsub"});
+		$('form').submit();
+	});
+        $("#okcedit").click(function(){
+		$('form').attr({action: "index.php?aaction=ceditsub"});
+		$('form').submit();
+	});
+	$("#ok").click(function(){
+		$('form').attr({action: "submitshitgoeshere"});
 		$('form').submit();
 	});
 	$("#cancel").click(function(){
@@ -15,11 +23,11 @@ $(document).ready(function(){
 		$('form').attr({action: "sanityshitgoeshere"});
 		$('form').submit();
 	});
-	
+
 	$("#cadd").click(function(){
 		window.open('www.google.com', 'caddw', 'width=350,height=175,status=no,resizable=no,scrollbars=no');
 		$('form#cform').attr({
-			action: "index.php?aaction=addc",
+			action: "index.php?aaction=cadd",
 			method: "post",
 			target: "caddw"
 		});
@@ -28,7 +36,7 @@ $(document).ready(function(){
 	$("#cedit").click(function(){
 		window.open('', 'ceditw', 'width=375,height=175,status=no,resizable=no,scrollbars=no');
 		$('form#cform').attr({
-			action: "admincedit.html",
+			action: "index.php?aaction=cedit",
 			method: "post",
 			target: "ceditw"
 		});
@@ -61,7 +69,7 @@ $(document).ready(function(){
 		});
 		$('form#cform').submit();
 	});
-	
+
 	$("#apost").click(function(){
 		window.open('', 'apostw', 'width=600,height=400,status=no,resizable=no,scrollbars=no');
 		$('form#aform').attr({

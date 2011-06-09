@@ -8,16 +8,33 @@
 		<script type="text/javascript" src="js/textfield.js"></script>
 	</head>
 	<body>
-                {if $num_errors >0}
-                    <span style="color: red;font-size:1.3em;border: 1px solid red">{$team_input_error}</span>
-                {/if}
+
 		<div id="container">
 			<div class="content">
+				{if $num_errors >0 or isset($caddsuccess)}
+				{literal}<script type="text/javascript">
+				    	$(document).ready(function(){
+				    	alert(window.outerHeight);
+				    		window.resizeTo(window.outerWidth ,230+$('#msgs').height());
+
+				    	$('#acform').animate({top:'2em'});
+
+				    	});
+				    </script>{/literal}
+				    <div id="msgs" style="display: block; left: 0pt; right: 0pt;height:auto;">
+					{if isset($errors)}{foreach from=$errors item=error}
+					<div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px red;">{$error->getMessage()}</div>
+					{/foreach}{/if}
+					{if isset($caddsuccess) && $caddsuccess == "1"}
+					<div style="background: none repeat scroll 0pt 0pt rgb(170, 255, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px rgb(0, 255, 0)">Contestant added!</div>
+					{/if}
+					</div>
+				{/if}
 				<div id="acform">
 					<div class="header">
 						<h1>Add contestant</h1>
 					</div>
-					<form method="POST">
+					<form method="POST"><input type="hidden" name="cadd" value="add" style="display:none;" />
 						<div class="cforminput">
 							<div class="cformlabel">Team name: </div>
 							<div class="cformfield">
@@ -34,7 +51,7 @@
 						</div>
 						<div class="buttons">
 							<div>
-								<input name="caddbutton" type="button" id="ok" value="Add" />
+								<input name="caddbutton" type="button" id="caddok" value="Add" />
 								<input type="button" id="cancel" value="Cancel" />
 							</div>
 						</div>
