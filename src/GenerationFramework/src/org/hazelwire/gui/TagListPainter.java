@@ -133,7 +133,7 @@ public class TagListPainter implements PaintListener, Observer
 			{
 				g.setBackground(col);
 				g.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
-				g.drawText(tags.get((i / 15) - 1).getTagName(), x + 20, y + i
+				g.drawText(tags.get((i / 15) - 1).getName(), x + 20, y + i
 						- 15);
 				// g.drawText(""+mods.get((i/15)-2).getPoints(), x +
 				// (3*width/4)+20, y+i-15);

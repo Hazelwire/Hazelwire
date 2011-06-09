@@ -30,6 +30,7 @@ public class Generator
 	private static Generator instance;
 	private static String INSTALLNAME = "install.sh";
 	private static String MANIFESTFILENAME = "manifest.xml"; //you should probably not change this...
+	private static boolean DELETEVM = true;
 	private ModuleSelector moduleSelector;
 	private TextInterface tui;
 	Configuration config;
@@ -144,12 +145,17 @@ public class Generator
 	    	generateManifest(config.getOutputDirectory()+MANIFESTFILENAME);
 	    	tui.println("Uploading installation script");
 	    	String externalPath = config.getExternalScriptDirectory()+INSTALLNAME;
-	    	ssh.scpUpload(config.getOutputDirectory()+INSTALLNAME, externalPath);
+	    	uploadInstallScript(ssh, config.getOutputDirectory()+INSTALLNAME,externalPath);
 	    	tui.println("Executing installation script");
 	    	executeInstallScript(ssh,externalPath);
+	    	tui.println("Stopping VM");
 	    	vmHandler.stopVM();
+	    	tui.println("Removing port forwarding");
 	    	vmHandler.removeForward("ssh");
+	    	tui.println("Exporting vm to: "+Configuration.getInstance().getVMExportPath());
 	    	vmHandler.exportVM(Configuration.getInstance().getVMExportPath());
+	    	tui.println("Unregistering vm from virtualbox");
+	    	vmHandler.unregisterVM(DELETEVM);
     	}
     	else
     	{
@@ -211,11 +217,11 @@ public class Generator
 		}
 	}
 	
-	public void uploadInstallScript(SSHConnection ssh, String scriptPathLocal)
+	public void uploadInstallScript(SSHConnection ssh, String scriptPathLocal, String scriptPathExternal)
 	{
 		try
 		{
-			ssh.scpUpload(scriptPathLocal, Configuration.getInstance().getExternalScriptDirectory());
+			ssh.scpUpload(scriptPathLocal, scriptPathExternal);
 			String[] arguments = {"rm",scriptPathLocal};
 			Runtime.getRuntime().exec(arguments); //delete the local install.sh file
 		}

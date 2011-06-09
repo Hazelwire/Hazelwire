@@ -32,7 +32,7 @@ public class TagTree implements MouseListener, Observer
 		for (Tag t : modsPerTag.keySet())
 		{
 			TreeItem item = new TreeItem(tree, SWT.NONE);
-			item.setText(t.getTagName());
+			item.setText(t.getName());
 			for (Mod m : modsPerTag.get(t))
 			{
 				TreeItem subItem = new TreeItem(item, SWT.NONE);
@@ -49,10 +49,10 @@ public class TagTree implements MouseListener, Observer
 				.getModsPerTag();
 		for (Tag t : modsPerTag.keySet())
 		{
-			if (t.getTagName().toLowerCase().contains(search.toLowerCase()))
+			if (t.getName().toLowerCase().contains(search.toLowerCase()))
 			{
 				TreeItem item = new TreeItem(tree, SWT.NONE);
-				item.setText(t.getTagName());
+				item.setText(t.getName());
 				for (Mod m : modsPerTag.get(t))
 				{
 					TreeItem subItem = new TreeItem(item, SWT.NONE);
@@ -71,7 +71,7 @@ public class TagTree implements MouseListener, Observer
 						if (item == null)
 						{
 							item = new TreeItem(tree, SWT.NONE);
-							item.setText(t.getTagName());
+							item.setText(t.getName());
 						}
 						TreeItem subItem = new TreeItem(item, SWT.NONE);
 						subItem.setText(m.getName());

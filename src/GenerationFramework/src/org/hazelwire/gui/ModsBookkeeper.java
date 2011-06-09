@@ -27,6 +27,12 @@ public class ModsBookkeeper extends Observable
 	{
 	}
 	
+	
+	/**
+	 * @todo Properly reimplement this with a TreeMap instead of a HashMap due to the tags being objects.
+	 * Either that or also keeping track of all the tag objects so the same objects can be used.
+	 * @param mods
+	 */
 	public void initMods(ArrayList<Mod> mods)
 	{
 		/*
@@ -48,6 +54,8 @@ public class ModsBookkeeper extends Observable
 		 * worden.
 		 */
 		this.mods = mods;
+		
+		HashMap<String,Tag> tagList = new HashMap<String,Tag>(); //this is so ugly i want to cry
 		/*
 		 * Voor het gemak, worden hier de modules per Tag gesorteerd. Daar hoef
 		 * jij verder niks mee te doen.
@@ -57,12 +65,14 @@ public class ModsBookkeeper extends Observable
 		{
 			for (Tag t : m.getTags())
 			{
-				if (modsPerTag.get(t) != null)
+				if(tagList.containsKey(t.getName()))
 				{
+					t = tagList.get(t.getName());
 					modsPerTag.get(t).add(m);
 				}
 				else
 				{
+					tagList.put(t.getName(),t);
 					ArrayList<Mod> modList = new ArrayList<Mod>();
 					modList.add(m);
 					modsPerTag.put(t, modList);

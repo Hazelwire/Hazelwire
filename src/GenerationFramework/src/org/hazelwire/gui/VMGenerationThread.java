@@ -25,6 +25,7 @@ public class VMGenerationThread extends Thread
 		{
 			synchronizeModules();
 			Generator.getInstance().setTui(new GUITextOutput(GUIBuilder.getInstance().getDisplay(),GUIBuilder.getInstance().getTextOutput()));
+			((GUITextOutput) Generator.getInstance().getTui()).clear(); //clear the text area before starting the generation process
 			Generator.getInstance().generateVM();
 		}
 		catch (Exception e)

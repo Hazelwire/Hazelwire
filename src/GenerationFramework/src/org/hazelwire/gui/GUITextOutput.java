@@ -40,4 +40,15 @@ public class GUITextOutput implements TextInterface
 			}
 		});
 	}
+	
+	public void clear()
+	{
+		display.asyncExec(new Runnable()
+		{
+			public void run()
+			{
+				output.setText("");
+			}
+		});
+	}
 }
