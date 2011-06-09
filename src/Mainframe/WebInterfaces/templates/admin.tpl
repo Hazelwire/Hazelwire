@@ -9,6 +9,18 @@
 	</head>
 	<body>
 		<div id="container">
+			<div id="gamebuttons">
+				<div class="content">
+					<div class="buttons">
+						<div>
+							<input type="button" id="vpnstart" value="Start VPN" />
+							<input type="button" id="vpnstop" value="Stop VPN" disabled="disabled" />
+							<input type="button" id="gstart" value="Start Game" disabled="disabled" />
+							<input type="button" id="gstop" value="Stop Game" disabled="disabled" />
+						</div>
+					</div>
+				</div>
+			</div>
 			<div id="contestants">
 				<div class="content">
 					<div class="header">
@@ -43,7 +55,8 @@
 							<input type="button" id="cedit" value="Edit" />
 							<input type="button" id="cban" value="Ban" />
 							<input type="button" id="cdelete" value="Delete" />
-							<input type="button" id="cpoints" value="Points" />
+							<input type="button" id="cpoints" value="Points" disabled="disabled" />
+							<input type="button" id="csanity" value="Sanity log" />
 						</div>
 					</div>
 				</div>
