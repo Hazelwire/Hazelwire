@@ -52,6 +52,41 @@ class WebInterface {
             }
             
             $this->gameConfig = new gameConfig($db); /* @var $gameConfig gameConfig */
+
+            $this->unban();
+        }
+    }
+
+    public function unban(){
+        $q = $this->database->prepare("SELECT * FROM bans WHERE end_timestamp < ?");
+        $q->execute(array(time()));
+        foreach($q as $res){
+            $c = Contestant::getById($res['team_id'], $this->database);
+            exec("mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$c->getTeamname(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$c->getTeamname()."_vm");
+
+            $smarty = &$this->getSmarty();
+            $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
+            $tpl->assign("filename", "server_".$c->getTeamname());
+            $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
+            $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
+            $tpl->assign("server_ip_range",  $c->getSubnet());
+            $tpl->assign("man_port",$this->config['management_port_base'] + $res['team_id']);
+            $tpl->assign("port",$this->config['base_port'] + $res['team_id']);
+            $config_file_data = $tpl->fetch();
+
+            $config_file_loc = $this->config['openvpn_location'] . $c->getTeamname() . ".conf";
+            $handle = @fopen($config_file_loc, 'w');
+            if($handle === false){
+                $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
+                return;
+            }
+            fwrite($handle, $config_file_data);
+            fclose($handle);
+
+            OpenVPNManager::diconnectVPN($c);
+
+            $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
+            $q->execute(array(intval($res['team_id'])));
         }
     }
     

@@ -34,7 +34,7 @@ class ManualSanityCheckerService:
                 results = p2p.getResults()
             for client in results:
                 for result in client['results']:
-                    #print "%s reports %s, fine = %s" % (client['IP'], result['port'], result['fine'])
+                    print "%s reports %s, fine = %s" % (client['IP'], str(result['port']), result['fine'])
                     if result['fine'] != "True":
                         self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
 

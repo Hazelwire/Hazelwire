@@ -5,16 +5,6 @@ class DatabaseHandler:
         
     def __init__(self,db="test.db"):
         self.db = db
-        
-    def connect(self):
-        self.conn = sqlite3.connect(self.db)
-    
-    def disconnect(self):
-        self.conn.commit()
-        self.conn.close()
-
-    def __init__(self,db="test.db"):
-        self.db = db
 
     def connect(self):
         self.conn = sqlite3.connect(self.db)
@@ -49,7 +39,7 @@ class DatabaseHandler:
         self.connect()
         c = self.conn.cursor()
         for module in modules:
-            c.execute("INSERT INTO modules VALUES (?, ?, ?, ?, ?);",[module['serviceport'],None, module['name'], module['numFlags'], module['deployscript']])
+            c.execute("INSERT INTO modules VALUES (?, ?, ?, ?, ?);",[None, module['name'], module['numFlags'], module['deployscript'], module['serviceport']])
         c.close()
         self.disconnect()
         self.connect()
@@ -66,7 +56,7 @@ class DatabaseHandler:
         c = self.conn.cursor()
         c.execute("SELECT * FROM modules;")
         for module in c.fetchall():
-            res.append({'name':module[2], 'numFlags':module[3], 'deployscript':module[4]})
+            res.append({'name':module[1], 'numFlags':module[2], 'deployscript':module[3]})
         self.disconnect()
         return res
 

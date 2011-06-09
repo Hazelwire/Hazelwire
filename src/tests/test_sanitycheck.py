@@ -15,9 +15,9 @@ class SanityCheckTestCase(unittest.TestCase):
         self.cursor.executescript("""BEGIN TRANSACTION;
 CREATE TABLE flagpoints (flag_id NUMERIC, mod_id NUMERIC, points NUMERIC);
 CREATE TABLE flags (flag_id NUMERIC, mod_id NUMERIC, team_id NUMERIC, flag TEXT);
-CREATE TABLE modules (serviceport NUMERIC, id INTEGER PRIMARY KEY, name TEXT, numFlags NUMERIC, deployscript TEXT);
-INSERT INTO modules VALUES(31337, 1,'test1',5,'deploy/deployFlags');
-INSERT INTO modules VALUES(61281, 2,'test2',2,'deploy/install.py');
+CREATE TABLE modules (id INTEGER PRIMARY KEY, name TEXT, numFlags NUMERIC, deployscript TEXT, serviceport INTEGER);
+INSERT INTO modules VALUES(1,'test1',5,'deploy/deployFlags', 31337);
+INSERT INTO modules VALUES(2,'test2',2,'deploy/install.py', 61281);
 CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip NUMERIC);
 INSERT INTO teams VALUES(1,'lokale lutsers','127.0.0.1');
 CREATE TABLE config (config_name TEXT, type TEXT, value TEXT);
@@ -29,7 +29,7 @@ COMMIT;""")
         self.cursor.close()
         self.temp.close()
         self.db = DatabaseHandler("temp.db")
-        self.sanitychecker = SanityCheckService.SanityChecker(3,10,'temp.db')
+        self.sanitychecker = SanityCheckService.SanityChecker('temp.db')
         
     def tearDown(self):
         os.remove("temp.db")

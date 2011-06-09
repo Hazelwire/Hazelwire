@@ -44,7 +44,7 @@ function create_database(){
                 CREATE TABLE submission_block (team_id INTEGER, try_timestamp INTEGER, block_timestamp INTEGER);
                 CREATE TABLE evil_teams ( ip TEXT, port INTEGER, timestamp INTEGER, reporter TEXT, seen INTEGER);
                 CREATE TABLE announcements ( id INTEGER PRIMARY KEY, title TEXT, announcement TEXT);
-                CREATE TABLE bans ( team_id INTEGER, end_timestamp INTEGER, reason TEXT );
+                CREATE TABLE bans ( team_id INTEGER, end_timestamp INTEGER, reason TEXT, jobid INTEGER );
                 COMMIT;
     ");
     if($res === false)return false;

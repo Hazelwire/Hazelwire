@@ -40,7 +40,8 @@ class Contestant {
             $update_q->execute(array($this->teamname,$this->vm_ip,$this->subnet,$this->id));
         }
     }
-    
+
+
     /** 
      *
      * @param integer $id The ID of the Contestant to fetch
@@ -82,8 +83,17 @@ class Contestant {
             $q->execute(array($result->getId(),time()));
             $res = $q->fetch();
             if($res !== false){
-                $result->banned = true;
-                $result->bantime = intval((intval($res['end_timestamp']) - time())/60);
+                if($res['end_timestamp'] == -1){
+                    $result->banned = true;
+                    $result->bantime= "-1";
+                }else{
+                    $result->banned = true;
+                    $result->bantime = intval((intval($res['end_timestamp']) - time())/60);
+                    if($result->bantime <0){
+                        $result->banned = false;
+                        $result->bantime= "-";
+                    }
+                }
             }else{
                 $result->banned = false;
                 $result->bantime= "-";

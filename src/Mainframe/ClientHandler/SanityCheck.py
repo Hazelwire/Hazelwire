@@ -6,6 +6,7 @@ def checkIP(IP, ports):
         results.append({'port':port,'fine':True})
         failed = False
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	print "Checking port " + str(port) + " on IP " + IP
         try:
             sock.connect((IP, port))
         except socket.error as error:
