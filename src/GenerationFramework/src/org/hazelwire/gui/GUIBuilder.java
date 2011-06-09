@@ -49,16 +49,34 @@ public class GUIBuilder implements Observer
 	private Text text_2;
 	private Text txtHazelwireVm;
 	private Text text_3;
-	private Text text_4;
+	private Text text_output;
 	private Canvas canvas;
 	private GridData gd_5;
-
+	private static GUIBuilder instance;
+	private Shell shell;
+	
 	public static void main(String[] args)
 	{
-		new GUIBuilder();
+		GUIBuilder builder = GUIBuilder.getInstance();
+		builder.init();
 	}
+	
+	public synchronized static GUIBuilder getInstance()
+	{
+		if(!(instance instanceof GUIBuilder))
+		{
+			instance = new GUIBuilder();
+		}
+		
+		return instance;
+	}
+	
+	private GUIBuilder()
+	{
 
-	public GUIBuilder()
+	}
+	
+	public void init()
 	{
 		/*
 		 * Maak ModsBookkeeper aan en voegt zichzelf toe als observer.
@@ -68,7 +86,7 @@ public class GUIBuilder implements Observer
 		ModsBookkeeper.getInstance().initMods(GUIBridge.getModulesForGUI());
 		ModsBookkeeper.getInstance().addObserver(this);
 		display = new Display();
-		Shell shell = new Shell(display);
+		shell = new Shell(display);
 		this.addGUIElements(shell);
 		shell.pack();
 		shell.open();
@@ -608,13 +626,13 @@ public class GUIBuilder implements Observer
 		gd_text_3.widthHint = 100;
 		text_3.setLayoutData(gd_text_3);
 
-		text_4 = new Text(composite_5, SWT.BORDER | SWT.READ_ONLY | SWT.WRAP
+		text_output = new Text(composite_5, SWT.BORDER | SWT.READ_ONLY | SWT.WRAP
 				| SWT.MULTI);
-		text_4.setEnabled(false);
+		//text_4.setEnabled(true);
 		GridData gd_text_4 = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 		gd_text_4.widthHint = 426;
 		gd_text_4.heightHint = 266;
-		text_4.setLayoutData(gd_text_4);
+		text_output.setLayoutData(gd_text_4);
 
 		Label lblDerpsep = new Label(composite_2, SWT.SEPARATOR | SWT.VERTICAL);
 		lblDerpsep.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false,
@@ -819,5 +837,15 @@ public class GUIBuilder implements Observer
 		updateChallengesTree();
 		updatePackages(ModsBookkeeper.getInstance().getSelectedMod());
 		updateOptions();
+	}
+
+	public Text getTextOutput()
+	{		
+		return text_output;
+	}
+
+	public Display getDisplay()
+	{
+		return display;
 	}
 }

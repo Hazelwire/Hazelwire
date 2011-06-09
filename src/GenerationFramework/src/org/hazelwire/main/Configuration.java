@@ -116,16 +116,6 @@ public class Configuration
 		applicationProps.setProperty("virtualBoxPath", vmPath);
 	}
 	
-	public String getVMName()
-	{
-		return applicationProps.getProperty("vmName");
-	}
-	
-	public void setVMName(String vmName)
-	{
-		applicationProps.setProperty("vmName", vmName);
-	}
-	
 	public String getVMPath()
 	{
 		return applicationProps.getProperty("vmPath");

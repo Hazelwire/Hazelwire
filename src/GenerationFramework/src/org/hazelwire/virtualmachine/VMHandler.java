@@ -27,8 +27,16 @@ public class VMHandler
 		this.vmPath = vmPath;
 	}
 	
+	public VMHandler(String virtualBoxPath, String vmPath, boolean debug)
+	{
+		this.virtualBoxPath = virtualBoxPath;
+		this.debug = debug;
+		this.vmPath = vmPath;
+	}
+	
 	/**
-	 * @todo fix this....
+	 * Reads the vm list, imports, and reads the vm list again. It will take a diff and the difference is the string for our vmname.
+	 * Extract the information we need with a regular expression.
 	 * @throws Exception
 	 */
 	public void importAndDiscover() throws Exception
@@ -43,7 +51,7 @@ public class VMHandler
 			if(!vmsPreImport.contains(vmLine)) newVM = vmLine;
 		}
 		
-		vmLineExtractor = Pattern.compile("\"(.*)\" {(.*)}");
+		vmLineExtractor = Pattern.compile("\"(.*)\" \\{(.*)\\}");
 		Matcher m = vmLineExtractor.matcher(newVM);
 		
 		if(m.find())
@@ -117,10 +125,11 @@ public class VMHandler
 	/**
 	 * The to be imported vm should be in .ova format
 	 * 
+	 * You probably shouldn't be using this but use importAndDiscover() to make sure the vmname and uuid are set
 	 */
-	public void importVM() throws Exception
+	private void importVM() throws Exception
 	{
-		if(this.checkIfImported()) System.out.println("VM is already imported"); 
+		if(this.checkIfImported()) throw new Exception("VM is already imported"); 
 		else
 		{
 			try
@@ -132,6 +141,35 @@ public class VMHandler
 				if(debug) new VMLogger(process);
 			}
 			catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
+	}
+	
+	public void unregisterVM(boolean delete) throws Exception
+	{
+		if(!this.checkIfImported()) throw new Exception("VM is not imported yet");
+		else
+		{
+			try
+			{
+				String[] arguments = {virtualBoxPath,"unregistervm",vmName,""};
+				
+				/**
+				 * Probably not the most elegant way... but f*ck elegance 0=D
+				 */
+				if(delete)
+				{
+					arguments[3] = "--delete";
+				}
+				
+				Process process = Runtime.getRuntime().exec(arguments);
+				process.waitFor(); 
+				
+				if(debug) new VMLogger(process);
+			}
+			catch(Exception e)
 			{
 				throw new RuntimeException(e);
 			}

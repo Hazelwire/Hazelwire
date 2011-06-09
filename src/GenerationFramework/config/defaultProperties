@@ -9,7 +9,6 @@ vmPath=dist/HazelwireTest.ova
 vmExportPath=output/test.ova
 modulePath=modules/
 virtualBoxPath=/usr/bin/vboxmanage
-vmName=HazelwireTest
 propertyPath=config/userProperties
 externalModuleDirectory=/home/hazelwire/modules/
 externalScriptDirectory=/home/hazelwire/

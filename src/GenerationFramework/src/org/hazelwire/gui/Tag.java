@@ -12,7 +12,7 @@ public class Tag
 		this.tagName = tagName;
 	}
 
-	public String getTagName()
+	public String getName()
 	{
 		return tagName;
 	}

@@ -2,15 +2,20 @@ package org.hazelwire.gui;
 
 import java.util.ArrayList;
 
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Text;
 import org.hazelwire.main.Generator;
 import org.hazelwire.modules.ModuleSelector;
 import org.hazelwire.modules.Option;
 
 public class VMGenerationThread extends Thread
 {
+	Display display;
+	Text output;
+	
 	public VMGenerationThread()
 	{
-		super();
+		super("generation thread");
 	}
 	
 	@Override
@@ -19,6 +24,8 @@ public class VMGenerationThread extends Thread
 		try
 		{
 			synchronizeModules();
+			Generator.getInstance().setTui(new GUITextOutput(GUIBuilder.getInstance().getDisplay(),GUIBuilder.getInstance().getTextOutput()));
+			((GUITextOutput) Generator.getInstance().getTui()).clear(); //clear the text area before starting the generation process
 			Generator.getInstance().generateVM();
 		}
 		catch (Exception e)
