@@ -18,12 +18,12 @@ class PeerToPeerSanityChecker:
 	except:
 	    print "Client " + clientIP + " is not running P2PRequestListener!"
             return
-        msg = ''
-        msg += 'CHECK ' + str(self.targetIP) + '\n'
+        msg = 'CHECK ' + str(self.targetIP) + '\n'
         for port in self.ports:
             msg += "PORT " + str(port) + '\n'
-        print msg
-        self.sock.send(msg + "ENDPORTS\n")
+	msg += "ENDPORTS\n"
+        print repr(msg)
+        self.sock.send(msg)
         results = []
         data = self.sock.recv(1024).strip()
         lines = data.split('\n')

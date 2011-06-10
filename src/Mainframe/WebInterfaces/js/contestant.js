@@ -1,5 +1,5 @@
 $(document).ready(function() {
-        setTimeout("updateLeaderboard()",60000);
+        setTimeout("updateLeaderboard()",30000);
         var flgsubmsgt;
         //$('#chart1').append('<div id="toolTip" style="position:absolute;display:none;background:#E5DACA;padding:4px;"></div>');
 
@@ -59,7 +59,7 @@ function updateLeaderboard(){
         success: function(data) {
             $('ol.scorelist').remove();
             $('#scorecontainer').append(data);
-            flgsubmsgt = setTimeout("updateLeaderboard()",60000);
+            flgsubmsgt = setTimeout("updateLeaderboard()",30000);
         }
     });
 }
