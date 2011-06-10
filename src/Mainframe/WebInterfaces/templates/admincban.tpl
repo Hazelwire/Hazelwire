@@ -10,7 +10,7 @@
 	<body>
 		<div id="container">
 			<div class="content">
-                            if $num_errors >0 or isset($cbansuccess)}
+                            {if $num_errors >0 or isset($cbansuccess)}
 				{literal}<script type="text/javascript">
 				    	$(document).ready(function(){
 				    	alert(window.outerHeight);
@@ -29,11 +29,11 @@
 					{/if}
 					</div>
 				{/if}
-				<div id="acform">
+                                <div id="acform">
 					<div class="header">
-						<h1>Ban {$contestant->getTeamname()}</h1>
+						<h1>Ban {if isset($contestant) && $contestant  != false}{$contestant->getTeamname()}{/if}</h1>
 					</div>
-					<form><input type="hidden" name="cid" value="{$contestant->getId()}" />
+                                        <form method="POST"><input type="hidden" name="cid" value="{{if isset($contestant) && $contestant != false}}{$contestant->getId()}{/if}" />
 						for <input type="text" name="cbantime" title="#" class="defaultText" /> minutes.
 						<div class="buttons">
 							<div>
@@ -47,3 +47,4 @@
 		</div>
 	</body>
 </html>
+

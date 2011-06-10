@@ -115,12 +115,16 @@ class AdminInterface extends WebInterface {
                 }
                 return $smarty->fetch("admincedit.tpl");
             }else if(startsWith ($_GET['aaction'],"cban")){
+                $c = Contestant::getById($_POST['contestant'], $this->database);
+                if($c == false)
+                	$c = Contestant::getById($_POST['cid'], $this->database);
+                $smarty->assign("contestant",$c);
                 if (isset($_POST['cid'])){
                     if(count($this->errors) == 0){
                         $smarty->assign("cbansuccess","1");
                     }
                 }
-                return $smarty->fetch("admincedit.tpl");
+                return $smarty->fetch("admincban.tpl");
             }
 
         } elseif ($this->getCurrentState() == POSTGAME) {
@@ -663,10 +667,12 @@ class AdminInterface extends WebInterface {
                     } else if(strcmp ($_GET['aaction'],"cban")==0){
                         if(isset($_POST['cid']) && intval($_POST['cid']) != 0){
                             $time = $_POST['cbantime'];
-                            if(!is_int($time)){
+                            echo $time;
+                            if(!ctype_digit($time) && intval($time)>=0){
                                 $this->handleError(new Error("ban_error", "Invalid ban input.", false));
                                 return;
                             }
+                            $time=intval($time);
 
                             $now = time();
                             $id = $_POST['cid'];
@@ -678,10 +684,7 @@ class AdminInterface extends WebInterface {
                                 OpenVPNManager::diconnectVPN($c);
                                 return;
                             }
-                            else if($time == -1){
-                                $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
-                                $q->execute(array(intval($id),-1,"Pwned",0));
-                            }
+                            
                             
                             $teamname = $c->getTeamname();
                             //exec("echo \"mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$teamname. " ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$teamname. "\" > at");
@@ -720,6 +723,9 @@ class AdminInterface extends WebInterface {
                             if($time != 0 && $time!=-1){
                                 $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
                                 $q->execute(array(intval($id),$now+($time*60),"Pwned",0));
+                            }else if($time == -1){
+                                $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
+                                $q->execute(array(intval($id),-1,"Pwned",0));
                             }
 
                         }
@@ -739,3 +745,4 @@ class AdminInterface extends WebInterface {
 }
 
 ?>
+

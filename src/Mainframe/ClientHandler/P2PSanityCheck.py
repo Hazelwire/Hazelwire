@@ -11,12 +11,18 @@ class PeerToPeerSanityChecker:
         self.writeLock = threading.Lock()
             
     def sendRequest(self, clientIP):
+        print "[P2PCHECK] Asking " + clientIP + " to do a P2PCheck on " + self.targetIP
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((clientIP, 9998))
+	try:
+            self.sock.connect((clientIP, 9998))
+	except:
+	    print "Client " + clientIP + " is not running P2PRequestListener!"
+            return
         msg = ''
         msg += 'CHECK ' + str(self.targetIP) + '\n'
         for port in self.ports:
             msg += "PORT " + str(port) + '\n'
+        print msg
         self.sock.send(msg + "ENDPORTS\n")
         results = []
         data = self.sock.recv(1024).strip()
