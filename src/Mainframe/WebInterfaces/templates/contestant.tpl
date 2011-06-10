@@ -70,7 +70,10 @@
                                 clearTimeout(resizeTimer);
                                 resizeTimer = setTimeout(onresize, 100);
 			});
-                            });{/literal}
+                            });
+                            function changeSort(){
+                                location="setlang.asp?lang="$('#winsort').val();
+                            }{/literal}
                         </script>
 	</head>
 	<body>
@@ -104,7 +107,7 @@
 					</div>
 					<div id="flagdisplayselection">
 						display
-						<select>
+						<select id="winsort" onchange="changeSort()" >
 							<option {if $winsort == "flagtype"}selected{/if} value="flagtype">by Flag Type</option>
 							<option {if $winsort == "warserver"}selected{/if} value="warserver">by Warserver</option>
 						</select>

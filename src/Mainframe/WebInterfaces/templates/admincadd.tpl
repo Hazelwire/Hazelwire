@@ -14,7 +14,7 @@
 				{if $num_errors >0 or isset($caddsuccess)}
 				{literal}<script type="text/javascript">
 				    	$(document).ready(function(){
-				    	alert(window.outerHeight);
+				    	
 				    		window.resizeTo(window.outerWidth ,230+$('#msgs').height());
 
 				    	$('#acform').animate({top:'2em'});

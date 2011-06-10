@@ -76,7 +76,7 @@ $(document).ready(function(){
 	$("#apost").click(function(){
 		window.open('', 'apostw', 'width=600,height=400,status=no,resizable=no,scrollbars=no');
 		$('form#aform').attr({
-			action: "adminapost.html",
+			action: "index.php?aaction=aadd",
 			method: "post",
 			target: "apostw"
 		});

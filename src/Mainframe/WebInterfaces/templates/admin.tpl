@@ -35,7 +35,7 @@
 								<div class="cname">Team</div>
 							</li>
 						</ul>
-						<form id="cform">
+						<form id="cform" method="GET">
 							<ul class="centries">
 		    {foreach from=$contestants item=contestant}<li class="{if $contestant->getSane() == false}insane{/if}{if $contestant->getOffline()} offline{/if}">
 									<input type="radio" name="contestant" id="teamid_{$contestant->getId()}" value="{$contestant->getId()}" />
@@ -66,7 +66,7 @@
 					<div class="header">
 						<h1>Announcements</h1>
 					</div>
-					<form id="aform">
+					<form id="aform" method="GET">
 						<div id="announcementdisplay">
 							<ul class="collapsible">
 		 {foreach from=$announcements item=announcement}<li>

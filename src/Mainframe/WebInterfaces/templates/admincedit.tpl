@@ -2,10 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 	<head>
 		<title>[Insert wargame name here] - powered by Hazelwire</title>
-		<link rel="stylesheet" type="text/css" href="admin.css"></link>
-		<script type="text/javascript" src="jquery-1.6.1.min.js"></script>
-		<script type="text/javascript" src="buttons.js"></script>
-		<script type="text/javascript" src="textfield.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/admin.css"></link>
+		<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+		<script type="text/javascript" src="js/buttons.js"></script>
+		<script type="text/javascript" src="js/textfield.js"></script>
 	</head>
 	<body>
 		<div id="container">

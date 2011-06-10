@@ -89,7 +89,7 @@ class OpenVPNManager {
      */
     public static function diconnectVPN(&$contestant){
         global $interface; /* @var $interface WebInterface */
-        $config =$interface->getConfig();
+        $config = $interface->getConfig();
         $fp = @fsockopen("127.0.0.1", $config['management_port_base'] + $contestant->getId(), $errno, $errstr, 5);
         if(!$fp){
             $interface->handleError(new Error("vpn_error", "Error #9: Cannot d/c client! (".$errno.")", false));

@@ -10,6 +10,25 @@
 	<body>
 		<div id="container">
 			<div class="content">
+                                {if $num_errors >0 or isset($aaddsuccess)}
+				{literal}<script type="text/javascript">
+				    	$(document).ready(function(){
+
+				    		window.resizeTo(window.outerWidth ,430+$('#msgs').height());
+
+				    	$('#acform').animate({top:'2em'});
+
+				    	});
+				    </script>{/literal}
+				    <div id="msgs" style="display: block; left: 0pt; right: 0pt;height:auto;">
+					{if isset($errors)}{foreach from=$errors item=error}
+					<div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px red;">{$error->getMessage()}</div>
+					{/foreach}{/if}
+					{if isset($aaddsuccess) && $aaddsuccess == "1"}
+					<div style="background: none repeat scroll 0pt 0pt rgb(170, 255, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px rgb(0, 255, 0)">Announcement added!</div>
+					{/if}
+					</div>
+				{/if}
 				<div id="acform">
 					<div class="header">
 						<h1>Post announcement</h1>
@@ -23,7 +42,7 @@
 						</div>
 						<div class="buttons">
 							<div>
-								<input type="button" id="ok" value="Post" />
+								<input type="button" id="okaadd" value="Post" />
 								<input type="button" id="cancel" value="Cancel" />
 							</div>
 						</div>

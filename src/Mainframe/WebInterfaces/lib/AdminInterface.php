@@ -42,9 +42,9 @@ class AdminInterface extends WebInterface {
                 $smarty->assign("site_path", $this->config['site_folder']);
             }
             return $smarty->fetch("config.tpl");
-            
+
         } elseif (($this->state = $this->getCurrentState()) == POSTCONFIG) {
-            
+
             $smarty->assign("contestants", $this->contestant_list);
             return $smarty->fetch("add_contestants.tpl");
         } elseif ($this->getCurrentState() == PREVPN) {
@@ -90,9 +90,9 @@ class AdminInterface extends WebInterface {
                     if(count($this->errors) == 0){
                         $smarty->assign("caddsuccess","1");
                     }
-                    
+
                 }else{
-                    
+
                 }
                 return $smarty->fetch("admincadd.tpl");
             }else if(startsWith ($_GET['aaction'],"cedit")){
@@ -102,7 +102,7 @@ class AdminInterface extends WebInterface {
                         $smarty->assign("ceditsuccess","1");
                     }
                 }else if(isset($_POST['contestant'])){
-                    
+
                     $id = intval($_POST['contestant']);
                     $contestant = Contestant::getById($id, $db);
                     $boom = explode(".", $contestant->getSubnet());
@@ -115,12 +115,16 @@ class AdminInterface extends WebInterface {
                 }
                 return $smarty->fetch("admincedit.tpl");
             }else if(startsWith ($_GET['aaction'],"cban")){
+                $c = Contestant::getById($_POST['contestant'], $this->database);
+                if($c == false)
+                	$c = Contestant::getById($_POST['cid'], $this->database);
+                $smarty->assign("contestant",$c);
                 if (isset($_POST['cid'])){
                     if(count($this->errors) == 0){
                         $smarty->assign("cbansuccess","1");
                     }
                 }
-                return $smarty->fetch("admincedit.tpl");
+                return $smarty->fetch("admincban.tpl");
             }
 
         } elseif ($this->getCurrentState() == POSTGAME) {
@@ -133,7 +137,7 @@ class AdminInterface extends WebInterface {
      * different states in the setup stage and the game stage.<br> The main reason for this is making
      * it possible to ask certain info from the Admin at the correct moments and preventing things
      * from happening in the wrong momens.
-     * 
+     *
      * @param integer $state The state the system is in.
      */
     private function setState($state) {
@@ -180,12 +184,12 @@ class AdminInterface extends WebInterface {
                     $auto_p2p_interval = intval($_POST['p2p_interval']);
                     $auto_s2p_interval = intval($_POST['s2p_interval']);
                     $server_ip = $_POST['server_ip'];
-                    
+
                     $decay_mod = $_POST['points_decay_mod'];
                     $points_min = $_POST['points_min'];
                     $point_penalty_mod = $_POST['point_penalty_mod'];
                     $penalty_offline = $_POST['penalty_offline'];
-                    
+
                     $manifest = $_FILES['manifest'];
                     $temp = explode(".", $manifest['name']);
                     $ext = $temp[count($temp) - 1];
@@ -195,9 +199,9 @@ class AdminInterface extends WebInterface {
                         return;
                     } elseif ($auto_p2p_interval > 0 && $auto_s2p_interval > 0 && $manifest['error'] === 0 && checkValidIp($server_ip)) {
 
-                        
+
                         move_uploaded_file($manifest['tmp_name'], "manifest.xml");
-                        
+
                         $res = exec("python ". $this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['site_folder'].$this->config['database_file_name'], $cmd_result);
                         if(strrpos($res,"False") !== false){
                             $this->handleError(new Error("config_input_error", "Invalid manifest XML!", true));
@@ -212,12 +216,12 @@ class AdminInterface extends WebInterface {
 
                         $result = $result && $update->execute(array($auto_p2p_interval, 'p2p_interval'));
                         $result = $result && $update->execute(array($auto_s2p_interval, 'normal_interval'));
-                        
+
                         $result = $result && $update->execute(array($decay_mod , 'points_decay_mod'));
                         $result = $result && $update->execute(array($points_min , 'points_min'));
                         $result = $result && $update->execute(array($point_penalty_mod , 'point_penalty_mod'));
                         $result = $result && $update->execute(array($penalty_offline , 'penalty_offline'));
-                        
+
 
                         if ($result !== false) {
                             $this->setState(POSTCONFIG);
@@ -236,7 +240,7 @@ class AdminInterface extends WebInterface {
             case POSTCONFIG:
                 if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                     $db = &$this->database;
-                    
+
                     /* @var $result PDOStatement */
                     $result = $db->query("SELECT COUNT(*) FROM teams");
                     $num_teams = $result->fetchColumn();
@@ -253,7 +257,7 @@ class AdminInterface extends WebInterface {
                          * Create a VPN config file and a Client Config Dir.
                          * Create keys and a CA / DH if necessary (i.e. if this is the first)
                          */
-                        
+
                         if(!ctype_alnum($_POST['name']))
                             $this->handleError(new Error("team_input_error", "Illegal name. Only alphanumeric allowed!", false));
                         elseif((!(intval($_POST['server_ip']) > 0 && intval($_POST['server_ip']) < 255)) || !((intval($_POST['ip_range']) > 0 && intval($_POST['ip_range']) < 255)))
@@ -262,15 +266,15 @@ class AdminInterface extends WebInterface {
                             $subnet = "10." . $_POST['ip_range'] . ".0.0/24";
                             $vmip =   "10." . $_POST['ip_range'] . "." . $_POST['server_ip'] . ".1";
                             $vmip_endpoint =   "10." . $_POST['ip_range'] . "." . $_POST['server_ip'] . ".2";
-                            
+
                             if(!checkValidIp($vmip)){
                                 $this->handleError(new Error("team_input_error", "Illegal IP address input", false));
                                 return;
                             }
-                            
-                            
+
+
                             $result = $db->query("SELECT * FROM teams");
-                            
+
                             foreach($result as $res){
                                 if($_POST['name'] == $res['name'])
                                     $this->handleError(new Error("team_input_error", "Duplicate name much!", false));
@@ -279,24 +283,24 @@ class AdminInterface extends WebInterface {
                                 elseif($vmip == $res['VMip'])
                                     $this->handleError(new Error("team_input_error", "Duplicate server ip much!", false));
                             }
-                            
+
                             //check for errors and return
                             if(count($this->errors) > 0){
                                 return;
                             }else{
                                 //assume all is right, insert into database
                                 $c = new Contestant($_POST['name'], $subnet, $vmip);
-                                
+
                                 array_push($this->contestant_list,$c);
-                                
+
                                 $c->save($db);
-                                
+
                                 if($num_teams == 0){
 
                                     OpenVPNManager::buildInitKeys();
 
                                     OpenVPNManager::createBaseVPNServer();
-                                    
+
                                     $smarty = &$this->getSmarty();
                                     $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
                                     $tpl->assign("filename", "basevpn");
@@ -316,14 +320,14 @@ class AdminInterface extends WebInterface {
                                     fwrite($handle, $config_file_data);
                                     fclose($handle);
                                 }
-                                
+
                                 OpenVPNManager::buildServerKeys($_POST['name']);
                                 OpenVPNManager::buildClientKeys($_POST['name']);
-                                
+
                                 // @TODO We moeten ook Apache configs aanpassen enzo om Limit te allowen voor .htaccess
                                 // create the CCD file
                                 OpenVPNManager::createClientConfigFile($_POST['name'], $vmip, $vmip_endpoint);
-                                
+
                                 $smarty = &$this->getSmarty();
                                 $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
                                 $tpl->assign("filename", "server_".$_POST['name']);
@@ -333,7 +337,7 @@ class AdminInterface extends WebInterface {
                                 $tpl->assign("man_port",$this->config['management_port_base'] + $c->getId());
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
                                 $config_file_data = $tpl->fetch();
-                                
+
                                 $config_file_loc = $this->config['openvpn_location'] . $_POST['name'] . ".conf";
                                 $handle = @fopen($config_file_loc, 'w');
                                 if($handle === false){
@@ -346,7 +350,7 @@ class AdminInterface extends WebInterface {
 
 
                                 $gc = &$this->gameConfig; /* @var $gc GameConfig */
-                                
+
                                 $tpl = $smarty->createTemplate("client.conf"); /* @var $tpl Smarty_Internal_Template */
                                 $tpl->assign("teamname", $_POST['name']);
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
@@ -365,14 +369,14 @@ class AdminInterface extends WebInterface {
                                 OpenVPNManager::startVPN($c);
                             }
                         }
-                        
+
                     }
                 }
                 break;
             case PREVPN:
                 $db = &$this->database;
                 if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
-                    
+
                     if (isset($_POST['start'])) {
                         $id = intval(key($_POST['start']));
                         if(($c = Contestant::getById($id, $db)) !== false){
@@ -409,13 +413,13 @@ class AdminInterface extends WebInterface {
             case PREGAMESTART:
                 if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                     if (isset($_POST['next'])) {
-                        
+
                         OpenVPNManager::setKernelRouting(true);
                         exec("python ". $this->config['ch_location'] . "FlagAdministration.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
                         $db =&$this->database; /* @var $db PDO */
                         $q = $db->prepare("INSERT INTO config VALUES (?,?)");
                         $q->execute(array("start_time",time()));
-                        
+
                         $this->setState(GAMEINPROGRESS);
                     }
                 }
@@ -424,9 +428,9 @@ class AdminInterface extends WebInterface {
             case GAMEINPROGRESS:
                 if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                     if (isset($_POST['next'])) {
-                        
+
                         OpenVPNManager::setKernelRouting(false);
-                        
+
                         $fp = @fsockopen("127.0.0.1", 9999, $errno, $errstr, 5);
                         if(!$fp){
                             $this->handleError(new Error("game_administration_error", "Cannot stop Flag Administration! (".$errno.")", false));
@@ -434,13 +438,13 @@ class AdminInterface extends WebInterface {
                             fwrite($fp, "REQSHUTDOWN");
                             fclose($fp);
                         }
-                        
+
                         foreach ($this->contestant_list as $c){
                             if(OpenVPNManager::getVPNStatus($c))
                                 OpenVPNManager::stopVPN($c);
                         }
                         OpenVPNManager::stopBaseVPN();
-                        
+
                         $fp = @fsockopen("127.0.0.1", 10000, $errno, $errstr, 5);
                         if(!$fp){
                             $this->handleError(new Error("game_administration_error", "Cannot stop OpenVPNService.py! (".$errno.")", false));
@@ -448,7 +452,7 @@ class AdminInterface extends WebInterface {
                             fwrite($fp, "STOPSERVICE");
                             fclose($fp);
                         }
-                        
+
                         $this->setState(POSTGAME);
                     } else if(isset($_POST['cadd']) && strtolower($_POST['cadd']) == 'add'){
                         $db = &$this->database;
@@ -457,7 +461,7 @@ class AdminInterface extends WebInterface {
                         $result = $db->query("SELECT COUNT(*) FROM teams");
                         $num_teams = $result->fetchColumn();
 
-                        
+
                         // @FIXME doe dubbele code weghalen?
                         if(!ctype_alnum($_POST['cname']))
                             $this->handleError(new Error("team_input_error", "Illegal name. Only alphanumeric allowed!", false));
@@ -663,10 +667,12 @@ class AdminInterface extends WebInterface {
                     } else if(strcmp ($_GET['aaction'],"cban")==0){
                         if(isset($_POST['cid']) && intval($_POST['cid']) != 0){
                             $time = $_POST['cbantime'];
-                            if(!is_int($time)){
+                            echo $time;
+                            if(!ctype_digit($time) && intval($time)>=0){
                                 $this->handleError(new Error("ban_error", "Invalid ban input.", false));
                                 return;
                             }
+                            $time=intval($time);
 
                             $now = time();
                             $id = $_POST['cid'];
@@ -678,11 +684,8 @@ class AdminInterface extends WebInterface {
                                 OpenVPNManager::diconnectVPN($c);
                                 return;
                             }
-                            else if($time == -1){
-                                $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
-                                $q->execute(array(intval($id),-1,"Pwned",0));
-                            }
-                            
+
+
                             $teamname = $c->getTeamname();
                             //exec("echo \"mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$teamname. " ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$teamname. "\" > at");
                             exec("mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$teamname. "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$teamname."_vm");
@@ -714,12 +717,15 @@ class AdminInterface extends WebInterface {
                             fclose($handle);
 
                             OpenVPNManager::diconnectVPN($c);
-                            
+
                             $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
                             $q->execute(array(intval($id)));
                             if($time != 0 && $time!=-1){
                                 $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
                                 $q->execute(array(intval($id),$now+($time*60),"Pwned",0));
+                            }else if($time == -1){
+                                $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
+                                $q->execute(array(intval($id),-1,"Pwned",0));
                             }
 
                         }

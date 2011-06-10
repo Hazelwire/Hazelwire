@@ -76,10 +76,10 @@ class Contestant {
             if($q->fetch() !== false)
                 $this->sane = false;
 
-            $result->offline = gethostbyaddr($result->getVm_ip()) == $result->getVm_ip();
+            $result->offline = !ping($result->getVm_ip());
             
 
-            $q = $db->prepare("SELECT * FROM bans WHERE team_id = ? AND end_timestamp > ? ORDER BY end_timestamp DESC");
+            $q = $db->prepare("SELECT * FROM bans WHERE team_id = ? AND (end_timestamp > ? OR end_timestamp=-1) ORDER BY end_timestamp DESC");
             $q->execute(array($result->getId(),time()));
             $res = $q->fetch();
             if($res !== false){

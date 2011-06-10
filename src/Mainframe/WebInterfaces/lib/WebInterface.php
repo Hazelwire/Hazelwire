@@ -53,12 +53,12 @@ class WebInterface {
             
             $this->gameConfig = new gameConfig($db); /* @var $gameConfig gameConfig */
 
-            $this->unban();
+           
         }
     }
 
     public function unban(){
-        $q = $this->database->prepare("SELECT * FROM bans WHERE end_timestamp < ?");
+        $q = $this->database->prepare("SELECT * FROM bans WHERE end_timestamp < ? AND end_timestamp!=-1");
         $q->execute(array(time()));
         foreach($q as $res){
             $c = Contestant::getById($res['team_id'], $this->database);
@@ -85,7 +85,7 @@ class WebInterface {
 
             OpenVPNManager::diconnectVPN($c);
 
-            $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
+            $q = $this->database->prepare("DELETE FROM bans WHERE team_id = ?");
             $q->execute(array(intval($res['team_id'])));
         }
     }
