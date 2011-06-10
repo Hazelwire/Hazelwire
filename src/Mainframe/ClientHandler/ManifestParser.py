@@ -26,7 +26,6 @@ class ManifestHandler(xml.sax.ContentHandler):
             self.startPointElement = True
 
     def endElement(self, name):
-        global correctXML
         if name == "name":
             self.isNameElement = False
         elif name == "deployscript":
@@ -48,9 +47,7 @@ class ManifestHandler(xml.sax.ContentHandler):
         elif self.startPointElement:
             modules[-1]['flagpoints'][-1] += ch
         elif self.isServicePortElement:
-            modules[-1]['serviceport'] += ch
-
-
+            modules[-1]['serviceport'] += ch.strip('\r\t\n ')
 
 def parseManifest(manifest, db):
     correctXML = True
@@ -68,6 +65,7 @@ def parseManifest(manifest, db):
     if correctXML:
         db = DatabaseHandler.DatabaseHandler(db)
         db.addModuleInfo(modules)
+	print modules
         return True
     return False
 

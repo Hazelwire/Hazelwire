@@ -20,13 +20,13 @@
                    }{/literal}
                 </style>
                      <script type="text/javascript" language="javascript">
-
+			var plot1;
                             {literal}$(document).ready(function(){{/literal}
                             $.jqplot.config.enablePlugins = true;
                               {foreach from=$series->series item=serie}
                                 var {$serie->id}={$serie->string};
                               {/foreach}
-                              var plot1 = $.jqplot('chart1', [{$series->seriesString}],{literal} {
+                              plot1 = $.jqplot('chart1', [{$series->seriesString}],{literal} {
                                   legend:{show:true},
                                   axes:{
                                     xaxis:{
@@ -107,7 +107,7 @@
 					</div>
 					<div id="flagdisplayselection">
 						display
-						<select id="winsort" onchange="changeSort()" >
+						<select id='winsort' onchange="changeSort()">
 							<option {if $winsort == "flagtype"}selected{/if} value="flagtype">by Flag Type</option>
 							<option {if $winsort == "warserver"}selected{/if} value="warserver">by Warserver</option>
 						</select>

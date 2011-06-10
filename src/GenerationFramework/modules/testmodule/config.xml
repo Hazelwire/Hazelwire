@@ -10,9 +10,8 @@
 			<id>1</id>
 		</package>
 		<tags>
-			<tag>Service</tag>
-			<tag>Buffer Overflow</tag>
-			<tag>Format String</tag>
+			<tag>Web</tag>
+			<tag>Local Inclusion</tag>
 		</tags>
 	</general-info>
 	<flags>

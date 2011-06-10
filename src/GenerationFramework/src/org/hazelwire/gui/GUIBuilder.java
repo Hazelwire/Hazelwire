@@ -414,7 +414,7 @@ public class GUIBuilder implements Observer
 		if (selectedMod != null)
 		{
 			HashMap<String, Option> options = selectedMod.getOptions();
-			for (String s : options.keySet())
+			for (Option s : options.values())
 			{
 				new OptionsComposite(composite_7, SWT.NONE, s, selectedMod,
 						this);
@@ -799,9 +799,9 @@ public class GUIBuilder implements Observer
 		if (selectedMod != null)
 		{
 			HashMap<String, Option> options = selectedMod.getOptions();
-			for (String s : options.keySet())
+			for (Option o : options.values())
 			{
-				new OptionsComposite(composite_7, SWT.NONE, s, selectedMod,
+				new OptionsComposite(composite_7, SWT.NONE, o, selectedMod,
 						this);
 			}
 		}

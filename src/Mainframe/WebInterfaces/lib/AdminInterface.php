@@ -686,6 +686,7 @@ class AdminInterface extends WebInterface {
                             }
 
 
+
                             $teamname = $c->getTeamname();
                             //exec("echo \"mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$teamname. " ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$teamname. "\" > at");
                             exec("mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$teamname. "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$teamname."_vm");
@@ -745,3 +746,4 @@ class AdminInterface extends WebInterface {
 }
 
 ?>
+

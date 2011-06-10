@@ -53,7 +53,6 @@ class WebInterface {
             
             $this->gameConfig = new gameConfig($db); /* @var $gameConfig gameConfig */
 
-           
         }
     }
 
@@ -62,7 +61,7 @@ class WebInterface {
         $q->execute(array(time()));
         foreach($q as $res){
             $c = Contestant::getById($res['team_id'], $this->database);
-            exec("mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$c->getTeamname(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$c->getTeamname()."_vm");
+            exec("mv ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$c->getTeamname(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$c->getTeamname()."_vm");
 
             $smarty = &$this->getSmarty();
             $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
@@ -82,7 +81,7 @@ class WebInterface {
             }
             fwrite($handle, $config_file_data);
             fclose($handle);
-
+		echo "derp";
             OpenVPNManager::diconnectVPN($c);
 
             $q = $this->database->prepare("DELETE FROM bans WHERE team_id = ?");

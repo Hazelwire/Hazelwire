@@ -37,12 +37,11 @@ public class DefaultMouseListener implements MouseListener
 				OptionsComposite oc = (OptionsComposite) c;
 				
 				//reset the value to the default value
-				Option tempOption = oc.getMod().getOption(oc.getOption());
-				tempOption.setValue(tempOption.getDefaultValue());
-				oc.getMod().editOption(tempOption);
+				oc.getOption().setValue(oc.getOption().getDefaultValue());
+				oc.getMod().editOption(oc.getOption());
 				
 				//set the value again 
-				oc.getText().setText(oc.getMod().getOption(oc.getOption()).getValue());
+				oc.getText().setText(oc.getOption().getValue());
 			}
 		}
 

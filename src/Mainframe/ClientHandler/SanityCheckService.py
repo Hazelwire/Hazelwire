@@ -2,6 +2,26 @@ import threading, sys
 import DatabaseHandler, SanityCheck, P2PSanityCheck, ManualSanityChecker
 #3 threads: Automatic Sanity checking, Listening for manual sanity check requests, checking for config changes
 
+class RepeatTimer(threading.Thread):
+    def __init__(self, interval, callable, *args, **kwargs):
+        threading.Thread.__init__(self)
+        self.interval = interval
+        self.callable = callable
+        self.args = args
+        self.kwargs = kwargs
+        self.event = threading.Event()
+        self.event.set()
+
+    def run(self):
+        while self.event.is_set():
+            t = threading.Timer(self.interval, self.callable,
+                                self.args, self.kwargs)
+            t.start()
+            t.join()
+
+    def cancel(self):
+        self.event.clear()
+
 class SanityChecker:
     
     def __init__(self, db):
@@ -17,14 +37,14 @@ class SanityChecker:
             print "[CONFIGCHECK]  Got a new time for normal_interval"
             self.autoNormalTimer.cancel()
             self.normal_interval = new_normal_interval
-            self.autoNormalTimer = threading.Timer(self.normal_interval*60, self.checkIP)
+            self.autoNormalTimer = RepeatTimer(self.normal_interval*60, self.checkIP)
             self.autoNormalTimer.start()
             print "[CONFIGCHECK] Started normal check timer with timeout " + str(self.normal_interval*60)
         if new_p2p_interval != self.p2p_interval:
             print "[CONFIGCHECK] Got a new time for p2p_interval"
             self.autoP2PTimer.cancel()
             self.p2p_interval = new_p2p_interval
-            self.autoP2PTimer = threading.Timer(self.p2p_interval*60, self.P2PCheck)
+            self.autoP2PTimer = RepeatTimer(self.p2p_interval*60, self.P2PCheck)
             self.autoP2PTimer.start()
             print "[CONFIGCHECK] Started p2p check Timer with timeout " + str(self.p2p_interval*60)
             
@@ -38,14 +58,16 @@ class SanityChecker:
                 if not result['fine']:
                     print "Got a suspicious client at " + str(contestant) + " on port " + str(result['port'])
                     self.db.addSuspiciousContestant(contestant, result['port'],'')
+        print "[NORMALCHECK] Finished check"
                     
     def P2PCheck(self):
 	print "[P2PCHECK] Running check..."
+	print "[P2PCHECK] Contestants: " + str(self.contestants)
         for contestant in self.contestants:
             temp = self.contestants
             temp.remove(contestant)
+            print "[P2PCHECK] " + contestant + " is checking "  + str(temp)
             p2p = P2PSanityCheck.PeerToPeerSanityChecker(contestant, temp, self.ports)
-            print "[P2PCHECK] Asking " + contestant + " to do a P2PCheck"
             p2p.checkIP()
             allresults = p2p.getResults()
             for client in allresults:
@@ -53,15 +75,16 @@ class SanityChecker:
                     print "%s reports %s, fine = %s" % (client['IP'], str(result['port']), result['fine'])
                     if result['fine'] != "True":
                         self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
+	print "[P2PCHECK] Finished check"
 
     def start(self):
-        self.autoNormalTimer = threading.Timer(self.normal_interval*60, self.NormalCheck)
+        self.autoNormalTimer = RepeatTimer(self.normal_interval*60, self.NormalCheck)
         self.autoNormalTimer.start()
         print "Started Automatic Sanity Checking timer..."
-#        self.autoP2PTimer = threading.Timer(self.p2p_interval*60, self.P2PCheck)
-#        self.autoP2PTimer.start()
-#        print "Started Automatic P2P Sanity Checking timer..."
-        self.configTimer = threading.Timer(60, self.checkConfig)
+        self.autoP2PTimer = RepeatTimer(self.p2p_interval*60, self.P2PCheck)
+        self.autoP2PTimer.start()
+        print "Started Automatic P2P Sanity Checking timer..."
+        self.configTimer = RepeatTimer(60, self.checkConfig)
         self.configTimer.start()
         print "Started config checking timer..."
         self.msc = ManualSanityChecker.ManualSanityCheckerService('127.0.0.1',9997, self.db)

@@ -22,21 +22,26 @@ class ManualSanityCheckerService:
         self.sock.close()
 
     def handle(self, conn, addr):
-        data = conn.recv(1024)
+        data = conn.recv(1024).strip('\n')
         if data.startswith("CHECK TYPE "):
             checktype = data.split(' ')[2]
             IP = data.split(' ')[3]
             if checktype == "NORMAL":
                 results = checkIP(IP, self.portsToScan)
+		for result in results:
+                    if not result['fine']:
+			print "Adding " + IP + " with port " + str(result['port'])
+                        self.db.addSuspiciousContestant(IP, result['port'],'')
+
             elif checktype == "P2P":
                 p2p = P2PSanityCheck.PeerToPeerSanityChecker(IP,self.contestants, self.portsToScan)
                 p2p.checkIP()
                 results = p2p.getResults()
-            for client in results:
-                for result in client['results']:
-                    print "%s reports %s, fine = %s" % (client['IP'], str(result['port']), result['fine'])
-                    if result['fine'] != "True":
-                        self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
+                for client in results:
+                    for result in client['results']:
+                        print "%s reports %s, fine = %s" % (client['IP'], str(result['port']), result['fine'])
+                        if not result['fine']:
+                            self.db.addSuspiciousContestant(IP, result['port'], client['IP'])
 
         elif data == "STOPMANUAL":
             self.running = False       
