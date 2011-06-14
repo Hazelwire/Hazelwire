@@ -31,21 +31,21 @@
 				{/if}
 				<div id="acform">
 					<div class="header">
-						<h1>Edit {$contestant->getTeamname()}'s info</h1>
+						<h1>Edit {if isset($contestant)}{$contestant->getTeamname()}{/if}'s info</h1>
 					</div>
-                                            <form><input type="hidden" name="cid" value="{$contestant->getId()}" /><input type="hidden" name="cedit" value="save" />
+                                            <form><input type="hidden" name="cid" value="{if isset($contestant)}{$contestant->getId()}{/if}" /><input type="hidden" name="cedit" value="save" />
 						<div class="cforminput">
 							<div class="cformlabel">Team name: </div>
 							<div class="cformfield">
-								<input type="text" value="{$contestant->getTeamname()}" name="cname" title="teamname" class="defaultText" />
+								<input type="text" value="{if isset($contestant)}{$contestant->getTeamname()}{/if}" name="cname" title="teamname" class="defaultText" />
 							</div>
 							<div class="cformlabel">Subnet:</div>
 							<div class="cformfield">
-								10.<input type="text" value="{$subnet}" name="csubnet" value="1" title="#" class="defaultText" />.0.0/24
+								10.<input type="text" value="{if isset($subnet)}{$subnet}{/if}" name="csubnet" value="1" title="#" class="defaultText" />.0.0/24
 							</div>
 							<div class="cformlabel">VM IP:</div>
 							<div class="cformfield">
-								10.1.<input type="text" value="{$vmip}" name="cvmip" value="1" title="#" class="defaultText" />.0
+								10.1.<input type="text" value="{if isset($vmpip)}{$vmip}{/if}" name="cvmip" value="1" title="#" class="defaultText" />.0
 							</div>
 						</div>
 						<div class="buttons">

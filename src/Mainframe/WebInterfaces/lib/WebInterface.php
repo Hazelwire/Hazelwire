@@ -61,7 +61,7 @@ class WebInterface {
         $q->execute(array(time()));
         foreach($q as $res){
             $c = Contestant::getById($res['team_id'], $this->database);
-            //exec("mv ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$c->getTeamname(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$c->getTeamname()."_vm");
+            exec("mv ".$this->config['site_folder']."lib/admin/openvpn/ccd/_Team".$c->getId(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId()."_vm");
 
             $smarty = &$this->getSmarty();
             $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */

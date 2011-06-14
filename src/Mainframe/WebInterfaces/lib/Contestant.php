@@ -89,7 +89,7 @@ class Contestant {
                     $result->bantime= "-1";
                 }else{
                     $result->banned = true;
-                    $result->bantime = intval((intval($res['end_timestamp']) - time())/60);
+                    $result->bantime = round((intval($res['end_timestamp']) - time())/60);
                     if($result->bantime <0){
                         $result->banned = false;
                         $result->bantime= "-";
@@ -190,7 +190,7 @@ class Contestant {
     }
 
     public function getOffline() {
-        return !ping($result->getVm_ip());
+        return !ping($this->getVm_ip());
     }
 
     public function getSane() {
