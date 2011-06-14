@@ -212,6 +212,7 @@ class ContestantInterface extends WebInterface{
                 return;
         // @TODO check for db_ready.
         if($this->getCurrentState() == GAMEINPROGRESS){
+            $interface->unban();
             if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                 if(isset($_POST['sub_flag'])){
                     $now = time(); // take a timestamp.

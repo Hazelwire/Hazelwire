@@ -277,11 +277,11 @@ class AdminInterface extends WebInterface {
 
                             foreach($result as $res){
                                 if($_POST['name'] == $res['name'])
-                                    $this->handleError(new Error("team_input_error", "Duplicate name much!", false));
+                                    $this->handleError(new Error("team_input_error", "Duplicate name!", false));
                                 elseif($subnet == $res['subnet'])
-                                    $this->handleError(new Error("team_input_error", "Duplicate subnet much!", false));
+                                    $this->handleError(new Error("team_input_error", "Duplicate subnet!", false));
                                 elseif($vmip == $res['VMip'])
-                                    $this->handleError(new Error("team_input_error", "Duplicate server ip much!", false));
+                                    $this->handleError(new Error("team_input_error", "Duplicate server ip!", false));
                             }
 
                             //check for errors and return
@@ -294,6 +294,7 @@ class AdminInterface extends WebInterface {
                                 array_push($this->contestant_list,$c);
 
                                 $c->save($db);
+                                $c = Contestant::getById($c->getId(), $db);
 
                                 if($num_teams == 0){
 
@@ -321,16 +322,16 @@ class AdminInterface extends WebInterface {
                                     fclose($handle);
                                 }
 
-                                OpenVPNManager::buildServerKeys($_POST['name']);
-                                OpenVPNManager::buildClientKeys($_POST['name']);
+                                OpenVPNManager::buildServerKeys("Team".$c->getId());
+                                OpenVPNManager::buildClientKeys("Team".$c->getId());
 
                                 // @TODO We moeten ook Apache configs aanpassen enzo om Limit te allowen voor .htaccess
                                 // create the CCD file
-                                OpenVPNManager::createClientConfigFile($_POST['name'], $vmip, $vmip_endpoint);
+                                OpenVPNManager::createClientConfigFile("Team".$c->getId(), $vmip, $vmip_endpoint);
 
                                 $smarty = &$this->getSmarty();
                                 $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
-                                $tpl->assign("filename", "server_".$_POST['name']);
+                                $tpl->assign("filename", "server_"."Team".$c->getId());
                                 $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
                                 $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
                                 $tpl->assign("server_ip_range",  substr($subnet, 0, -3));
@@ -338,7 +339,7 @@ class AdminInterface extends WebInterface {
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
                                 $config_file_data = $tpl->fetch();
 
-                                $config_file_loc = $this->config['openvpn_location'] . $_POST['name'] . ".conf";
+                                $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";
                                 $handle = @fopen($config_file_loc, 'w');
                                 if($handle === false){
                                     $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
@@ -352,12 +353,12 @@ class AdminInterface extends WebInterface {
                                 $gc = &$this->gameConfig; /* @var $gc GameConfig */
 
                                 $tpl = $smarty->createTemplate("client.conf"); /* @var $tpl Smarty_Internal_Template */
-                                $tpl->assign("teamname", $_POST['name']);
+                                $tpl->assign("teamname", "Team".$c->getId());
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
                                 $tpl->assign("server_ip", $gc->server_ip);
                                 $config_file_data = $tpl->fetch();
 
-                                $config_file_loc = $this->config['openvpn_location'] . $_POST['name'] . "_client.conf";
+                                $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . "_client.conf";
                                 $handle = @fopen($config_file_loc, 'w');
                                 if($handle === false){
                                     $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
@@ -426,6 +427,7 @@ class AdminInterface extends WebInterface {
 
                 break;
             case GAMEINPROGRESS:
+                $interface->unban();
                 if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                     if (isset($_POST['next'])) {
 
@@ -499,6 +501,7 @@ class AdminInterface extends WebInterface {
                                 array_push($this->contestant_list,$c);
 
                                 $c->save($db);
+                                $c = Contestant::getById($c->getId(), $db);
 
                                 if($num_teams == 0){
 
@@ -526,16 +529,16 @@ class AdminInterface extends WebInterface {
                                     fclose($handle);
                                 }
 
-                                OpenVPNManager::buildServerKeys($_POST['cname']);
-                                OpenVPNManager::buildClientKeys($_POST['cname']);
+                                OpenVPNManager::buildServerKeys("Team".$c->getId());
+                                OpenVPNManager::buildClientKeys("Team".$c->getId());
 
                                 // @TODO We moeten ook Apache configs aanpassen enzo om Limit te allowen voor .htaccess
                                 // create the CCD file
-                                OpenVPNManager::createClientConfigFile($_POST['cname'], $vmip, $vmip_endpoint);
+                                OpenVPNManager::createClientConfigFile("Team".$c->getId(), $vmip, $vmip_endpoint);
 
                                 $smarty = &$this->getSmarty();
                                 $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
-                                $tpl->assign("filename", "server_".$_POST['cname']);
+                                $tpl->assign("filename", "server_"."Team".$c->getId());
                                 $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
                                 $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
                                 $tpl->assign("server_ip_range",  substr($subnet, 0, -3));
@@ -543,7 +546,7 @@ class AdminInterface extends WebInterface {
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
                                 $config_file_data = $tpl->fetch();
 
-                                $config_file_loc = $this->config['openvpn_location'] . $_POST['cname'] . ".conf";
+                                $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";
                                 $handle = @fopen($config_file_loc, 'w');
                                 if($handle === false){
                                     $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
@@ -557,12 +560,12 @@ class AdminInterface extends WebInterface {
                                 $gc = &$this->gameConfig; /* @var $gc GameConfig */
 
                                 $tpl = $smarty->createTemplate("client.conf"); /* @var $tpl Smarty_Internal_Template */
-                                $tpl->assign("teamname", $_POST['cname']);
+                                $tpl->assign("teamname", "Team".$c->getId());
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
                                 $tpl->assign("server_ip", $gc->server_ip);
                                 $config_file_data = $tpl->fetch();
 
-                                $config_file_loc = $this->config['openvpn_location'] . $_POST['cname'] . "_client.conf";
+                                $config_file_loc = $this->config['openvpn_location'] ."Team".$c->getId() . "_client.conf";
                                 $handle = @fopen($config_file_loc, 'w');
                                 if($handle === false){
                                     $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
@@ -622,11 +625,11 @@ class AdminInterface extends WebInterface {
                                 $c->save($db);
 
 
-                                OpenVPNManager::createClientConfigFile($_POST['cname'], $vmip, $vmip_endpoint);
+                                OpenVPNManager::createClientConfigFile("Team".$c->getId(), $vmip, $vmip_endpoint);
 
                                 $smarty = &$this->getSmarty();
                                 $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
-                                $tpl->assign("filename", "server_".$_POST['cname']);
+                                $tpl->assign("filename", "server_"."Team".$c->getId());
                                 $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
                                 $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
                                 $tpl->assign("server_ip_range",  substr($subnet, 0, -3));
@@ -634,7 +637,7 @@ class AdminInterface extends WebInterface {
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
                                 $config_file_data = $tpl->fetch();
 
-                                $config_file_loc = $this->config['openvpn_location'] . $_POST['cname'] . ".conf";
+                                $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";
                                 $handle = @fopen($config_file_loc, 'w');
                                 if($handle === false){
                                     $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
@@ -648,12 +651,12 @@ class AdminInterface extends WebInterface {
                                 $gc = &$this->gameConfig; /* @var $gc GameConfig */
 
                                 $tpl = $smarty->createTemplate("client.conf"); /* @var $tpl Smarty_Internal_Template */
-                                $tpl->assign("teamname", $_POST['cname']);
+                                $tpl->assign("teamname", "Team".$c->getId());
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
                                 $tpl->assign("server_ip", $gc->server_ip);
                                 $config_file_data = $tpl->fetch();
 
-                                $config_file_loc = $this->config['openvpn_location'] . $_POST['cname'] . "_client.conf";
+                                $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . "_client.conf";
                                 $handle = @fopen($config_file_loc, 'w');
                                 if($handle === false){
                                     $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
@@ -689,7 +692,7 @@ class AdminInterface extends WebInterface {
 
                             $teamname = $c->getTeamname();
                             //exec("echo \"mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$teamname. " ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$teamname. "\" > at");
-                            exec("mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$teamname. "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$teamname."_vm");
+                            //exec("mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/_Team".$c->getId()."_vm");
                             //exec("at now+".$time."min -f at", $output);
                             /*$boom = explode(" ", $output[count($output)-1]);
                             $jobid = $boom[1];
@@ -700,15 +703,16 @@ class AdminInterface extends WebInterface {
 
                             $smarty = &$this->getSmarty();
                             $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
-                            $tpl->assign("filename", "server_".$teamname);
+                            $tpl->assign("filename", "server_Team".$c->getId());
                             $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
                             $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
-                            $tpl->assign("server_ip_range",  "10.255.0.0");
+                            $tpl->assign("server_ip_range",  $c->getSubnet());
                             $tpl->assign("man_port",$this->config['management_port_base'] + $id);
                             $tpl->assign("port",$this->config['base_port'] + $id);
+                            $tpl->assign("banned",1);
                             $config_file_data = $tpl->fetch();
 
-                            $config_file_loc = $this->config['openvpn_location'] . $teamname . ".conf";
+                            $config_file_loc = $this->config['openvpn_location'] . "Team" . $c->getId() . ".conf";
                             $handle = @fopen($config_file_loc, 'w');
                             if($handle === false){
                                 $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));

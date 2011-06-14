@@ -14,7 +14,6 @@ class Contestant {
     private $block_time;
     private $banned;
     private $bantime;
-    private $offline = false;
     private $sane = true;
     
     function __construct($name, $subnet, $vm_ip, $id = -1) {
@@ -32,9 +31,14 @@ class Contestant {
      */
     public function save(&$db){
         if($this->id == -1){
-            $insert_q = $db->prepare("INSERT INTO teams(name,VMip,subnet) VALUES (?,?,?);");
-            $insert_q->execute(array($this->teamname,$this->vm_ip,$this->subnet));
-            $this->id = intval($db->lastInsertId());
+            $q=$db->query("select * from team_id");
+            $res = $q->fetch();
+            $id = $res[0];
+            $q=$db->prepare("update team_id set id=?");
+            $q->execute(array($id+1));
+            $insert_q = $db->prepare("INSERT INTO teams(id,name,VMip,subnet) VALUES (?,?,?,?);");
+            $insert_q->execute(array($id,$this->teamname,$this->vm_ip,$this->subnet));
+            $this->id = $id;
         }else{
             $update_q = $db->prepare("UPDATE teams SET name = ?, VMip = ?, subnet = ? WHERE id = ?;");
             $update_q->execute(array($this->teamname,$this->vm_ip,$this->subnet,$this->id));
@@ -75,9 +79,6 @@ class Contestant {
 
             if($q->fetch() !== false)
                 $this->sane = false;
-
-            $result->offline = !ping($result->getVm_ip());
-            
 
             $q = $db->prepare("SELECT * FROM bans WHERE team_id = ? AND (end_timestamp > ? OR end_timestamp=-1) ORDER BY end_timestamp DESC");
             $q->execute(array($result->getId(),time()));
@@ -189,7 +190,7 @@ class Contestant {
     }
 
     public function getOffline() {
-        return $this->offline;
+        return !ping($result->getVm_ip());
     }
 
     public function getSane() {

@@ -72,7 +72,7 @@
 			});
                             });
                             function changeSort(){
-                                location="setlang.asp?lang="$('#winsort').val();
+                                location="index.php?winsort=" + $('#winsort').val();
                             }{/literal}
                         </script>
 	</head>
@@ -128,7 +128,7 @@
                                                                     </label>
                                                             </li>
                                                          {/foreach}
-						</ul>	
+						</ul>
 					</div>
 					<form id="flagform" action="index.php" method="POST" >
 						<div id="flaginput">
@@ -159,10 +159,10 @@
 					</div>
 				</div>
 			</div>
-			<div id="timeline">
-				<div id="chart1" class="content" style="height:auto;width:auto;">
-					
-				</div>
+			<div id="timeline"><div id="chart1wrap" class="content" style="height:auto;width:auto;">
+				<div id="chart1" style="left: 0pt; right: 0pt; top: 0pt; bottom: 0pt;height:auto;width:auto;">
+
+				</div></div>
 			</div>
 		</div>
 	</body>
