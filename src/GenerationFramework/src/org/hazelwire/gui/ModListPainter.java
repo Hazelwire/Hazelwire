@@ -75,6 +75,8 @@ public class ModListPainter implements PaintListener, MouseListener, Observer
 	public void fillHeight()
 	{
 		sameSize = canvas.getBounds().height == canvas.getParent().getBounds().height - 4;
+		int diff = canvas.getParent().getBounds().height - canvas.getBounds().height;
+		sameSize = diff < 15 && diff > -15;
 		int modsHeight = (1 + ModsBookkeeper.getInstance().getSelectedMods()
 				.size()) * 15;
 		if (!sameSize && modsHeight < canvas.getParent().getSize().y)
@@ -118,7 +120,7 @@ public class ModListPainter implements PaintListener, MouseListener, Observer
 			else if (i % 2 == 0)
 			{
 				// col = new Color(device, 133, 133, 133);
-				col = display.getSystemColor(SWT.COLOR_DARK_GRAY);
+				col = display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW);
 			}
 			else
 			{
@@ -156,7 +158,7 @@ public class ModListPainter implements PaintListener, MouseListener, Observer
 		}
 		if (i % 2 == 0)
 		{
-			col = display.getSystemColor(SWT.COLOR_DARK_GRAY);
+			col = display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW);
 		}
 		else
 		{
@@ -248,13 +250,18 @@ public class ModListPainter implements PaintListener, MouseListener, Observer
 		{
 			if (canvas != null)
 			{
-				// canvas.redraw();
+				//canvas.redraw();
 				this.updateSize();
+				canvas.redraw();
 			}
 		}
 		else if (s.equals("DESELECTED"))
 		{
-			this.shrink();
+			if(canvas != null){
+				this.shrink();
+				canvas.redraw();
+			}
+			
 		}
 
 	}

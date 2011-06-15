@@ -1,0 +1,5 @@
+Changes:
+	Color
+	Double clicking in the tree immediately selects the clicked module in the list
+	Working on resizing, but it's not properly working yet
+	Config tab

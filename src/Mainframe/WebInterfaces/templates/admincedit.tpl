@@ -13,7 +13,7 @@
                             {if $num_errors >0 or isset($ceditsuccess)}
 				{literal}<script type="text/javascript">
 				    	$(document).ready(function(){
-				    	alert(window.outerHeight);
+				    	
 				    		window.resizeTo(window.outerWidth ,230+$('#msgs').height());
                                                 
 				    	$('#acform').animate({top:'2em'});
@@ -33,7 +33,7 @@
 					<div class="header">
 						<h1>Edit {if isset($contestant)}{$contestant->getTeamname()}{/if}'s info</h1>
 					</div>
-                                            <form><input type="hidden" name="cid" value="{if isset($contestant)}{$contestant->getId()}{/if}" /><input type="hidden" name="cedit" value="save" />
+                                            <form method="POST"><input type="hidden" name="cid" value="{if isset($contestant)}{$contestant->getId()}{/if}" /><input type="hidden" name="cedit" value="save" />
 						<div class="cforminput">
 							<div class="cformlabel">Team name: </div>
 							<div class="cformfield">
@@ -45,7 +45,7 @@
 							</div>
 							<div class="cformlabel">VM IP:</div>
 							<div class="cformfield">
-								10.1.<input type="text" value="{if isset($vmpip)}{$vmip}{/if}" name="cvmip" value="1" title="#" class="defaultText" />.0
+								10.1.<input type="text" value="{if isset($vmip)}{$vmip}{/if}" name="cvmip" value="1" title="#" class="defaultText" />.0
 							</div>
 						</div>
 						<div class="buttons">

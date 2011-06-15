@@ -1,19 +1,19 @@
 #
-#Mon May 16 12:37:01 CEST 2011
+#Sat Jun 11 13:56:59 CEST 2011
+tempDirectory=tmp/
+vmPath=C\:\\Documents and Settings\\Joost\\Mijn documenten\\Jenny\\Eclipse\\GenerationFramework\\dist\\HazelwireTest.ova
 sshHostPort=2222
-sshGuestPort=22
 vmLogPath=/dev/null
-sshPassword=hazelwire
+outputDirectory=output/
 sshUsername=hazelwire
-vmPath=dist/HazelwireTest.ova
 vmExportPath=output/test.ova
-modulePath=modules/
-virtualBoxPath=/usr/bin/vboxmanage
-propertyPath=config/userProperties
 externalModuleDirectory=/home/hazelwire/modules/
+propertyPath=config/userProperties
+virtualBoxPath=/usr/bin/vboxmanage
+sshGuestPort=22
 externalScriptDirectory=/home/hazelwire/
+sshPassword=hazelwire
 callbackPort=31337
 externalDeployDirectory=/home/hazelwire/deploy/
-outputDirectory=output/
-tempDirectory=tmp/
 knownHostsFile=config/known_hosts
+modulePath=modules/

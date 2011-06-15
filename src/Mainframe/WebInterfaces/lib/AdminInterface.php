@@ -97,6 +97,12 @@ class AdminInterface extends WebInterface {
                 return $smarty->fetch("admincadd.tpl");
             }else if(startsWith ($_GET['aaction'],"cedit")){
                 if (isset($_POST['cedit']) && strtolower($_POST['cedit']) == 'save'){
+                    if(isset($_POST['contestant']))
+                        $id = Contestant::getById($_POST['contestant'], $db);
+                    else if(isset($_POST['cid']))
+                        $c = Contestant::getById($_POST['cid'], $db);
+                    if($c != false)
+                        $smarty->assign("contestant",$c);
                     if(count($this->errors) == 0){
                         $smarty->assign("ceditsuccess","1");
                     }
@@ -587,7 +593,7 @@ class AdminInterface extends WebInterface {
                     } else if (isset($_POST['cedit']) && strtolower($_POST['cedit']) == 'save') {
                         // @TODO make name usage into ID usage to prevent problems with renaming
                         $db = &$this->database;
-                        return;
+                        //return;
 
                         $c = Contestant::getById($_POST['cid'], $db);
                         if($c == false){
@@ -616,7 +622,8 @@ class AdminInterface extends WebInterface {
                             }
 
 
-                            $result = $db->query("SELECT * FROM teams");
+                            $result = $db->prepare("SELECT * FROM teams where id <> ?");
+                            $result->execute(array(intval($_POST['cid'])));
 
                             foreach($result as $res){
                                 if($_POST['cname'] == $res['name'])

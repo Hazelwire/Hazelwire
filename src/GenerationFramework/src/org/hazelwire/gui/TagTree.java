@@ -13,6 +13,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -96,19 +97,21 @@ public class TagTree implements MouseListener, Observer
 		{
 			Tree t = ((Tree) m.getSource());
 			t.getSelection();
-
-			for (TreeItem ti : t.getSelection())
-			{
-				if (!ModsBookkeeper.getInstance().isSelected(ti.getText()))
+			TreeItem ti = t.getItem(new Point(m.x, m.y));
+			//for (TreeItem ti : t.getSelection())
+			//{
+				if (ti != null && ti.getItemCount() == 0 &&!ModsBookkeeper.getInstance().isSelected(ti.getText()))
 				{
 					ModsBookkeeper.getInstance().selectModule(ti.getText());
+					ModsBookkeeper.getInstance().setSelected(ModsBookkeeper.getInstance().getSelectedMods().size());
 				}
-				else
+				else if(ti != null)
 				{
 					ModsBookkeeper.getInstance().setSelected(-1);
 					ModsBookkeeper.getInstance().deselectModule(ti.getText());
 				}
-			}
+			//}
+			System.out.println("ti: "+ti);
 		}
 
 	}
