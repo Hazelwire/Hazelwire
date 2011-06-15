@@ -45,9 +45,11 @@ class OpenVPNManager {
     public static function createClientConfigFile($cname, $vmip, $vmip_endpoint){
         global $interface;
         $config =$interface->getConfig();
+        deleteAll($config['openvpn_location'] . "ccd/" . $cname);
         
-        exec(sprintf("echo \"ifconfig-push %s %s\" > %s", $vmip, $vmip_endpoint, $config['openvpn_location'] . "ccd/" . $cname . "_vm"));
-        exec(sprintf("echo \" \" > %s", $config['openvpn_location'] . "ccd/" . $cname));
+        mkdir($config['openvpn_location'] . "ccd/" . $cname);
+        exec(sprintf("echo \"ifconfig-push %s %s\" > %s", $vmip, $vmip_endpoint, $config['openvpn_location'] . "ccd/" . $cname . "/" . $cname . "_vm"));
+        exec(sprintf("echo \" \" > %s", $config['openvpn_location'] . "ccd/" . $cname . "/" . $cname));
     }
     
     /** 

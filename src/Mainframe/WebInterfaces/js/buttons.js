@@ -57,7 +57,7 @@ $(document).ready(function(){
 	$("#cdelete").click(function(){
 		window.open('', 'cdeletew', 'width=300,height=100,status=no,resizable=no,scrollbars=no');
 		$('form#cform').attr({
-			action: "admincdel.html",
+			action: "index.php?aaction=cdel",
 			method: "post",
 			target: "cdeletew"
 		});

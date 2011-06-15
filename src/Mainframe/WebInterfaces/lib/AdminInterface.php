@@ -321,6 +321,7 @@ class AdminInterface extends WebInterface {
                                     $tpl->assign("server_ip_range",  "10.0.0.0");
                                     $tpl->assign("man_port",$this->config['management_port_base']);
                                     $tpl->assign("port",$this->config['base_port']);
+                                    $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd" );
                                     $config_file_data = $tpl->fetch();
 
                                     $config_file_loc = $this->config['openvpn_location'] . "basevpn.conf";
@@ -348,6 +349,7 @@ class AdminInterface extends WebInterface {
                                 $tpl->assign("server_ip_range",  substr($subnet, 0, -3));
                                 $tpl->assign("man_port",$this->config['management_port_base'] + $c->getId());
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
+                                $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd/Team" .$c->getId() );
                                 $config_file_data = $tpl->fetch();
 
                                 $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";
@@ -528,6 +530,7 @@ class AdminInterface extends WebInterface {
                                     $tpl->assign("server_ip_range",  "10.0.0.0");
                                     $tpl->assign("man_port",$this->config['management_port_base']);
                                     $tpl->assign("port",$this->config['base_port']);
+                                    $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd" );
                                     $config_file_data = $tpl->fetch();
 
                                     $config_file_loc = $this->config['openvpn_location'] . "basevpn.conf";
@@ -555,6 +558,7 @@ class AdminInterface extends WebInterface {
                                 $tpl->assign("server_ip_range",  substr($subnet, 0, -3));
                                 $tpl->assign("man_port",$this->config['management_port_base'] + $c->getId());
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
+                                $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd/Team" .$c->getId() );
                                 $config_file_data = $tpl->fetch();
 
                                 $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";
@@ -656,6 +660,7 @@ class AdminInterface extends WebInterface {
                                 $tpl->assign("server_ip_range",  substr($subnet, 0, -3));
                                 $tpl->assign("man_port",$this->config['management_port_base'] + $c->getId());
                                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
+                                $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd/Team" .$c->getId() );
                                 $config_file_data = $tpl->fetch();
 
                                 $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";
@@ -716,6 +721,7 @@ class AdminInterface extends WebInterface {
                             $tpl->assign("server_ip_range",  $c->getSubnet());
                             $tpl->assign("man_port",$this->config['management_port_base'] + $id);
                             $tpl->assign("port",$this->config['base_port'] + $id);
+                            $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd/Team" .$c->getId() );
                             $tpl->assign("banned",1);
                             $config_file_data = $tpl->fetch();
 
@@ -742,6 +748,37 @@ class AdminInterface extends WebInterface {
                                 $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
                                 $q->execute(array(intval($id),-1,"Pwned",0));
                             }
+
+                        }
+                    } else if(strcmp ($_GET['aaction'],"cdel")==0){
+                        if(isset($_POST['cid']) && intval($_POST['cid']) != 0){
+
+                            /*
+                             * @FIXME How should this be implemented? Should the keys be deleted as well? Should the scores be deleted?
+                             * The latter would affect other players as well if it happened during the game.
+                             *
+                             * Currently only basic deletion is imeplemented, i.e. the team will not show up in the listing of teams
+                             * nor can the OpenVPN server be started for that team making sure that it's not an unwanted backdoor.
+                             */
+
+                            $db =& $this->database; /* @var $db PDO */
+                            $c = Contestant::getById($id, $db);
+                            
+                            OpenVPNManager::diconnectVPN($c);
+                            OpenVPNManager::stopVPN($c);
+                            sleep(3);
+
+                            if(!deleteAll($this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId())){
+                                $this->handleError(new Error("cdell_error", "(#1) Could not properly delete files asscociated with this contestant.", false));
+                            }
+                            
+                            if(!unlink($this->config['openvpn_location'] . "Team" . $c->getId() . ".conf")){
+                                $this->handleError(new Error("cdell_error", "(#2) Could not properly delete files asscociated with this contestant.", false));
+                            }
+
+                            $q = $db->prepare("DELETE FROM teams WHERE id = ?");
+                            $q->execute(array($c->getId()));
+                           
 
                         }
                     }
