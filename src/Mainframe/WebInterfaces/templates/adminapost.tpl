@@ -33,7 +33,7 @@
 					<div class="header">
 						<h1>Post announcement</h1>
 					</div>
-					<form>
+					<form method="POST">
 						<div id="atitle">
 							<input type="text" name="atitle" title="Announcement title" class="defaultText filldiv" />
 						</div>

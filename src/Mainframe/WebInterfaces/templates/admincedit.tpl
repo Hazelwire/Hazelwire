@@ -14,7 +14,7 @@
 				{literal}<script type="text/javascript">
 				    	$(document).ready(function(){
 				    	
-				    		window.resizeTo(window.outerWidth ,230+$('#msgs').height());
+				    		window.resizeTo(window.outerWidth ,130+$('#msgs').height());
                                                 
 				    	$('#acform').animate({top:'2em'});
 

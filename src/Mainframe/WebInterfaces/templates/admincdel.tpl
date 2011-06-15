@@ -2,10 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 	<head>
 		<title>[Insert wargame name here] - powered by Hazelwire</title>
-		<link rel="stylesheet" type="text/css" href="admin.css"></link>
-		<script type="text/javascript" src="jquery-1.6.1.min.js"></script>
-		<script type="text/javascript" src="buttons.js"></script>
-		<script type="text/javascript" src="textfield.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/admin.css"></link>
+		<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+		<script type="text/javascript" src="js/buttons.js"></script>
+		<script type="text/javascript" src="js/textfield.js"></script>
 	</head>
 	<body>
 		<div id="container">
@@ -31,13 +31,13 @@
 				{/if}
 				<div id="acform">
 					<div class="header">
-						<h1>Delete {if isset($contestant)}{$contestant->getTeamname()}{/if}</h1>
+						<h1>Delete {if isset($contestant) && $contestant != false}{$contestant->getTeamname()}{else}null{/if}</h1>
 					</div>
 					<form method="POST">
 						<div class="buttons">
 							<div>
-                                                                <input type="hidden" name="cid" val="{if isset($contestant)}{$contestant->getId()}{/if}" />
-								<input type="button" id="ok" value="OK" />
+                                                                <input type="hidden" name="cid" value="{if isset($contestant) && $contestant != false}{$contestant->getId()}{else}-1{/if}" />
+								<input type="button" id="okcdel" value="OK" />
 								<input type="button" id="cancel" value="Cancel" />
 							</div>
 						</div>

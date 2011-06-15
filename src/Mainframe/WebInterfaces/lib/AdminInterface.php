@@ -78,8 +78,8 @@ class AdminInterface extends WebInterface {
                 foreach ($q as $announce){
                     $announcement = new stdClass();
                     $announcement->id = $announce['id'];
-                    $announcement->title = $announce['title'];
-                    $announcement->content = $announce['announcement'];
+                    $announcement->title = htmlspecialchars($announce['title']);
+                    $announcement->content = $this->parseBB(htmlspecialchars($announce['announcement']));
                     array_push($announcements, $announcement);
                 }
                 $smarty->assign("announcements",$announcements);
@@ -136,6 +136,24 @@ class AdminInterface extends WebInterface {
                     }
                 }
                 return $smarty->fetch("admincban.tpl");
+            }else if(startsWith ($_GET['aaction'],"cdel")){
+                $c = Contestant::getById($_POST['contestant'], $this->database);
+                if($c == false)
+                	$c = Contestant::getById(intval($_POST['cid']), $this->database);
+                $smarty->assign("contestant",$c);
+                if (isset($_POST['cid'])){
+                    if(count($this->errors) == 0){
+                        $smarty->assign("cdelsuccess","1");
+                    }
+                }
+                return $smarty->fetch("admincdel.tpl");
+            }else if(startsWith ($_GET['aaction'],"aadd")){
+                if (isset($_POST['atitle'])){
+                    if(count($this->errors) == 0){
+                        $smarty->assign("caaddsuccess","1");
+                    }
+                }
+                return $smarty->fetch("adminapost.tpl");
             }
 
         } elseif ($this->getCurrentState() == POSTGAME) {
@@ -762,7 +780,11 @@ class AdminInterface extends WebInterface {
                              */
 
                             $db =& $this->database; /* @var $db PDO */
-                            $c = Contestant::getById($id, $db);
+                            $c = Contestant::getById(intval($_POST['cid']), $db);
+                            if($c == false){
+                                $this->handleError(new Error("cdell_error", "Invalid contestant.", false));
+                                return;
+                            }
                             
                             OpenVPNManager::diconnectVPN($c);
                             OpenVPNManager::stopVPN($c);
@@ -781,6 +803,14 @@ class AdminInterface extends WebInterface {
                            
 
                         }
+                    } else if(strcmp ($_GET['aaction'],"aadd")==0){
+                        if(!isset($_POST['atitle']) || !isset($_POST['abody'])){
+                            $this->handleError(new Error("announce_add_error", "Please fill out the full form.", false));
+                            return;
+                        }
+
+                        $q = $db->prepare("INSERT INTO announcements VALUES (null,?,?)");
+                        $q->execute(array($_POST['atitle'],$_POST['abody']));
                     }
                 }
 

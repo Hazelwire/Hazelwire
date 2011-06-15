@@ -6,6 +6,7 @@ define("preGameStart",3,true);
 define("GameInProgress",4,true);
 define("PostGame",5,true);
 //includes
+include_once 'lib/stringparser_bbcode.class.php';
 include_once 'lib/etc_funcs.php';
 include_once 'config.php';
 include_once 'lib/GameConfig.php';

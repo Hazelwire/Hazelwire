@@ -142,6 +142,37 @@ class WebInterface {
     public function getConfig(){
         return $this->config;
     }
+
+    public static function parseBB($text){
+        $bbcode = new StringParser_BBCode ();
+        $bbcode->addFilter (STRINGPARSER_FILTER_PRE, 'convertlinebreaks');
+
+        $bbcode->addParser (array ('block', 'inline', 'link', 'listitem'), 'htmlspecialchars');
+        $bbcode->addParser (array ('block', 'inline', 'link', 'listitem'), 'nl2br');
+        $bbcode->addParser ('list', 'bbcode_stripcontents');
+
+        $bbcode->addCode ('b', 'simple_replace', null, array ('start_tag' => '<b>', 'end_tag' => '</b>'),
+                          'inline', array ('listitem', 'block', 'inline', 'link'), array ());
+        $bbcode->addCode ('i', 'simple_replace', null, array ('start_tag' => '<i>', 'end_tag' => '</i>'),
+                          'inline', array ('listitem', 'block', 'inline', 'link'), array ());
+        $bbcode->addCode ('url', 'usecontent?', 'do_bbcode_url', array ('usecontent_param' => 'default'),
+                          'link', array ('listitem', 'block', 'inline'), array ());
+        $bbcode->addCode ('img', 'usecontent', 'do_bbcode_img', array (),
+                          'image', array ('listitem', 'block', 'inline', 'link'), array ());
+        $bbcode->addCode ('list', 'simple_replace', null, array ('start_tag' => '<ul>', 'end_tag' => '</ul>'),
+                          'list', array ('block', 'listitem'), array ());
+        $bbcode->addCode ('*', 'simple_replace', null, array ('start_tag' => '<li>', 'end_tag' => '</li>'),
+                          'listitem', array ('list'), array ());
+        $bbcode->setCodeFlag ('*', 'closetag', BBCODE_CLOSETAG_OPTIONAL);
+        $bbcode->setCodeFlag ('*', 'paragraphs', true);
+        $bbcode->setCodeFlag ('list', 'paragraph_type', BBCODE_PARAGRAPH_BLOCK_ELEMENT);
+        $bbcode->setCodeFlag ('list', 'opentag.before.newline', BBCODE_NEWLINE_DROP);
+        $bbcode->setCodeFlag ('list', 'closetag.before.newline', BBCODE_NEWLINE_DROP);
+        $bbcode->setRootParagraphHandling (true);
+
+        return $bbcode->parse ($text);
+    }
+    
 }
 
 ?>

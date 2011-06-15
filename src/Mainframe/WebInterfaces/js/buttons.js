@@ -1,4 +1,12 @@
 $(document).ready(function(){
+        $("#okaadd").click(function(){
+		$('form').attr({action: "index.php?aaction=aadd"});
+		$('form').submit();
+	});
+        $("#okcdel").click(function(){
+		$('form').attr({action: "index.php?aaction=cdel"});
+		$('form').submit();
+	});
         $("#okcban").click(function(){
 		$('form').attr({action: "index.php?aaction=cban"});
 		$('form').submit();
