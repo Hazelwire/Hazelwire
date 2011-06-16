@@ -1,70 +1,26 @@
 package org.hazelwire.test;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
+import org.hazelwire.main.Generator;
+import org.hazelwire.xml.ExportModuleConfiguration;
 
 
 
 public class MainTest {
 
-	public static void main(String[] args) {
-
-	    final Display display = new Display();
-
-	    Shell shell = new Shell(display);
-
-	    final ProgressBar bar =new ProgressBar(shell,SWT.NONE);
-
-	    bar.setSize(200, 32);
-
-	    shell.pack();
-
-	    shell.open();
-
-	    final int maximum = bar.getMaximum();
-
-	    new Thread() {
-
-	        public void run() {
-
-	            for (int i = 0; i <= maximum; i++) {
-
-	                try {
-
-	                    Thread.sleep(100);
-
-	                } catch (Throwable th) {
-
-	                }
-
-	                final int index = i;
-
-	                display.asyncExec(new Runnable() {
-
-	                    public void run() {
-
-	                        bar.setSelection(index);
-	                        System.out.println(Thread.currentThread().getName());
-	                    }
-
-	                });
-
-	            }
-
-	        }
-
-	    }.start();
-
-	    while (!shell.isDisposed()) {
-
-	        if (!display.readAndDispatch()) display.sleep();
-
-	    }
-
-	    display.dispose();
-
+	public static void main(String[] args) throws ParserConfigurationException, TransformerException
+	{
+		Generator.getInstance();
+		
+		Generator.getInstance().getModuleSelector().selectModule(0);
+		Generator.getInstance().getModuleSelector().selectModule(1);
+		new ExportModuleConfiguration().exportModuleConfiguration("/home/shokora/Desktop/kanker.xml");
 	}
 
 }
