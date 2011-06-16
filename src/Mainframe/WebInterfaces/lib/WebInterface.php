@@ -149,6 +149,7 @@ class WebInterface {
 
         $bbcode->addParser (array ('block', 'inline', 'link', 'listitem'), 'htmlspecialchars');
         $bbcode->addParser (array ('block', 'inline', 'link', 'listitem'), 'nl2br');
+        $bbcode->addParser (array ('block', 'inline', 'listitem'), 'autoParseLinks');
         $bbcode->addParser ('list', 'bbcode_stripcontents');
 
         $bbcode->addCode ('b', 'simple_replace', null, array ('start_tag' => '<b>', 'end_tag' => '</b>'),
@@ -168,7 +169,7 @@ class WebInterface {
         $bbcode->setCodeFlag ('list', 'paragraph_type', BBCODE_PARAGRAPH_BLOCK_ELEMENT);
         $bbcode->setCodeFlag ('list', 'opentag.before.newline', BBCODE_NEWLINE_DROP);
         $bbcode->setCodeFlag ('list', 'closetag.before.newline', BBCODE_NEWLINE_DROP);
-        $bbcode->setRootParagraphHandling (true);
+        //$bbcode->setRootParagraphHandling (true);
 
         return $bbcode->parse ($text);
     }

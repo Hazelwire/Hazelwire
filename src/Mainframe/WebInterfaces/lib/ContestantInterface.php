@@ -142,7 +142,7 @@ class ContestantInterface extends WebInterface{
                     $announcement = new stdClass();
                     $announcement->id = $announce['id'];
                     $announcement->title = htmlspecialchars($announce['title']);
-                    $announcement->content = $this->parseBB(htmlspecialchars($announce['announcement']));
+                    $announcement->content = $this->parseBB($announce['announcement']);
                     array_push($announcements, $announcement);
                 }
                 $smarty->assign("announcements",$announcements);
