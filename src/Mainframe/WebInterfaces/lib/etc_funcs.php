@@ -160,12 +160,41 @@ function do_bbcode_img ($action, $attributes, $content, $params, $node_object) {
         return true;
     }else{
         $src = htmlspecialchars($content);
-        $height =   isset($attributes['height'])    ?"height=\"".$attributes['heigth']  . "\" ":"";
+        $height =   isset($attributes['height'])    ?"height=\"".$attributes['height']  . "\" ":"";
         $width =    isset($attributes['width'])     ?"width=\"" .$attributes['width']   . "\" ":"";
         $alt =      isset($attributes['alt'])       ?"alt=\""   .$attributes['alt']     ."\" ":"";
     }
     return '<img src="'.$src.'" '.$height. $width . $alt. ' />';
 }
+function parse_links  ( $m )
+{
+    $href = $name = html_entity_decode($m[0]);
 
+    if ( strpos( $href, '://' ) === false ) {
+        $href = 'http://' . $href;
+    }
+   /* if( strpos($href,"[img") !== false ||
+    	strpos($href,"[url") !== false ||
+    	strpos($href,"[/img]") !== false ||
+    	strpos($href,"[/url]") !== false)
+    	return $href;*/
+
+    if( strlen($name) > 50 ) {
+        $k = ( 50 - 3 ) >> 1;
+        $name = substr( $name, 0, $k ) . '...' . substr( $name, -$k );
+    }
+
+    return sprintf( '[url=%s]%s[/url]', htmlentities($href), htmlentities($name) );
+}
+
+function autoParseLinks($text){
+    $regex = '/(((https?):\/\/|www\d?\.)((([a-z0-9][a-z0-9-]*[a-z0-9]\.)*[a-z][a-z0-9-]*[a-z0-9]|((\d|[1-9]\d|1\d{2}|2[0-4][0-9]|25[0-5])\.){3}(\d|[1-9]\d|1\d{2}|2[0-4][0-9]|25[0-5]))(:\d+)?)(((\/+([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)*(\?([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)?)?)?(#([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)?)/i';
+    $text = preg_replace_callback( $regex, 'parse_links', $text );
+    $bbcode = new StringParser_BBCode ();
+    $bbcode->addCode ('url', 'usecontent?', 'do_bbcode_url', array ('usecontent_param' => 'default'),
+		          'link', array ('listitem', 'block', 'inline'), array ());
+    $text = $bbcode->parse ($text);
+    return $text;
+}
 
 ?>

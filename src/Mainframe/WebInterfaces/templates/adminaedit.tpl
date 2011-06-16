@@ -10,20 +10,41 @@
 	<body>
 		<div id="container">
 			<div class="content">
+                                {if $num_errors >0 or isset($aeditsuccess)}
+				{literal}<script type="text/javascript">
+				    	$(document).ready(function(){
+
+				    		window.resizeTo(window.outerWidth ,430+$('#msgs').height());
+
+				    	$('#acform').animate({top:'2em'});
+
+				    	});
+				    </script>{/literal}
+				    <div id="msgs" style="display: block; left: 0pt; right: 0pt;height:auto;">
+					{if isset($errors)}{foreach from=$errors item=error}
+					<div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px red;">{$error->getMessage()}</div>
+					{/foreach}{/if}
+					{if isset($aeditsuccess) && $aeditsuccess == "1"}
+					<div style="background: none repeat scroll 0pt 0pt rgb(170, 255, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px rgb(0, 255, 0)">Announcement editted!</div>
+					{/if}
+					</div>
+				{/if}
 				<div id="acform">
 					<div class="header">
 						<h1>Edit announcement</h1>
 					</div>
-					<form>
+					<form method="POST">
+                                                <input type="hidden" name="aid" value="{if isset($announcement)}{$announcement->id}{else}-1{/if}" />
+                                                <input typ="hidden" name="submitted" value="true" />
 						<div id="atitle">
-							<input type="text" name="atitle" title="Announcement title" class="defaultText filldiv" />
+							<input type="text" value="{if isset($announcement)}{$announcement->title}{/if}" name="atitle" title="Announcement title" class="defaultText filldiv" />
 						</div>
 						<div id="abody">
-							<textarea name="abody" title="Announcement body" class="defaultText filldiv"></textarea>
+							<textarea name="abody" value="{if isset($announcement)}{$announcement->content}{/if}" title="Announcement body" class="defaultText filldiv"></textarea>
 						</div>
 						<div class="buttons">
 							<div>
-								<input type="button" id="ok" value="Save" />
+								<input type="button" id="okaedit" value="Save" />
 								<input type="button" id="cancel" value="Cancel" />
 							</div>
 						</div>

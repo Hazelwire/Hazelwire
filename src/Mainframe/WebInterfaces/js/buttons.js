@@ -1,5 +1,9 @@
 $(document).ready(function(){
         $("#okaadd").click(function(){
+		$('form').attr({action: "index.php?aaction=aedit"});
+		$('form').submit();
+	});
+        $("#okaadd").click(function(){
 		$('form').attr({action: "index.php?aaction=aadd"});
 		$('form').submit();
 	});
@@ -93,7 +97,7 @@ $(document).ready(function(){
 	$("#aedit").click(function(){
 		window.open('', 'aeditw', 'width=600,height=400,status=no,resizable=no,scrollbars=no');
 		$('form#aform').attr({
-			action: "adminaedit.html",
+			action: "index.php?aaction=aedit",
 			method: "post",
 			target: "aeditw"
 		});

@@ -29,7 +29,7 @@ class AdminInterface extends WebInterface {
                 $smarty->assign($error->getType(), $error->getMessage());
                 $errors_by_name[$error->getType()] = $error;
             }
-            $smarty->assign("errors", $this->errors);
+            $smarty->assignByRef("errors", $this->errors);
         }
 
         /*
@@ -79,7 +79,7 @@ class AdminInterface extends WebInterface {
                     $announcement = new stdClass();
                     $announcement->id = $announce['id'];
                     $announcement->title = htmlspecialchars($announce['title']);
-                    $announcement->content = $this->parseBB(htmlspecialchars($announce['announcement']));
+                    $announcement->content = $this->parseBB($announce['announcement']);
                     array_push($announcements, $announcement);
                 }
                 $smarty->assign("announcements",$announcements);
@@ -148,12 +148,35 @@ class AdminInterface extends WebInterface {
                 }
                 return $smarty->fetch("admincdel.tpl");
             }else if(startsWith ($_GET['aaction'],"aadd")){
-                if (isset($_POST['atitle'])){
+                if (isset($_POST['submitted'])){
                     if(count($this->errors) == 0){
-                        $smarty->assign("caaddsuccess","1");
+                        $smarty->assign("aaddsuccess","1");
                     }
                 }
                 return $smarty->fetch("adminapost.tpl");
+            }else if(startsWith ($_GET['aaction'],"aedit")){
+                if (isset($_POST['submitted'])){
+                    if(count($this->errors) == 0){
+                        $smarty->assign("aeditsuccess","1");
+                    }
+                }
+                $q  = $db->prepare("SELECT * FROM announcements WHERE id = ?");
+                $q->execute(array(isset($_POST['announcement'])?$_POST['announcement']:(isset($_POST['aid'])?$_POST['aid']:-1)));
+                $announce = $q->fetch();
+                if($announce == false){
+                    $this->handleError (new Error ("aedit_error", "Selected no valid announcement.", false));
+                    $announcement = new stdClass();
+                    $announcement->id = -1;
+                    $announcement->title = "null";
+                    $announcement->content = "null";
+                }else{
+                    $announcement = new stdClass();
+                    $announcement->id = $announce['id'];
+                    $announcement->title = $announce['title'];
+                    $announcement->content = $announce['announcement'];
+                }
+                $smarty->assign("announcement",$announcement);
+                return $smarty->fetch("adminaedit.tpl");
             }
 
         } elseif ($this->getCurrentState() == POSTGAME) {
@@ -398,7 +421,7 @@ class AdminInterface extends WebInterface {
                                 fwrite($handle, $config_file_data);
                                 fclose($handle);
 
-                                
+
                             }
                         }
 
@@ -700,7 +723,7 @@ class AdminInterface extends WebInterface {
                     } else if(strcmp ($_GET['aaction'],"cban")==0){
                         if(isset($_POST['cid']) && intval($_POST['cid']) != 0){
                             $time = $_POST['cbantime'];
-                            
+
                             if(!ctype_digit($time) && intval($time)>=0){
                                 $this->handleError(new Error("ban_error", "Invalid ban input.", false));
                                 return;
@@ -785,7 +808,7 @@ class AdminInterface extends WebInterface {
                                 $this->handleError(new Error("cdell_error", "Invalid contestant.", false));
                                 return;
                             }
-                            
+
                             OpenVPNManager::diconnectVPN($c);
                             OpenVPNManager::stopVPN($c);
                             sleep(3);
@@ -793,24 +816,40 @@ class AdminInterface extends WebInterface {
                             if(!deleteAll($this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId())){
                                 $this->handleError(new Error("cdell_error", "(#1) Could not properly delete files asscociated with this contestant.", false));
                             }
-                            
+
                             if(!unlink($this->config['openvpn_location'] . "Team" . $c->getId() . ".conf")){
                                 $this->handleError(new Error("cdell_error", "(#2) Could not properly delete files asscociated with this contestant.", false));
                             }
 
                             $q = $db->prepare("DELETE FROM teams WHERE id = ?");
                             $q->execute(array($c->getId()));
-                           
+
 
                         }
-                    } else if(strcmp ($_GET['aaction'],"aadd")==0){
-                        if(!isset($_POST['atitle']) || !isset($_POST['abody'])){
+                    } else if(strcmp ($_GET['aaction'],"aadd")==0 && isset($_POST['submitted'])){
+                        if(!isset($_POST['atitle']) || $_POST['atitle'] == "Announcement title"  || !isset($_POST['abody']) || $_POST['abody'] == "Announcement body"){
                             $this->handleError(new Error("announce_add_error", "Please fill out the full form.", false));
                             return;
                         }
 
-                        $q = $db->prepare("INSERT INTO announcements VALUES (null,?,?)");
+                        $q = $this->database->prepare("INSERT INTO announcements VALUES (null,?,?)");
                         $q->execute(array($_POST['atitle'],$_POST['abody']));
+                        
+                    } else if(strcmp ($_GET['aaction'],"aedit")==0 && isset($_POST['submitted'])){
+                        if(!isset($_POST['atitle']) || $_POST['atitle'] == "Announcement title"  || !isset($_POST['abody']) || $_POST['abody'] == "Announcement body"){
+                            $this->handleError(new Error("announce_edit_error", "Please fill out the full form.", false));
+                            return;
+                        }
+
+                        $q = $this->database->prepare("SELECT * FROM announcements WHERE id = ?");
+                        $q->execute(array($_POST['aid']));
+                        if($q->fetch() == false){
+                            $this->handleError(new Error("announce_edit_error", "Invalid announcement selected for editting.", false));
+                            return;
+                        }
+
+                        $q = $this->database->prepare("UPDATE announcements SET title = ?, announcement = ? WHERE id = ?");
+                        $q->execute(array($_POST['atitle'],$_POST['abody'],$_POST['aid']));
                     }
                 }
 
