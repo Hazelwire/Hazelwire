@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.hazelwire.main.Generator;
+import org.hazelwire.modules.Flag;
+import org.hazelwire.modules.Module;
 import org.hazelwire.modules.ModuleSelector;
 import org.hazelwire.modules.Option;
 
@@ -46,8 +48,19 @@ public class VMGenerationThread extends Thread
 		
 		for(Mod mod : modBook.getSelectedMods())
 		{
+			ArrayList<Challenge> challenges = mod.getChallenges();
+			ArrayList<Flag> flags = new ArrayList<Flag>();
+			
+			for(Challenge challenge : challenges)
+			{
+				flags.add(challenge.toFlag());
+			}
+			
 			ArrayList<Option> options = new ArrayList<Option>(mod.getOptions().values());
-			modSelect.getAvailableModules().get(mod.getId()).setOptions(options); //replace all the options with their user specified values
+			
+			Module tempModule = modSelect.getAvailableModules().get(mod.getId());
+			tempModule.setFlags(flags);
+			tempModule.setOptions(options); //replace all the options with their user specified values
 			modSelect.selectModule(mod.getId()); //id corresponds to the backend id
 		}
 	}
