@@ -177,6 +177,27 @@ class AdminInterface extends WebInterface {
                 }
                 $smarty->assign("announcement",$announcement);
                 return $smarty->fetch("adminaedit.tpl");
+            }else if(startsWith ($_GET['aaction'],"adel")){
+                if (isset($_POST['submitted'])){
+                    if(count($this->errors) == 0){
+                        $smarty->assign("adelsuccess","1");
+                    }
+                }
+                $q  = $db->prepare("SELECT * FROM announcements WHERE id = ?");
+                $q->execute(array(isset($_POST['announcement'])?$_POST['announcement']:(isset($_POST['aid'])?$_POST['aid']:-1)));
+                $announce = $q->fetch();
+                if($announce == false){
+                    $this->handleError (new Error ("adel_error", "(#1) Selected no valid announcement for deletion.", false));
+                    $announcement = new stdClass();
+                    $announcement->id = -1;
+                    $announcement->title = "null";
+                }else{
+                    $announcement = new stdClass();
+                    $announcement->id = $announce['id'];
+                    $announcement->title = $announce['title'];
+                }
+                $smarty->assign("announcement",$announcement);
+                return $smarty->fetch("adminadel.tpl");
             }
 
         } elseif ($this->getCurrentState() == POSTGAME) {
@@ -828,7 +849,7 @@ class AdminInterface extends WebInterface {
                         }
                     } else if(strcmp ($_GET['aaction'],"aadd")==0 && isset($_POST['submitted'])){
                         if(!isset($_POST['atitle']) || $_POST['atitle'] == "Announcement title"  || !isset($_POST['abody']) || $_POST['abody'] == "Announcement body"){
-                            $this->handleError(new Error("announce_add_error", "Please fill out the full form.", false));
+                            $this->handleError(new Error("announce_add_error", "(#1) Please fill out the full form.", false));
                             return;
                         }
 
@@ -837,7 +858,7 @@ class AdminInterface extends WebInterface {
                         
                     } else if(strcmp ($_GET['aaction'],"aedit")==0 && isset($_POST['submitted'])){
                         if(!isset($_POST['atitle']) || $_POST['atitle'] == "Announcement title"  || !isset($_POST['abody']) || $_POST['abody'] == "Announcement body"){
-                            $this->handleError(new Error("announce_edit_error", "Please fill out the full form.", false));
+                            $this->handleError(new Error("announce_edit_error", "(#2) Please fill out the full form.", false));
                             return;
                         }
 
@@ -850,6 +871,22 @@ class AdminInterface extends WebInterface {
 
                         $q = $this->database->prepare("UPDATE announcements SET title = ?, announcement = ? WHERE id = ?");
                         $q->execute(array($_POST['atitle'],$_POST['abody'],$_POST['aid']));
+
+                    } else if(strcmp ($_GET['aaction'],"adel")==0 && isset($_POST['submitted'])){
+                        if(!isset($_POST['aid']) || intval($_POST['aid']) == -1 ){
+                            $this->handleError(new Error("announce_del_error", "(#2) No valid announcement selected for deletion.", false));
+                            return;
+                        }
+
+                        $q = $this->database->prepare("SELECT * FROM announcements WHERE id = ?");
+                        $q->execute(array($_POST['aid']));
+                        if($q->fetch() == false){
+                            $this->handleError(new Error("announce_del_error", "(#3) No valid announcement selected for deletion.", false));
+                            return;
+                        }
+
+                        $q = $this->database->prepare("DELETE FROM announcement WHERE id = ?");
+                        $q->execute(array($_POST['aid']));
                     }
                 }
 
