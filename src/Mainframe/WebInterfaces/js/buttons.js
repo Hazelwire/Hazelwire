@@ -1,5 +1,9 @@
 $(document).ready(function(){
-        $("#okaadd").click(function(){
+        $("#okadel").click(function(){
+		$('form').attr({action: "index.php?aaction=adel"});
+		$('form').submit();
+	});
+        $("#okaedit").click(function(){
 		$('form').attr({action: "index.php?aaction=aedit"});
 		$('form').submit();
 	});
@@ -106,7 +110,7 @@ $(document).ready(function(){
 	$("#adelete").click(function(){
 		window.open('', 'adeletew', 'width=400,height=100,status=no,resizable=no,scrollbars=no');
 		$('form#aform').attr({
-			action: "adminadel.html",
+			action: "index.php?aaction=adel",
 			method: "post",
 			target: "adeletew"
 		});

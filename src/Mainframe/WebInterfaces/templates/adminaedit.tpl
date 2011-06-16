@@ -2,10 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 	<head>
 		<title>[Insert wargame name here] - powered by Hazelwire</title>
-		<link rel="stylesheet" type="text/css" href="admin.css"></link>
-		<script type="text/javascript" src="jquery-1.6.1.min.js"></script>
-		<script type="text/javascript" src="buttons.js"></script>
-		<script type="text/javascript" src="textfield.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/admin.css"></link>
+		<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+		<script type="text/javascript" src="js/buttons.js"></script>
+		<script type="text/javascript" src="js/textfield.js"></script>
 	</head>
 	<body>
 		<div id="container">
@@ -35,12 +35,12 @@
 					</div>
 					<form method="POST">
                                                 <input type="hidden" name="aid" value="{if isset($announcement)}{$announcement->id}{else}-1{/if}" />
-                                                <input typ="hidden" name="submitted" value="true" />
+                                                <input type="hidden" name="submitted" value="true" />
 						<div id="atitle">
 							<input type="text" value="{if isset($announcement)}{$announcement->title}{/if}" name="atitle" title="Announcement title" class="defaultText filldiv" />
 						</div>
 						<div id="abody">
-							<textarea name="abody" value="{if isset($announcement)}{$announcement->content}{/if}" title="Announcement body" class="defaultText filldiv"></textarea>
+							<textarea name="abody" title="Announcement body" class="defaultText filldiv">{if isset($announcement)}{$announcement->content}{/if}</textarea>
 						</div>
 						<div class="buttons">
 							<div>
