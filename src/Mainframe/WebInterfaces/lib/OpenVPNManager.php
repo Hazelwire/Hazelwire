@@ -113,6 +113,14 @@ class OpenVPNManager {
         $result = exec(sprintf("(ps -e -o pid,args | grep 'openvpn %s') | sed '/ grep /d'", $config_path));
         return ($result != "");
     }
+
+    public static function getBaseVPNStatus(){
+        global $interface; /* @var $interface WebInterface */
+        $config =$interface->getConfig();
+        $config_path = $config['site_folder'] . $config['openvpn_location'] . "basevpn.conf";
+        $result = exec(sprintf("(ps -e -o pid,args | grep 'openvpn %s') | sed '/ grep /d'", $config_path));
+        return ($result != "");
+    }
     
     /** 
      *

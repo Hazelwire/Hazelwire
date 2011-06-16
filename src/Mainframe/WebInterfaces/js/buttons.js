@@ -20,11 +20,11 @@ $(document).ready(function(){
 		$('form').submit();
 	});
 	$("#caddok").click(function(){
-		$('form').attr({action: "index.php?aaction=caddsub"});
+		$('form').attr({action: "index.php?aaction=cadd"});
 		$('form').submit();
 	});
         $("#okcedit").click(function(){
-		$('form').attr({action: "index.php?aaction=ceditsub"});
+		$('form').attr({action: "index.php?aaction=cedit"});
 		$('form').submit();
 	});
 	$("#ok").click(function(){
@@ -40,6 +40,77 @@ $(document).ready(function(){
 	});
 	$("#sanity").click(function(){
 		$('form').attr({action: "sanityshitgoeshere"});
+		$('form').submit();
+	});
+
+        // background: none repeat scroll 0pt 0pt rgb(170, 255, 170); padding: 3px; border: 1px solid rgb(0, 255, 0); text-align: center; position: relative; margin-left: auto; margin-right: auto; min-width: 30em; margin-bottom: 3px;
+        var timeout;
+        $("#vpnstart").click(function(){
+            if(timeout != undefined)
+	    	clearTimeout(timeout);
+            $("#vpnstart").attr("disabled", true);
+
+            $.ajax({
+                url: 'index.php?aaction=startvpn',
+                dataType: 'json',
+                success: function(data) {
+                    $('#response').remove();
+                    if(data == null){
+                        $('#gamebuttons .content').prepend('<div id="response" style="display:none; position: absolute; left: 25%; right: 25%;height:auto;"><div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); padding: 3px; border: 1px solid red; text-align: center; position: relative; margin-left: auto; margin-right: auto; min-width: 30em; margin-bottom: 3px;">An error ocurred while trying to perfom the specief action.</div></div>');
+                    }else{
+                        if(data.action=='startvpn'){
+                            $('#gamebuttons .content').prepend(data.reply);
+                        }else{
+                            $('#gamebuttons .content').prepend('<div id="response" style="display:none; position: absolute; left: 25%; right: 25%;height:auto;"><div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); padding: 3px; border: 1px solid red; text-align: center; position: relative; margin-left: auto; margin-right: auto; min-width: 30em; margin-bottom: 3px;">(#2) An error ocurred while trying to perfom the specief action.</div></div>');
+                        }
+                    }
+
+                    $('#gamebuttons').animate({heigth: ($('#gamebuttons').height()+$('#response').outerHeight())+'px'});
+                    var pos = $('#contestants').position();
+                    $('#contestants').animate({top: (pos.top +$('#response').outerHeight())+'px'});
+                    $('#announcements').animate({top: (pos.top +$('#response').outerHeight())+'px'});
+                    $('#response').slideDown();
+
+                    timeout = setTimeout(function(){
+                        $('#response').fadeOut(1000,function(){$('#response').remove()});
+                        $('#gamebuttons').animate({height: '3.5em'});
+                        $('#contestants').animate({top: '3.5em'});
+                        $('#announcements').animate({top: '3.5em'});
+                    },15000);
+                },
+                error: function() {
+                    $('#response').remove();
+                    $('#gamebuttons .content').prepend('<div id="response" style="display:none; position: absolute; left: 25%; right: 25%;height:auto;"><div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); padding: 3px; border: 1px solid red; text-align: center; position: relative; margin-left: auto; margin-right: auto; min-width: 30em; margin-bottom: 3px;">An error ocurred while trying to perfom the specief action.</div></div>');
+                    
+                    $('#gamebuttons').animate({heigth: ($('#gamebuttons').height()+$('#response').outerHeight())+'px'});
+                    var pos = $('#contestants').position();
+                    $('#contestants').animate({top: (pos.top +$('#response').outerHeight())+'px'});
+                    $('#announcements').animate({top: (pos.top +$('#response').outerHeight())+'px'});
+                    $('#response').slideDown();
+
+                    timeout = setTimeout(function(){
+                        $('#response').fadeOut(1000,function(){$('#response').remove()});
+                        $('#gamebuttons').animate({height: '3.5em'});
+                        $('#contestants').animate({top: '3.5em'});
+                        $('#announcements').animate({top: '3.5em'});
+                    },15000);
+                },
+                complete:  function(){
+                    $("#vpnstart").attr("disabled", false);
+                }
+            });
+		
+	});
+        $("#vpnstop").click(function(){
+		$('form').attr({action: "index.php?aaction=stopvpn"});
+		$('form').submit();
+	});
+        $("#gstart").click(function(){
+		$('form').attr({action: "index.php?aaction=stopvpn"});
+		$('form').submit();
+	});
+        $("#gstop").click(function(){
+		$('form').attr({action: "index.php?aaction=stopvpn"});
 		$('form').submit();
 	});
 

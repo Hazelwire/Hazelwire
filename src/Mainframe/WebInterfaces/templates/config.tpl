@@ -13,6 +13,7 @@
         <span style="color: red;font-size:1.3em;border: 1px solid red">{$config_input_error}</span>
         {/if}
         <form method="POST" action="index.php" enctype="multipart/form-data">
+            <input type="hidden" name="configsubmit" value="true" />
             <div style="padding-bottom:0.2em;"> <label> Name </label> <input type="text" name="name" size="15"/> </div>
             <div style="padding-bottom:0.2em;"> <label> P2P interval (Min) </label> <input type="text" name="p2p_interval" size="4" value="10"/> </div>
             <div style="padding-bottom:0.2em;"> <label> S2P interval (Min) </label> <input type="text" name="s2p_interval" size="4" value="2" /> </div>
