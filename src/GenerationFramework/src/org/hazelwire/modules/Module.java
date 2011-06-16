@@ -185,10 +185,20 @@ public class Module
 			this.options.put(option.getId(), option); //Add them with the original IDs
 		}
 	}
+	
+	public Option getOption(int id)
+	{
+		return options.get(id);
+	}
 
 	public Collection<Flag> getFlags()
 	{
 		return flags.values();
+	}
+	
+	public Flag getFlag(int id)
+	{
+		return flags.get(id);
 	}
 	
 	public void setFlags(ArrayList<Flag> flags)

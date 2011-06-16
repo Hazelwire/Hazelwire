@@ -1,26 +1,30 @@
 package org.hazelwire.test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.ProgressBar;
-import org.eclipse.swt.widgets.Shell;
 import org.hazelwire.main.Generator;
-import org.hazelwire.xml.ExportModuleConfiguration;
+import org.hazelwire.xml.ImportModuleConfiguration;
 
 
 
 public class MainTest {
 
-	public static void main(String[] args) throws ParserConfigurationException, TransformerException
+	public static void main(String[] args) throws Exception
 	{
 		Generator.getInstance();
 		
 		Generator.getInstance().getModuleSelector().selectModule(0);
 		Generator.getInstance().getModuleSelector().selectModule(1);
-		new ExportModuleConfiguration().exportModuleConfiguration("/home/shokora/Desktop/kanker.xml");
+		//Generator.getInstance().getModuleSelector().getSelectedModules().get(1).getOption(0).setValue("blaaaaaaaa");
+		//new ExportModuleConfiguration().exportModuleConfiguration("/home/shokora/Desktop/kanker.xml");
+		File file = new File("/home/shokora/Desktop/kanker.xml");
+		new ImportModuleConfiguration(new FileInputStream(file)).parseDocument();
+		System.out.println(Generator.getInstance().getModuleSelector().getSelectedModules().get(1).getOption(0).getValue());
 	}
 
 }

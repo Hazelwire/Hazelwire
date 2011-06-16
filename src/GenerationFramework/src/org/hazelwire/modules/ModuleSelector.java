@@ -49,6 +49,29 @@ public class ModuleSelector
 		this.selectedModules.put(id, this.availableModules.get(id));
 	}
 	
+	/**
+	 * Linear search is gay, but this is just for a while to make it work.
+	 * @todo redo the search
+	 * @param moduleName
+	 */
+	public Module getModuleByNameAndPackage(String moduleName, String packageName)
+	{
+		Module tempModule = null;
+		for(Module module : availableModules.values())
+		{
+			if(module.getName().equals(moduleName))
+			{
+				if(packageName != null && module.getModulePackage() != null 
+						&& module.getModulePackage().getName().equals(packageName) || module.getModulePackage() == null)
+				{
+					tempModule = module;
+				}
+			}
+		}
+		
+		return tempModule;
+	}
+	
 	public void deselectModule(int id)
 	{
 		this.selectedModules.remove(id);
