@@ -78,15 +78,15 @@ class SanityChecker:
 	print "[P2PCHECK] Finished check"
 
     def start(self):
-#        self.autoNormalTimer = RepeatTimer(self.normal_interval*60, self.NormalCheck)
-#        self.autoNormalTimer.start()
-#        print "Started Automatic Sanity Checking timer..."
-#        self.autoP2PTimer = RepeatTimer(self.p2p_interval*60, self.P2PCheck)
-#        self.autoP2PTimer.start()
-#        print "Started Automatic P2P Sanity Checking timer..."
-#        self.configTimer = RepeatTimer(60, self.checkConfig)
-#        self.configTimer.start()
-#        print "Started config checking timer..."
+        self.autoNormalTimer = RepeatTimer(self.normal_interval*60, self.NormalCheck)
+        self.autoNormalTimer.start()
+        print "Started Automatic Sanity Checking timer..."
+        self.autoP2PTimer = RepeatTimer(self.p2p_interval*60, self.P2PCheck)
+        self.autoP2PTimer.start()
+        print "Started Automatic P2P Sanity Checking timer..."
+        self.configTimer = RepeatTimer(60, self.checkConfig)
+        self.configTimer.start()
+        print "Started config checking timer..."
         self.msc = ManualSanityChecker.ManualSanityCheckerService('127.0.0.1',9997, self.db)
         self.ManualSanityCheckerThread = threading.Thread(target=self.msc.startServer)
         self.ManualSanityCheckerThread.start()

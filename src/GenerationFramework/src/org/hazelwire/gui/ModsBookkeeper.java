@@ -13,6 +13,7 @@ public class ModsBookkeeper extends Observable
 	private ArrayList<Mod> mods;
 	private HashMap<Tag, ArrayList<Mod>> modsPerTag;
 	private static ModsBookkeeper instance;
+	private ConfigFile configFile;
 
 	public synchronized static ModsBookkeeper getInstance()
 	{
@@ -54,6 +55,7 @@ public class ModsBookkeeper extends Observable
 		 * worden.
 		 */
 		this.mods = mods;
+		this.configFile = new ConfigFile(ConfigFile.dummyDefaults());
 		
 		HashMap<String,Tag> tagList = new HashMap<String,Tag>(); //this is so ugly i want to cry
 		/*
@@ -104,6 +106,7 @@ public class ModsBookkeeper extends Observable
 		{
 			if (selectedMods.indexOf(new Mod(modName)) == -1)
 			{
+				System.out.println("Select: "+modName);
 				Mod mod = mods.get(index);
 				selectedMods.add(mod);
 				setChanged();
@@ -151,6 +154,7 @@ public class ModsBookkeeper extends Observable
 
 	public void setSelected(int selected)
 	{
+		System.out.println("Selected: "+selected);
 		this.selected = selected;
 		setChanged();
 		notifyObservers("SELECTED");
@@ -159,5 +163,9 @@ public class ModsBookkeeper extends Observable
 	public ArrayList<Mod> getMods()
 	{
 		return this.mods;
+	}
+	
+	public ConfigFile getConfigFile(){
+		return this.configFile;
 	}
 }

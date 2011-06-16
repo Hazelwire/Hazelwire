@@ -61,11 +61,11 @@ class WebInterface {
         $q->execute(array(time()));
         foreach($q as $res){
             $c = Contestant::getById($res['team_id'], $this->database);
-            exec("mv ".$this->config['site_folder']."lib/admin/openvpn/ccd/_".$c->getTeamname(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/".$c->getTeamname()."_vm");
+            exec("mv ".$this->config['site_folder']."lib/admin/openvpn/ccd/_Team".$c->getId(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId()."_vm");
 
             $smarty = &$this->getSmarty();
             $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
-            $tpl->assign("filename", "server_".$c->getTeamname());
+            $tpl->assign("filename", "server_Team".$c->getId());
             $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
             $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
             $tpl->assign("server_ip_range",  $c->getSubnet());
@@ -73,7 +73,7 @@ class WebInterface {
             $tpl->assign("port",$this->config['base_port'] + $res['team_id']);
             $config_file_data = $tpl->fetch();
 
-            $config_file_loc = $this->config['openvpn_location'] . $c->getTeamname() . ".conf";
+            $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";
             $handle = @fopen($config_file_loc, 'w');
             if($handle === false){
                 $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
@@ -142,6 +142,37 @@ class WebInterface {
     public function getConfig(){
         return $this->config;
     }
+
+    public static function parseBB($text){
+        $bbcode = new StringParser_BBCode ();
+        $bbcode->addFilter (STRINGPARSER_FILTER_PRE, 'convertlinebreaks');
+
+        $bbcode->addParser (array ('block', 'inline', 'link', 'listitem'), 'htmlspecialchars');
+        $bbcode->addParser (array ('block', 'inline', 'link', 'listitem'), 'nl2br');
+        $bbcode->addParser ('list', 'bbcode_stripcontents');
+
+        $bbcode->addCode ('b', 'simple_replace', null, array ('start_tag' => '<b>', 'end_tag' => '</b>'),
+                          'inline', array ('listitem', 'block', 'inline', 'link'), array ());
+        $bbcode->addCode ('i', 'simple_replace', null, array ('start_tag' => '<i>', 'end_tag' => '</i>'),
+                          'inline', array ('listitem', 'block', 'inline', 'link'), array ());
+        $bbcode->addCode ('url', 'usecontent?', 'do_bbcode_url', array ('usecontent_param' => 'default'),
+                          'link', array ('listitem', 'block', 'inline'), array ());
+        $bbcode->addCode ('img', 'usecontent', 'do_bbcode_img', array (),
+                          'image', array ('listitem', 'block', 'inline', 'link'), array ());
+        $bbcode->addCode ('list', 'simple_replace', null, array ('start_tag' => '<ul>', 'end_tag' => '</ul>'),
+                          'list', array ('block', 'listitem'), array ());
+        $bbcode->addCode ('*', 'simple_replace', null, array ('start_tag' => '<li>', 'end_tag' => '</li>'),
+                          'listitem', array ('list'), array ());
+        $bbcode->setCodeFlag ('*', 'closetag', BBCODE_CLOSETAG_OPTIONAL);
+        $bbcode->setCodeFlag ('*', 'paragraphs', true);
+        $bbcode->setCodeFlag ('list', 'paragraph_type', BBCODE_PARAGRAPH_BLOCK_ELEMENT);
+        $bbcode->setCodeFlag ('list', 'opentag.before.newline', BBCODE_NEWLINE_DROP);
+        $bbcode->setCodeFlag ('list', 'closetag.before.newline', BBCODE_NEWLINE_DROP);
+        $bbcode->setRootParagraphHandling (true);
+
+        return $bbcode->parse ($text);
+    }
+    
 }
 
 ?>

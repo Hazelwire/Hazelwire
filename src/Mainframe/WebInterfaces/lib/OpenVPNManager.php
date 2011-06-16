@@ -45,9 +45,11 @@ class OpenVPNManager {
     public static function createClientConfigFile($cname, $vmip, $vmip_endpoint){
         global $interface;
         $config =$interface->getConfig();
+        deleteAll($config['openvpn_location'] . "ccd/" . $cname);
         
-        exec(sprintf("echo \"ifconfig-push %s %s\" > %s", $vmip, $vmip_endpoint, $config['openvpn_location'] . "ccd/" . $cname . "_vm"));
-        exec(sprintf("echo \" \" > %s", $config['openvpn_location'] . "ccd/" . $cname));
+        mkdir($config['openvpn_location'] . "ccd/" . $cname);
+        exec(sprintf("echo \"ifconfig-push %s %s\" > %s", $vmip, $vmip_endpoint, $config['openvpn_location'] . "ccd/" . $cname . "/" . $cname . "_vm"));
+        exec(sprintf("echo \" \" > %s", $config['openvpn_location'] . "ccd/" . $cname . "/" . $cname));
     }
     
     /** 
@@ -63,7 +65,7 @@ class OpenVPNManager {
         if(!$fp){
             $interface->handleError(new Error("vpn_error", "Error #1: Cannot start openVPN service! (".$errno.")", false));
         }else{
-            $config_path = $config['site_folder'] . $config['openvpn_location'] . $contestant->getTeamname() . ".conf";
+            $config_path = $config['site_folder'] . $config['openvpn_location'] . "Team" . $contestant->getId() . ".conf";
             fwrite($fp, "STARTVPN " . $config_path);
             fclose($fp);
             // @todo test if start failed
@@ -89,13 +91,13 @@ class OpenVPNManager {
      */
     public static function diconnectVPN(&$contestant){
         global $interface; /* @var $interface WebInterface */
-        $config =$interface->getConfig();
+        $config = $interface->getConfig();
         $fp = @fsockopen("127.0.0.1", $config['management_port_base'] + $contestant->getId(), $errno, $errstr, 5);
         if(!$fp){
             $interface->handleError(new Error("vpn_error", "Error #9: Cannot d/c client! (".$errno.")", false));
         }else{
-            fwrite($fp, "kill ".$contestant->getTeamname()."\r\n");
-            fwrite($fp, "kill ".$contestant->getTeamname()."_vm\r\n");
+            fwrite($fp, "kill Team".$contestant->getId()."\r\n");
+            fwrite($fp, "kill Team".$contestant->getId()."_vm\r\n");
             fclose($fp);
         }
     }
@@ -107,7 +109,7 @@ class OpenVPNManager {
     public static function getVPNStatus(&$contestant){
         global $interface; /* @var $interface WebInterface */
         $config =$interface->getConfig();
-        $config_path = $config['site_folder'] . $config['openvpn_location'] . $contestant->getTeamname() . ".conf";
+        $config_path = $config['site_folder'] . $config['openvpn_location'] . "Team".$contestant->getId() . ".conf";
         $result = exec(sprintf("(ps -e -o pid,args | grep 'openvpn %s') | sed '/ grep /d'", $config_path));
         return ($result != "");
     }

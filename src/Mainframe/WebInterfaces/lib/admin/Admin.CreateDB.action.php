@@ -7,12 +7,14 @@ function create_database(){
     if($database === false)
         return false;
     //create tables
-    $res = $database->exec("CREATE TABLE 'state' ( 'state' SMALLINT );");
+    $res = $database->exec("CREATE TABLE 'state' ( 'state' INTEGER );");
     if($res === false)return false;
     $res = $database->exec("CREATE TABLE 'config' ( 'config_name' TEXT , 'value' TEXT) ; ");
     if($res === false)return false;
     //@TODO remove this BS when done
     $res = $database->exec("BEGIN TRANSACTION;
+                CREATE TABLE team_id (id INTEGER);
+                INSERT INTO team_id VALUES(1);
                 CREATE TABLE flagpoints (flag_id INTEGER, mod_id INTEGER, points INTEGER);
                 INSERT INTO flagpoints VALUES(1,1,15);
                 INSERT INTO flagpoints VALUES(2,1,23);

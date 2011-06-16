@@ -50,11 +50,15 @@ public class OptionsComposite extends Composite
 		gd.verticalAlignment = SWT.TOP;
 		this.setLayoutData(gd);
 
-		Label lblOption = new Label(this, SWT.NONE);
-		lblOption.setAlignment(SWT.CENTER);
-		lblOption.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
-				false, 1, 1));
+		Text lblOption = new Text(this, SWT.WRAP);
+		//lblOption.setAlignment(SWT.CENTER);
+		GridData gd_lblOption = new GridData(SWT.FILL, SWT.CENTER, false,
+				false, 1, 1);
+		gd_lblOption.widthHint = 75;
+		lblOption.setLayoutData(gd_lblOption);
+		lblOption.setSize(75, SWT.DEFAULT);
 		lblOption.setText(option.getName());
+		lblOption.setEditable(false);
 
 		txtWaardeRightNow = new Text(this, SWT.BORDER);
 		txtWaardeRightNow.setText(option.getValue()); // motte wel de

@@ -1,4 +1,12 @@
 $(document).ready(function(){
+        $("#okaadd").click(function(){
+		$('form').attr({action: "index.php?aaction=aadd"});
+		$('form').submit();
+	});
+        $("#okcdel").click(function(){
+		$('form').attr({action: "index.php?aaction=cdel"});
+		$('form').submit();
+	});
         $("#okcban").click(function(){
 		$('form').attr({action: "index.php?aaction=cban"});
 		$('form').submit();
@@ -57,7 +65,7 @@ $(document).ready(function(){
 	$("#cdelete").click(function(){
 		window.open('', 'cdeletew', 'width=300,height=100,status=no,resizable=no,scrollbars=no');
 		$('form#cform').attr({
-			action: "admincdel.html",
+			action: "index.php?aaction=cdel",
 			method: "post",
 			target: "cdeletew"
 		});
@@ -76,7 +84,7 @@ $(document).ready(function(){
 	$("#apost").click(function(){
 		window.open('', 'apostw', 'width=600,height=400,status=no,resizable=no,scrollbars=no');
 		$('form#aform').attr({
-			action: "adminapost.html",
+			action: "index.php?aaction=aadd",
 			method: "post",
 			target: "apostw"
 		});

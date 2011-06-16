@@ -141,8 +141,8 @@ class ContestantInterface extends WebInterface{
                 foreach ($q as $announce){
                     $announcement = new stdClass();
                     $announcement->id = $announce['id'];
-                    $announcement->title = $announce['title'];
-                    $announcement->content = $announce['announcement'];
+                    $announcement->title = htmlspecialchars($announce['title']);
+                    $announcement->content = $this->parseBB(htmlspecialchars($announce['announcement']));
                     array_push($announcements, $announcement);
                 }
                 $smarty->assign("announcements",$announcements);
@@ -212,6 +212,7 @@ class ContestantInterface extends WebInterface{
                 return;
         // @TODO check for db_ready.
         if($this->getCurrentState() == GAMEINPROGRESS){
+            $interface->unban();
             if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                 if(isset($_POST['sub_flag'])){
                     $now = time(); // take a timestamp.

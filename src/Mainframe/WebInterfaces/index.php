@@ -6,6 +6,7 @@ define("preGameStart",3,true);
 define("GameInProgress",4,true);
 define("PostGame",5,true);
 //includes
+include_once 'lib/stringparser_bbcode.class.php';
 include_once 'lib/etc_funcs.php';
 include_once 'config.php';
 include_once 'lib/GameConfig.php';
@@ -21,11 +22,9 @@ include_once 'lib/OpenVPNManager.php';
 $interface;
 if(strcmp($_SERVER['REMOTE_ADDR'], '127.0.0.1') === 0 || ip_in_range($_SERVER['REMOTE_ADDR'], $config['admin_ip_range'])){
       $interface = new AdminInterface();
-      $interface->unban();
 }
 else {
     $interface = new ContestantInterface();
-    $interface->unban();
 }
 $interface->doWork();
 echo $interface->show();

@@ -84,4 +84,88 @@ function checkValidIp($cidr,$range = false) {
     return $return;
 
 }
+
+function deleteAll($directory, $empty = false) {
+    if(substr($directory,-1) == "/") {
+        $directory = substr($directory,0,-1);
+    }
+
+    if(!file_exists($directory) || !is_dir($directory)) {
+        return false;
+    } elseif(!is_readable($directory)) {
+        return false;
+    } else {
+        $directoryHandle = opendir($directory);
+
+        while ($contents = readdir($directoryHandle)) {
+            if($contents != '.' && $contents != '..') {
+                $path = $directory . "/" . $contents;
+
+                if(is_dir($path)) {
+                    deleteAll($path);
+                } else {
+                    unlink($path);
+                }
+            }
+        }
+
+        closedir($directoryHandle);
+
+        if($empty == false) {
+            if(!rmdir($directory)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+
+// Unify line breaks of different operating systems
+function convertlinebreaks ($text) {
+    return preg_replace ("/\015\012|\015|\012/", "\n", $text);
+}
+
+// Remove everything but the newline charachter
+function bbcode_stripcontents ($text) {
+    return preg_replace ("/[^\n]/", '', $text);
+}
+
+function do_bbcode_url ($action, $attributes, $content, $params, $node_object) {
+    if (!isset ($attributes['default'])) {
+        $url = $content;
+        $text = htmlspecialchars ($content);
+    } else {
+        $url = $attributes['default'];
+        $text = $content;
+    }
+    if ($action == 'validate') {
+        if (substr ($url, 0, 5) == 'data:' || substr ($url, 0, 5) == 'file:'
+          || substr ($url, 0, 11) == 'javascript:' || substr ($url, 0, 4) == 'jar:') {
+            return false;
+        }
+        return true;
+    }
+    return '<a href="'.htmlspecialchars ($url).'">'.$text.'</a>';
+}
+
+// Function to include images
+function do_bbcode_img ($action, $attributes, $content, $params, $node_object) {
+    if ($action == 'validate') {
+        if (substr ($content, 0, 5) == 'data:' || substr ($content, 0, 5) == 'file:'
+          || substr ($content, 0, 11) == 'javascript:' || substr ($content, 0, 4) == 'jar:') {
+            return false;
+        }
+        return true;
+    }else{
+        $src = htmlspecialchars($content);
+        $height =   isset($attributes['height'])    ?"height=\"".$attributes['heigth']  . "\" ":"";
+        $width =    isset($attributes['width'])     ?"width=\"" .$attributes['width']   . "\" ":"";
+        $alt =      isset($attributes['alt'])       ?"alt=\""   .$attributes['alt']     ."\" ":"";
+    }
+    return '<img src="'.$src.'" '.$height. $width . $alt. ' />';
+}
+
+
 ?>

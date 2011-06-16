@@ -20,13 +20,13 @@
                    }{/literal}
                 </style>
                      <script type="text/javascript" language="javascript">
-
+			var plot1;
                             {literal}$(document).ready(function(){{/literal}
                             $.jqplot.config.enablePlugins = true;
                               {foreach from=$series->series item=serie}
                                 var {$serie->id}={$serie->string};
                               {/foreach}
-                              var plot1 = $.jqplot('chart1', [{$series->seriesString}],{literal} {
+                              plot1 = $.jqplot('chart1', [{$series->seriesString}],{literal} {
                                   legend:{show:true},
                                   axes:{
                                     xaxis:{
@@ -70,7 +70,10 @@
                                 clearTimeout(resizeTimer);
                                 resizeTimer = setTimeout(onresize, 100);
 			});
-                            });{/literal}
+                            });
+                            function changeSort(){
+                                location="index.php?winsort=" + $('#winsort').val();
+                            }{/literal}
                         </script>
 	</head>
 	<body>
@@ -104,7 +107,7 @@
 					</div>
 					<div id="flagdisplayselection">
 						display
-						<select>
+						<select id='winsort' onchange="changeSort()">
 							<option {if $winsort == "flagtype"}selected{/if} value="flagtype">by Flag Type</option>
 							<option {if $winsort == "warserver"}selected{/if} value="warserver">by Warserver</option>
 						</select>
@@ -125,7 +128,7 @@
                                                                     </label>
                                                             </li>
                                                          {/foreach}
-						</ul>	
+						</ul>
 					</div>
 					<form id="flagform" action="index.php" method="POST" >
 						<div id="flaginput">
@@ -156,10 +159,10 @@
 					</div>
 				</div>
 			</div>
-			<div id="timeline">
-				<div id="chart1" class="content" style="height:auto;width:auto;">
-					
-				</div>
+			<div id="timeline"><div id="chart1wrap" class="content" style="height:auto;width:auto;">
+				<div id="chart1" style="left: 0pt; right: 0pt; top: 0pt; bottom: 0pt;height:auto;width:auto;">
+
+				</div></div>
 			</div>
 		</div>
 	</body>

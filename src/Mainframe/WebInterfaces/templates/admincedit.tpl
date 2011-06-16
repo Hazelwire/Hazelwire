@@ -2,10 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 	<head>
 		<title>[Insert wargame name here] - powered by Hazelwire</title>
-		<link rel="stylesheet" type="text/css" href="admin.css"></link>
-		<script type="text/javascript" src="jquery-1.6.1.min.js"></script>
-		<script type="text/javascript" src="buttons.js"></script>
-		<script type="text/javascript" src="textfield.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/admin.css"></link>
+		<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+		<script type="text/javascript" src="js/buttons.js"></script>
+		<script type="text/javascript" src="js/textfield.js"></script>
 	</head>
 	<body>
 		<div id="container">
@@ -13,8 +13,8 @@
                             {if $num_errors >0 or isset($ceditsuccess)}
 				{literal}<script type="text/javascript">
 				    	$(document).ready(function(){
-				    	alert(window.outerHeight);
-				    		window.resizeTo(window.outerWidth ,230+$('#msgs').height());
+				    	
+				    		window.resizeTo(window.outerWidth ,130+$('#msgs').height());
                                                 
 				    	$('#acform').animate({top:'2em'});
 
@@ -31,21 +31,21 @@
 				{/if}
 				<div id="acform">
 					<div class="header">
-						<h1>Edit {$contestant->getTeamname()}'s info</h1>
+						<h1>Edit {if isset($contestant)}{$contestant->getTeamname()}{/if}'s info</h1>
 					</div>
-                                            <form><input type="hidden" name="cid" value="{$contestant->getId()}" /><input type="hidden" name="cedit" value="save" />
+                                            <form method="POST"><input type="hidden" name="cid" value="{if isset($contestant)}{$contestant->getId()}{/if}" /><input type="hidden" name="cedit" value="save" />
 						<div class="cforminput">
 							<div class="cformlabel">Team name: </div>
 							<div class="cformfield">
-								<input type="text" value="{$contestant->getTeamname()}" name="cname" title="teamname" class="defaultText" />
+								<input type="text" value="{if isset($contestant)}{$contestant->getTeamname()}{/if}" name="cname" title="teamname" class="defaultText" />
 							</div>
 							<div class="cformlabel">Subnet:</div>
 							<div class="cformfield">
-								10.<input type="text" value="{$subnet}" name="csubnet" value="1" title="#" class="defaultText" />.0.0/24
+								10.<input type="text" value="{if isset($subnet)}{$subnet}{/if}" name="csubnet" value="1" title="#" class="defaultText" />.0.0/24
 							</div>
 							<div class="cformlabel">VM IP:</div>
 							<div class="cformfield">
-								10.1.<input type="text" value="{$vmip}" name="cvmip" value="1" title="#" class="defaultText" />.0
+								10.1.<input type="text" value="{if isset($vmip)}{$vmip}{/if}" name="cvmip" value="1" title="#" class="defaultText" />.0
 							</div>
 						</div>
 						<div class="buttons">

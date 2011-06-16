@@ -25,8 +25,8 @@ public class ChallengesTree implements MouseListener
 		ChallengesTree ct = new ChallengesTree();
 		challenges.addMouseListener(ct);
 		Display display = challenges.getDisplay();
-		challenges.setBackground(new Color(display, 0, 0, 0));
-		challenges.setForeground(new Color(display, 255, 255, 255));
+		challenges.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+		challenges.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
 		challenges.removeAll();
 		if (selected != -1)
 		{
