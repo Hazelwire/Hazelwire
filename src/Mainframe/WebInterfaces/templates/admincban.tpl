@@ -15,8 +15,8 @@
 				    	$(document).ready(function(){
 				    	
 				    		window.resizeTo(window.outerWidth ,205+$('#msgs').height());
-
-				    	$('#acform').animate({top:'2em'});
+                                                $('#msgs').hide(1).delay(400).fadeIn();
+                                                $('#acform').animate({top:'2em'});
 
 				    	});
 				    </script>{/literal}

@@ -19,4 +19,11 @@ $(document).ready(function()
 	});
 
 	$(".defaultText").blur();
+        
+        $('form span#subinvmip').html($('input#subnet').val());
+        $('input#subnet').change(function(){
+
+            $('form span#subinvmip').html($(this).val());
+
+        });
 });

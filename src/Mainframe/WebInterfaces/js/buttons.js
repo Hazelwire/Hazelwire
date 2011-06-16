@@ -35,7 +35,7 @@ $(document).ready(function(){
 		window.close();
 	});
 	$("#keys").click(function(){
-		$('form').attr({action: "keyshitgoeshere"});
+		$('form').attr({action: "download.php?team="+$('form input[name="cid"]').val()});
 		$('form').submit();
 	});
 	$("#sanity").click(function(){

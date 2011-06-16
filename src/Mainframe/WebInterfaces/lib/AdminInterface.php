@@ -865,7 +865,7 @@ class AdminInterface extends WebInterface {
                         $q = $this->database->prepare("SELECT * FROM announcements WHERE id = ?");
                         $q->execute(array($_POST['aid']));
                         if($q->fetch() == false){
-                            $this->handleError(new Error("announce_edit_error", "Invalid announcement selected for editting.", false));
+                            $this->handleError(new Error("announce_edit_error", "Invalid announcement selected for editing.", false));
                             return;
                         }
 
@@ -885,7 +885,7 @@ class AdminInterface extends WebInterface {
                             return;
                         }
 
-                        $q = $this->database->prepare("DELETE FROM announcement WHERE id = ?");
+                        $q = $this->database->prepare("DELETE FROM announcements WHERE id = ?");
                         $q->execute(array($_POST['aid']));
                     }
                 }

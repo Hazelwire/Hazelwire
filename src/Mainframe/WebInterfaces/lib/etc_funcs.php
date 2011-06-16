@@ -132,6 +132,18 @@ function bbcode_stripcontents ($text) {
     return preg_replace ("/[^\n]/", '', $text);
 }
 
+function do_bbcode_color ($action, $attributes, $content, $params, $node_object) {
+    if (!isset ($attributes['default'])) {
+        $color = "#000000";
+    } else {
+        $color = $attributes['default'];
+    }
+    if ($action == 'validate') {
+        return preg_match('/^#[a-f0-9]{6}|\w$/i', $color);
+    }
+    return '<span style="color:'.$color.';">'.$content.'</span>';
+}
+
 function do_bbcode_url ($action, $attributes, $content, $params, $node_object) {
     if (!isset ($attributes['default'])) {
         $url = $content;
@@ -173,11 +185,6 @@ function parse_links  ( $m )
     if ( strpos( $href, '://' ) === false ) {
         $href = 'http://' . $href;
     }
-   /* if( strpos($href,"[img") !== false ||
-    	strpos($href,"[url") !== false ||
-    	strpos($href,"[/img]") !== false ||
-    	strpos($href,"[/url]") !== false)
-    	return $href;*/
 
     if( strlen($name) > 50 ) {
         $k = ( 50 - 3 ) >> 1;

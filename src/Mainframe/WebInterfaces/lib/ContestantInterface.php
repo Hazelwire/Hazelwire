@@ -278,7 +278,8 @@ class ContestantInterface extends WebInterface{
                                 $time_left = $res['block_timestamp'] - $now;
 
                                 // double block time
-                                $new_block_time = ($time_blocked * 2) + $now; // @todo make configurable
+                                
+                                $new_block_time = min(array(($time_blocked * 2),3600)) + $now; // @todo make configurable
                                 $q = $db->prepare("INSERT INTO submission_block VALUES (?,?,?)");
                                 $q->execute(array($this->contestant->getId(), $now, $new_block_time));
 
