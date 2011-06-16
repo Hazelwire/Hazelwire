@@ -41,6 +41,8 @@ public class VMHandler
 	 */
 	public void importAndDiscover() throws Exception
 	{
+		if(this.checkIfImported()) throw new Exception("VM is already imported"); 
+		
 		ArrayList<String> vmsPreImport = listVMs();
 		importVM();
 		ArrayList<String> vmsPostImport = listVMs();

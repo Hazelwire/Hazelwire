@@ -190,6 +190,16 @@ public class Module
 	{
 		return flags.values();
 	}
+	
+	public void setFlags(ArrayList<Flag> flags)
+	{
+		this.flags.clear();
+		
+		for(Flag flag : flags)
+		{
+			this.flags.put(flag.getId(), flag);
+		}
+	}
 
 	public Collection<Option> getOptions()
 	{

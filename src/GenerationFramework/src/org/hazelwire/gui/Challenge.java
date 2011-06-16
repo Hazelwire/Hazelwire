@@ -2,6 +2,8 @@ package org.hazelwire.gui;
 
 import java.util.ArrayList;
 
+import org.hazelwire.modules.Flag;
+
 public class Challenge
 {
 
@@ -63,6 +65,14 @@ public class Challenge
 	public void setPoints(int points)
 	{
 		this.points = points;
+	}
+	
+	public Flag toFlag()
+	{
+		Flag tempFlag = new Flag(points);
+		tempFlag.setId(id);
+		tempFlag.setDescription(description);
+		return tempFlag;
 	}
 
 	public boolean equals(Object o)
