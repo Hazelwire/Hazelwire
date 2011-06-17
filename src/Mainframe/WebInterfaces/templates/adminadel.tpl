@@ -31,7 +31,7 @@
 				{/if}
 				<div id="acform">
 					<div class="header">
-						<h1>Delete {if isset($announcement)}{$announcement->title}{/if}</h1>
+						<h1>Delete {if isset($announcement)}{$announcement->title|escape:'htmlall'}{/if}</h1>
 					</div>
 					<form method="POST">
                                                 <input type="hidden" name="aid" value="{if isset($announcement)}{$announcement->id}{else}-1{/if}" />

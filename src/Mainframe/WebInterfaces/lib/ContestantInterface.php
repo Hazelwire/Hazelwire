@@ -47,7 +47,7 @@ class ContestantInterface extends WebInterface{
             $smarty->assign("errors", $this->errors);
         }
         
-        if ($this->getCurrentState() != GAMEINPROGRESS) {
+        if ($this->getCurrentState() < GAMEINPROGRESS) {
             return $smarty->fetch("game_not_started.tpl");
         } else {
             if(!isset($_POST['ajax'])){

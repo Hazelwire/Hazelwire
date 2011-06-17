@@ -51,6 +51,10 @@ class AdminInterface extends WebInterface {
             $res = $q->fetch();
             $smarty->assign("title",$res[0]);
             if(!isset($_GET['aaction'])){
+
+                $allow_startvpn = OpenVPNManager::getBaseVPNStatus();
+                $allow_stopvpn = OpenVPNManager::getBaseVPNStatus();
+
                 $q = $db->query("SELECT value FROM config WHERE config_name = 'gamename'");
                 $res = $q->fetch();
                 $smarty->assign("title",$res[0]);
@@ -62,9 +66,15 @@ class AdminInterface extends WebInterface {
                 $contestants = array();
                 while (($res = $q->fetch()) !== false){
                     $c = Contestant::getById($res['team_id'], $db);
+                    $allow_startvpn = $allow_startvpn && OpenVPNManager::getVPNStatus($c);
+                    $allow_stopvpn = $allow_stopvpn || OpenVPNManager::getVPNStatus($c);
                     array_push($contestants, $c);
                 }
                 $smarty->assign("contestants",$contestants);
+                $smarty->assign("allow_startvpn",!$allow_startvpn);
+                $smarty->assign("allow_stopvpn",$allow_startvpn);
+                $smarty->assign("allow_endgame",$this->getCurrentState() == GAMEINPROGRESS);
+                $smarty->assign("allow_start",$this->getCurrentState() == PREGAMESTART);
 
                 $q  = $db->query("SELECT * FROM announcements");
                 $announcements = array();
@@ -193,25 +203,65 @@ class AdminInterface extends WebInterface {
                 return $smarty->fetch("adminadel.tpl");
             }else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"startvpn")==0){
                 if(count($this->errors) == 0){
-                    $string = "VPN servers started.<br />\n<pre style=\"font-size:1.1em;\"> Status:\n";
+                    $string = "VPN servers started.<br />".PHP_EOL."<pre style=\"font-size:1.1em;\">Status:".PHP_EOL;
 
                     foreach ($this->contestant_list as $c){
-                        $string .= sprintf("%20s: %s\n",$c->getTeamname(),OpenVPNManager::getVPNStatus($c)?"Online":"Offline");
+                        $string .= sprintf("%'.-30s: %s",$c->getTeamname(),OpenVPNManager::getVPNStatus($c)?"Online ":"Offline").PHP_EOL;
                     }
-                    $string .= sprintf("%s: %s\n","Base VM",OpenVPNManager::getBaseVPNStatus()?"Online":"Offline");
+                    $string .= sprintf("%'.-30s: %s","Base VM",OpenVPNManager::getBaseVPNStatus()?"Online ":"Offline").PHP_EOL;
 
                     $string .="</pre>";
 
-                    $smarty->assign("success", $string);
+                    $smarty->assignByRef("success", $string);
                 }
                 $retval = new stdClass();
                 $retval->action = "startvpn";
-                $retval->reply = addslashes(addslashes($smarty->fetch("contestant_ajax_flagsub.tpl")));
+                $retval->reply = $smarty->fetch("admin_ajax_startvpn.tpl");
+
+                return json_encode($retval);
+            } else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"stopvpn")==0){
+                if(count($this->errors) == 0){
+                    $string = "VPN servers stopped.<br />".PHP_EOL."<pre style=\"font-size:1.1em;\">Status:".PHP_EOL;
+
+                    foreach ($this->contestant_list as $c){
+                        $string .= sprintf("%'.-30s: %s",$c->getTeamname(),OpenVPNManager::getVPNStatus($c)?"Online ":"Offline").PHP_EOL;
+                    }
+                    $string .= sprintf("%'.-30s: %s","Base VM",OpenVPNManager::getBaseVPNStatus()?"Online ":"Offline").PHP_EOL;
+
+                    $string .="</pre>";
+
+                    $smarty->assignByRef("success", $string);
+                }
+                $retval = new stdClass();
+                $retval->action = "stopvpn";
+                $retval->reply = $smarty->fetch("admin_ajax_startvpn.tpl");
+
+                return json_encode($retval);
+            } else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"startgame")==0){
+                if(count($this->errors) == 0){
+                    $string = "The wargame has started! To the bunkers!";
+
+                    $smarty->assignByRef("success", $string);
+                }
+                $retval = new stdClass();
+                $retval->action = "startgame";
+                $retval->reply = $smarty->fetch("admin_ajax_startvpn.tpl");
+
+                return json_encode($retval);
+            } else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"endgame")==0){
+                if(count($this->errors) == 0){
+                    $string = "The wargame has ended! Hail the champions!!";
+
+                    $smarty->assignByRef("success", $string);
+                }
+                $retval = new stdClass();
+                $retval->action = "endgame";
+                $retval->reply = $smarty->fetch("admin_ajax_startvpn.tpl");
 
                 return json_encode($retval);
             }
 
-        } 
+        }
     }
 
     /**
@@ -234,7 +284,7 @@ class AdminInterface extends WebInterface {
         }
         $this->state = $state;
     }
-    
+
     /**
      * Does all the work. It interprets form data, etc.
      */
@@ -282,7 +332,7 @@ class AdminInterface extends WebInterface {
                 $this->endGame();
             }
         }
-       
+
     }
 
     public function configure(){
@@ -290,7 +340,7 @@ class AdminInterface extends WebInterface {
             $this->handleError(new Error("illegal_action", "You can't configure the wargame now.", false));
             return;
         }
-        
+
         /* @var $db PDO */
         $db = &$this->database;
 
@@ -435,7 +485,8 @@ class AdminInterface extends WebInterface {
                     }
                     fwrite($handle, $config_file_data);
                     fclose($handle);
-                    $this->setState(PREVPN);
+                    if($this->getCurrentState() == POSTCONFIG)
+                        $this->setState(PREVPN);
                 }
 
                 OpenVPNManager::buildServerKeys("Team".$c->getId());
@@ -471,18 +522,19 @@ class AdminInterface extends WebInterface {
                 }
             }
         }
-                    
+
     }
 
     public function editContestant(){
-        if($this->getCurrentState() != GAMEINPROGRESS &&
-            $this->getCurrentState() != PREVPN &&
-            $this->getCurrentState() != PREGAMESTART &&
-            $this->getCurrentState() != POSTCONFIG      ) {
+        $state = $this->getCurrentState();
+        if($state != GAMEINPROGRESS &&
+            $state != PREVPN &&
+            $state != PREGAMESTART &&
+            $state != POSTCONFIG      ) {
             $this->handleError(new Error("illegal_action", "You're not allowed to edit contestants during this stage of the wargame.", false));
             return;
         }
-        
+
         $db = &$this->database;
         //return;
 
@@ -568,7 +620,7 @@ class AdminInterface extends WebInterface {
             $id = $_POST['cid'];
             $db =& $this->database; /* @var $db PDO */
             $c = Contestant::getById($id, $db);
-            
+
             if($time == 0){
                 $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
                 $q->execute(array(intval($id)));
@@ -714,7 +766,10 @@ class AdminInterface extends WebInterface {
     }
 
     public function startVPN(){
-        if($this->getCurrentState() != PREVPN ) {
+        $state = $this->getCurrentState();
+        if($state != PREVPN &&
+                $state != PREGAMESTART &&
+                $state != GAMEINPROGRESS) {
             $this->handleError(new Error("illegal_action", "You can't start the VPNs in this stage.", false));
             return;
         }
@@ -723,14 +778,17 @@ class AdminInterface extends WebInterface {
             if(!OpenVPNManager::getVPNStatus($c))
                 OpenVPNManager::startVPN($c);
         }
-        OpenVPNManager::startBaseVPN();
-        $this->setState(PREGAMESTART);
+        if(!OpenVPNManager::getBaseVPNStatus())
+            OpenVPNManager::startBaseVPN();
+        if($state == PREVPN)
+            $this->setState(PREGAMESTART);
     }
 
     public function stopVPN(){
-        if($this->getCurrentState() != PREGAMESTART &&
-                $this->getCurrentState() != GAMEINPROGRESS &&
-                $this->getCurrentState() != POSTGAME) {
+        $state = $this->getCurrentState();
+        if($state != PREGAMESTART &&
+                $state != GAMEINPROGRESS &&
+                $state != POSTGAME) {
             $this->handleError(new Error("illegal_action", "You can't stop the VPNs in this stage.", false));
             return;
         }
@@ -738,7 +796,9 @@ class AdminInterface extends WebInterface {
             if(OpenVPNManager::getVPNStatus($c))
                 OpenVPNManager::stopVPN($c);
         }
-        OpenVPNManager::stopBaseVPN();
+        if(OpenVPNManager::getBaseVPNStatus())
+            OpenVPNManager::stopBaseVPN();
+        sleep(3);
     }
 
     public function startGame(){

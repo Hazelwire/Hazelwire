@@ -25,7 +25,7 @@
 					<div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px red;">{$error->getMessage()}</div>
 					{/foreach}{/if}
 					{if isset($aeditsuccess) && $aeditsuccess == "1"}
-					<div style="background: none repeat scroll 0pt 0pt rgb(170, 255, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px rgb(0, 255, 0)">Announcement editted!</div>
+					<div style="background: none repeat scroll 0pt 0pt rgb(170, 255, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px rgb(0, 255, 0)">Announcement edited!</div>
 					{/if}
 					</div>
 				{/if}
@@ -37,7 +37,7 @@
                                                 <input type="hidden" name="aid" value="{if isset($announcement)}{$announcement->id}{else}-1{/if}" />
                                                 <input type="hidden" name="submitted" value="true" />
 						<div id="atitle">
-							<input type="text" value="{if isset($announcement)}{$announcement->title}{/if}" name="atitle" title="Announcement title" class="defaultText filldiv" />
+							<input type="text" value="{if isset($announcement)}{$announcement->title|escape:'html'}{/if}" name="atitle" title="Announcement title" class="defaultText filldiv" />
 						</div>
 						<div id="abody">
 							<textarea name="abody" title="Announcement body" class="defaultText filldiv">{if isset($announcement)}{$announcement->content}{/if}</textarea>

@@ -13,10 +13,10 @@
 				<div class="content">
 					<div class="buttons">
 						<div>
-							<input type="button" id="vpnstart" value="Start VPN" />
-							<input type="button" id="vpnstop" value="Stop VPN" disabled="disabled" />
-							<input type="button" id="gstart" value="Start Game" disabled="disabled" />
-							<input type="button" id="gstop" value="Stop Game" disabled="disabled" />
+							<input type="button" id="vpnstart" value="Start VPN" {if not $allow_startvpn} disabled="disabled" {/if}/>
+							<input type="button" id="vpnstop" value="Stop VPN" {if not $allow_stopvpn} disabled="disabled" {/if} />
+							<input type="button" id="gstart" value="Start Game" {if not $allow_startgame} disabled="disabled" {/if} />
+							<input type="button" id="gstop" value="Stop Game" {if not $allow_endgame} disabled="disabled" {/if} />
 						</div>
 					</div>
 				</div>
