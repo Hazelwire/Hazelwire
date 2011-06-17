@@ -2,11 +2,13 @@ package org.hazelwire.gui;
 
 import java.util.ArrayList;
 
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.widgets.Text;
 
-public class Searcher implements KeyListener
+public class Searcher implements KeyListener, FocusListener
 {
 
 	private ArrayList<Mod> mods;
@@ -35,6 +37,28 @@ public class Searcher implements KeyListener
 	{
 		// TODO Auto-generated method stub
 
+	}
+	
+	@Override
+	public void focusGained(FocusEvent f) {
+		if(f.getSource() instanceof Text){
+			Text t = (Text)f.getSource();
+			if(t.getText().equals("search...")){
+				t.setText("");
+			}
+		}
+		
+	}
+
+	@Override
+	public void focusLost(FocusEvent f) {
+		if(f.getSource() instanceof Text){
+			Text t = (Text)f.getSource();
+			if(t.getText().equals("")){
+				t.setText("search...");
+			}
+		}
+		
 	}
 
 }

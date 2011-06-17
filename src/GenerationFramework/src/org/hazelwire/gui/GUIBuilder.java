@@ -1,6 +1,5 @@
 package org.hazelwire.gui;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Observable;
@@ -36,32 +35,26 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.hazelwire.main.Generator;
 import org.hazelwire.modules.Option;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 
-public class GUIBuilder implements Observer, ControlListener
-{
+public class GUIBuilder implements Observer, ControlListener {
 
 	private Display display;
 	private Label label, modName, lblTotalAmountOf;
-	private Composite wrapper2, composite_7;
+	private Composite composite_7;
 	private Tree challenges, tree;
 	private Combo combo;
 	private PointsListener pl;
 	private Text packages;
-	private GridData gd_1;
-	private GridData gd_2;
-	private GridData gd_3;
-	private GridData gd_4;
 	private Text text_1;
 	private Text text_2;
 	private Text txtHazelwireVm;
 	private Text text_3;
 	private Text text_output;
 	private Canvas canvas, tags, canvas_1;
-	private GridData gd_5;
 	private static GUIBuilder instance;
 	private Shell shell;
-	private GridData gd_6;
-	private GridData gd_7;
 	private GridData gd_8;
 	private Text text_4;
 	private Text text_5;
@@ -81,34 +74,29 @@ public class GUIBuilder implements Observer, ControlListener
 	private Text text_19;
 	private Text text_20;
 	private HashMap<String, Text> textMap = new HashMap<String, Text>();
-	
-	public static void main(String[] args)
-	{
+
+	public static void main(String[] args) {
 		GUIBuilder builder = GUIBuilder.getInstance();
 		builder.init();
 	}
-	
-	public synchronized static GUIBuilder getInstance()
-	{
-		if(!(instance instanceof GUIBuilder))
-		{
+
+	public synchronized static GUIBuilder getInstance() {
+		if (!(instance instanceof GUIBuilder)) {
 			instance = new GUIBuilder();
 		}
-		
+
 		return instance;
 	}
-	
-	private GUIBuilder()
-	{
+
+	private GUIBuilder() {
 
 	}
-	
-	public void init()
-	{
+
+	public void init() {
 		/*
 		 * Maak ModsBookkeeper aan en voegt zichzelf toe als observer.
 		 */
-		
+
 		Generator.getInstance();
 		ModsBookkeeper.getInstance().initMods(GUIBridge.getModulesForGUI());
 		ModsBookkeeper.getInstance().addObserver(this);
@@ -119,17 +107,15 @@ public class GUIBuilder implements Observer, ControlListener
 		shell.pack();
 		shell.open();
 		shell.setText("Hazelwire Alpha v0.1");
-		while (!shell.isDisposed())
-		{
+		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
 		display.dispose();
-		Generator.getInstance().shutDown(); //Nice way to shut down
+		Generator.getInstance().shutDown(); // Nice way to shut down
 	}
 
-	private void addGUIElements(Shell shell)
-	{
+	private void addGUIElements(Shell shell) {
 		GridLayout gl_shell = new GridLayout(1, false);
 		gl_shell.horizontalSpacing = 0;
 		gl_shell.verticalSpacing = 0;
@@ -139,7 +125,7 @@ public class GUIBuilder implements Observer, ControlListener
 
 		// FIXME: resizen gaat scheel en de titel valt weg :(
 		Composite all = new Composite(shell, SWT.NONE);
-		all.setBackground(SWTResourceManager.getColor(SWT.COLOR_CYAN));
+		all.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		GridLayout gl_all = new GridLayout(1, false);
 		gl_all.horizontalSpacing = 0;
 		gl_all.verticalSpacing = 0;
@@ -153,31 +139,9 @@ public class GUIBuilder implements Observer, ControlListener
 		gd.verticalAlignment = SWT.FILL;
 		all.setLayoutData(gd);
 
-		Composite title = new Composite(all, SWT.NO_REDRAW_RESIZE);
-		GridLayout gl_title = new GridLayout(1, false);
-		gl_title.verticalSpacing = 0;
-		title.setLayout(gl_title);
-		gd = new GridData();
-		gd.verticalAlignment = SWT.TOP;
-		gd.horizontalAlignment = SWT.FILL;
-		gd.grabExcessHorizontalSpace = true;
-		gd.grabExcessVerticalSpace = true;
-		title.setLayoutData(gd);
-		Label name = new Label(title, SWT.CENTER);
-		name.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-		name.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-		name.setText("Hazelwire Maker");
-		gd_5 = new GridData();
-		gd_5.horizontalSpan = 4;
-		gd_5.verticalAlignment = SWT.FILL;
-		gd_5.horizontalAlignment = SWT.FILL;
-		gd_5.grabExcessHorizontalSpace = true;
-		gd_5.grabExcessVerticalSpace = true;
-		gd_5.widthHint = 600;
-		name.setLayoutData(gd_5);
-
 		TabFolder tabFolder = new TabFolder(all, SWT.TOP);
-		tabFolder.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		tabFolder.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		gd = new GridData();
 		gd.verticalAlignment = SWT.FILL;
 		gd.horizontalAlignment = SWT.FILL;
@@ -189,39 +153,67 @@ public class GUIBuilder implements Observer, ControlListener
 		modselection.setText("Module Selection");
 
 		SashForm sash = new SashForm(tabFolder, SWT.VERTICAL);
-		sash.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
+		sash.setSashWidth(2);
+		sash.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
 
 		GridLayout gl = new GridLayout();
 
 		sash.setLayout(gl);
+		TagTree tt = new TagTree();
+		GridLayout rightGrid = new GridLayout(1, true);
+		ModListPainter p = new ModListPainter(this);
+		Searcher searcher = new Searcher(this);
+		modselection.setControl(sash);
 
-		Composite wrapper = new Composite(sash, SWT.None);
-		wrapper.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		SashForm sashForm = new SashForm(sash, SWT.NONE);
+		sashForm.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
+		sashForm.setSashWidth(2);
+
+		Composite composite_10 = new Composite(sashForm, SWT.NONE);
+		composite_10.setLayout(new GridLayout(2, false));
+		tree = new Tree(composite_10, SWT.BORDER);
+		tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		tree.setSize(353, 293);
+		tree.addMouseListener(tt);
+		tree.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		tree.setForeground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+
+		TagTree.populateTree(tree);
+
+		Button importB = new Button(composite_10, SWT.PUSH | SWT.CAP_ROUND);
+		importB.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false,
+				1, 1));
+		importB.setSize(86, 23);
+		importB.setText("Import modules");
+		importB.setLocation(0, 370);
+		importB.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+
+		Text search = new Text(composite_10, SWT.BORDER);
+		search.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+				1));
+		search.setSize(270, 19);
+		search.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		search.setText("search...");
+		search.addKeyListener(searcher);
+		search.setToolTipText("Type search phrase and hit return.\nIn order to see all tags, enter nothing and hit return.");
+		search.addFocusListener(searcher);
+
+		Composite wrapper = new Composite(sashForm, SWT.None);
+		wrapper.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		wrapper.addControlListener(this);
-		GridLayout grid = new GridLayout(3, false);
+		GridLayout grid = new GridLayout(1, false);
 		grid.marginHeight = 2;
 		grid.horizontalSpacing = 2;
 		grid.marginWidth = 2;
 		grid.verticalSpacing = 2;
 		wrapper.setLayout(grid);
-		TagTree tt = new TagTree();
 		Display display = wrapper.getDisplay();
-		GridLayout rightGrid = new GridLayout(1, true);
-		ModListPainter p = new ModListPainter(this);
-		tree = new Tree(wrapper, SWT.BORDER);
-		tree.addMouseListener(tt);
-		tree.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-		tree.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-
-		TagTree.populateTree(tree);
-		gd_1 = new GridData();
-		gd_1.horizontalSpan = 2;
-		gd_1.grabExcessHorizontalSpace = true;
-		gd_1.grabExcessVerticalSpace = true;
-		gd_1.horizontalAlignment = SWT.FILL;
-		gd_1.verticalAlignment = SWT.FILL;
-		gd_1.widthHint = 200;
-		tree.setLayoutData(gd_1);
 
 		ScrolledComposite selectedComp = new ScrolledComposite(wrapper,
 				SWT.V_SCROLL);
@@ -242,29 +234,6 @@ public class GUIBuilder implements Observer, ControlListener
 		gd_8.verticalAlignment = SWT.FILL;
 		selectedComp.setLayoutData(gd_8);
 
-		Button importB = new Button(wrapper, SWT.PUSH | SWT.CAP_ROUND);
-		importB.setText("Import");
-		importB.setLocation(0, 370);
-		importB.setBackground(SWTResourceManager
-				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-		importB.addMouseListener(new ImportMouseListener());
-		gd = new GridData();
-		gd.horizontalAlignment = SWT.LEFT;
-		importB.setLayoutData(gd);
-
-		Text search = new Text(wrapper, SWT.BORDER);
-		search.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		gd = new GridData();
-		gd.horizontalAlignment = SWT.FILL;
-		gd.verticalAlignment = SWT.CENTER;
-		gd.grabExcessHorizontalSpace = true;
-		gd.grabExcessVerticalSpace = false;
-		search.setText("search...");
-		search.setLayoutData(gd);
-		search.addKeyListener(new Searcher(this));
-		search
-				.setToolTipText("Type search phrase and hit return.\nIn order to see all tags, enter nothing and hit return.");
-
 		label = new Label(wrapper, SWT.CENTER);
 		label.setText("Total amount of points: "
 				+ ModsBookkeeper.getInstance().getTotalPoints() + "\t");
@@ -279,27 +248,29 @@ public class GUIBuilder implements Observer, ControlListener
 		gd.grabExcessHorizontalSpace = true;
 		gd.grabExcessVerticalSpace = false;
 		label.setLayoutData(gd);
-		modselection.setControl(sash);
+		importB.addMouseListener(new ImportMouseListener());
+		sashForm.setWeights(new int[] { 1, 1 });
 
 		// RANDOM CANVAS. ONDERSTE DEEL SASHFORM
 		Composite mod = new Composite(sash, SWT.NONE);
-		mod.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+		mod.setForeground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		mod.setLayout(new GridLayout(1, false));
-		mod.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		mod.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		mod.addControlListener(this);
-		
+
 		modName = new Label(mod, SWT.CENTER);
-		modName.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-		modName.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+		modName.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		modName.setForeground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		int selected = ModsBookkeeper.getInstance().getSelected();
-		if (selected != -1)
-		{
+		if (selected != -1) {
 			modName.setText("Module: "
-					+ ModsBookkeeper.getInstance().getSelectedMods().get(
-							selected).getName());
-		}
-		else
-		{
+					+ ModsBookkeeper.getInstance().getSelectedMods()
+							.get(selected).getName());
+		} else {
 			modName.setText("No Module selected");
 		}
 		gd = new GridData();
@@ -323,98 +294,94 @@ public class GUIBuilder implements Observer, ControlListener
 		TabItem description = new TabItem(moddetails, SWT.NULL);
 		description.setText("Description");
 
-		wrapper2 = new Composite(moddetails, SWT.NONE);
-		wrapper2.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-		GridLayout gl_wrapper2 = new GridLayout(5, true);
-		gl_wrapper2.verticalSpacing = 2;
-		gl_wrapper2.marginWidth = 2;
-		gl_wrapper2.marginHeight = 2;
-		gl_wrapper2.horizontalSpacing = 2;
-		wrapper2.setLayout(gl_wrapper2);
+		SashForm sashForm_1 = new SashForm(moddetails, SWT.NONE);
+		description.setControl(sashForm_1);
+		sashForm_1.setSashWidth(2);
+		sashForm_1.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
 
-		Label tagt = new Label(wrapper2, SWT.LEFT);
-		tagt.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-		tagt.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		Composite composite_11 = new Composite(sashForm_1, SWT.NONE);
+		composite_11.setLayout(new GridLayout(1, false));
+
+		Label tagt = new Label(composite_11, SWT.LEFT);
+		tagt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		tagt.setSize(135, 13);
+		tagt.setForeground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+		tagt.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		tagt.setText("Tags");
-		gd = new GridData();
-		gd.horizontalAlignment = SWT.FILL;
-		gd.verticalAlignment = SWT.CENTER;
-		gd.verticalSpan = 1;
-		tagt.setLayoutData(gd);
 
-		Label chals = new Label(wrapper2, SWT.LEFT);
-		chals.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-		chals.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-		chals.setText("Challenges");
-		gd_6 = new GridData();
-		gd_6.horizontalSpan = 2;
-		gd_6.horizontalAlignment = SWT.FILL;
-		gd_6.verticalAlignment = SWT.CENTER;
-		gd_6.verticalSpan = 1;
-		chals.setLayoutData(gd_6);
+		ScrolledComposite tagswrap = new ScrolledComposite(composite_11,
+				SWT.V_SCROLL | SWT.BORDER);
+		GridData gd_tagswrap = new GridData(SWT.FILL, SWT.FILL, true, true, 1,
+				1);
+		gd_tagswrap.widthHint = 125;
+		tagswrap.setLayoutData(gd_tagswrap);
+		tagswrap.setSize(135, 250);
+		tagswrap.setAlwaysShowScrollBars(true);
+		tagswrap.setMinWidth(110);
+		tagswrap.setExpandHorizontal(true);
+		tagswrap.setExpandVertical(true);
+		tagswrap.getVerticalBar().setIncrement(15);
+		tagswrap.setBackground(display.getSystemColor(SWT.COLOR_LIST_SELECTION));
+		tagswrap.setLayout(new GridLayout(1, true));
+
+		tags = new Canvas(tagswrap, SWT.NONE);
 		TagListPainter tlp = new TagListPainter(this);
 
-		description.setControl(wrapper2);
-						
-								Label packs = new Label(wrapper2, SWT.LEFT);
-								packs.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-								packs.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-								packs.setText("Packages");
-								gd_7 = new GridData();
-								gd_7.horizontalSpan = 2;
-								gd_7.horizontalAlignment = SWT.FILL;
-								gd_7.verticalAlignment = SWT.CENTER;
-								gd_7.verticalSpan = 1;
-								packs.setLayoutData(gd_7);
-														
-																ScrolledComposite tagswrap = new ScrolledComposite(wrapper2,
-																		SWT.V_SCROLL | SWT.BORDER);
-																tagswrap.setAlwaysShowScrollBars(true);
-																tagswrap.setMinWidth(110);
-																tagswrap.setExpandHorizontal(true);
-																tagswrap.setExpandVertical(true);
-																tagswrap.getVerticalBar().setIncrement(15);
-																tagswrap.setLayout(new GridLayout(1, true));
-																
-																		gd_4 = new GridData();
-																		
-																				gd_4.widthHint = 110;
-																				gd_4.grabExcessHorizontalSpace = true;
-																				gd_4.grabExcessVerticalSpace = true;
-																				gd_4.horizontalAlignment = SWT.FILL;
-																				gd_4.verticalAlignment = SWT.FILL;
-																				tagswrap.setLayoutData(gd_4);
-																				
-																						tags = new Canvas(tagswrap, SWT.NONE);
-																						
-																								tags.addPaintListener(tlp);
-																								tagswrap.setContent(tags);
-												
-														challenges = new Tree(wrapper2, SWT.BORDER | SWT.MULTI);
-														challenges.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-														ChallengesTree.populateTree(challenges);
-														gd_2 = new GridData();
-														gd_2.horizontalSpan = 2;
-														gd_2.grabExcessHorizontalSpace = true;
-														gd_2.grabExcessVerticalSpace = true;
-														gd_2.horizontalAlignment = SWT.FILL;
-														gd_2.verticalAlignment = SWT.FILL;
-														challenges.setLayoutData(gd_2);
-								
-										packages = new Text(wrapper2, SWT.BORDER | SWT.READ_ONLY | SWT.WRAP | SWT.V_SCROLL | SWT.MULTI);
-										packages.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-										packages.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-										packages.setSize(220, SWT.DEFAULT);
-										gd_3 = new GridData();
-										gd_3.widthHint = 220;
-										gd_3.horizontalSpan = 2;
-										gd_3.grabExcessHorizontalSpace = true;
-										gd_3.grabExcessVerticalSpace = true;
-										gd_3.horizontalAlignment = SWT.FILL;
-										gd_3.verticalAlignment = SWT.FILL;
-										packages.setLayoutData(gd_3);
-										packages.setText("Select a module and the packages associated with it will be displayed here");
-										//packages.setText("Koetje boe");
+		tags.addPaintListener(tlp);
+		tagswrap.setContent(tags);
+
+		Composite composite_12 = new Composite(sashForm_1, SWT.NONE);
+		composite_12.setLayout(new GridLayout(1, false));
+
+		Label chals = new Label(composite_12, SWT.LEFT);
+		chals.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+				1));
+		chals.setSize(342, 13);
+		chals.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		chals.setForeground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+		chals.setText("Challenges");
+
+		challenges = new Tree(composite_12, SWT.BORDER | SWT.MULTI);
+		GridData gd_challenges = new GridData(SWT.FILL, SWT.FILL, true, true,
+				1, 1);
+		gd_challenges.widthHint = 250;
+		challenges.setLayoutData(gd_challenges);
+		challenges.setSize(342, 250);
+		challenges.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		ChallengesTree.populateTree(challenges);
+
+		Composite composite_13 = new Composite(sashForm_1, SWT.NONE);
+		composite_13.setLayout(new GridLayout(1, false));
+
+		Label packs = new Label(composite_13, SWT.LEFT);
+		packs.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+				1));
+		packs.setForeground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+		packs.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		packs.setText("Packages");
+
+		packages = new Text(composite_13, SWT.BORDER | SWT.READ_ONLY | SWT.WRAP
+				| SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_packages = new GridData(SWT.FILL, SWT.FILL, true, true, 1,
+				1);
+		gd_packages.widthHint = 250;
+		packages.setLayoutData(gd_packages);
+		packages.setForeground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+		packages.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		packages.setText("Select a module and the packages associated with it will be displayed here");
+		sashForm_1.setWeights(new int[] { 147, 264, 275 });
+
+		// packages.setText("Koetje boe");
 		gd = new GridData();
 
 		TabItem tbtmSettings = new TabItem(moddetails, SWT.NONE);
@@ -451,16 +418,16 @@ public class GUIBuilder implements Observer, ControlListener
 		optionsWrapper.setLayoutData(gd);
 
 		composite_7 = new Composite(optionsWrapper, SWT.BORDER);
-		composite_7.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-		composite_7.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		composite_7.setForeground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+		composite_7.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 
 		composite_7.setLayout(new GridLayout(1, true));
 		Mod selectedMod = ModsBookkeeper.getInstance().getSelectedMod();
-		if (selectedMod != null)
-		{
+		if (selectedMod != null) {
 			HashMap<String, Option> options = selectedMod.getOptions();
-			for (Option s : options.values())
-			{
+			for (Option s : options.values()) {
 				new OptionsComposite(composite_7, SWT.NONE, s, selectedMod,
 						this);
 			}
@@ -471,6 +438,7 @@ public class GUIBuilder implements Observer, ControlListener
 				SWT.DEFAULT));
 
 		Composite pointsComp = new Composite(wrapper3, SWT.NONE);
+		pointsComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		GridLayout gl_pointsComp = new GridLayout(3, false);
 		gl_pointsComp.horizontalSpacing = 0;
 		gl_pointsComp.marginHeight = 0;
@@ -538,331 +506,392 @@ public class GUIBuilder implements Observer, ControlListener
 		btnDefaults.setText("Defaults");
 		btnDefaults
 				.addMouseListener(new DefaultMouseListener(this, composite_7));
-		
+		sash.setWeights(new int[] { 1, 1 });
+
 		TabItem tbtmConfiguration_1 = new TabItem(tabFolder, SWT.NONE);
 		tbtmConfiguration_1.setText("Configuration");
-		
+
 		Composite composite_9 = new Composite(tabFolder, SWT.NONE);
+		composite_9.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		tbtmConfiguration_1.setControl(composite_9);
 		composite_9.setLayout(new GridLayout(1, false));
-		
+
 		Composite composite_8 = new Composite(composite_9, SWT.BORDER);
-		composite_8.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+		composite_8.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
+				true, 1, 1));
 		composite_8.setLayout(new GridLayout(3, true));
-		
+
 		ConfigListener cl = new ConfigListener(this);
-		
-		
+
 		Label lblNewLabel_3 = new Label(composite_8, SWT.NONE);
-		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+				false, 1, 1));
 		lblNewLabel_3.setText("SSH host port");
-		
+
 		text_4 = new Text(composite_8, SWT.BORDER);
 		text_4.setText("5");
-		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+				1));
 		text_4.setData("SSH host port");
 		text_4.addFocusListener(cl);
-		textMap.put((String)text_4.getData(), text_4);
-		
+		textMap.put((String) text_4.getData(), text_4);
+
 		Button btnDefault = new Button(composite_8, SWT.NONE);
-		btnDefault.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault.setText("Default");
 		btnDefault.setData("SSH host port");
 		btnDefault.addMouseListener(cl);
-		
+
 		Label lblSshGuestPort = new Label(composite_8, SWT.NONE);
-		lblSshGuestPort.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblSshGuestPort.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+				false, 1, 1));
 		lblSshGuestPort.setText("SSH guest port");
-		
+
 		text_5 = new Text(composite_8, SWT.BORDER);
 		text_5.setText("6");
-		text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+				1));
 		text_5.setData("SSH guest port");
 		text_5.addFocusListener(cl);
-		textMap.put((String)text_5.getData(), text_5);
-		
+		textMap.put((String) text_5.getData(), text_5);
+
 		Button btnDefault_1 = new Button(composite_8, SWT.NONE);
-		btnDefault_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_1.setText("Default");
 		btnDefault_1.setData("SSH guest port");
 		btnDefault_1.addMouseListener(cl);
-		
+
 		Label lblVmLogPath = new Label(composite_8, SWT.NONE);
-		lblVmLogPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblVmLogPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+				false, 1, 1));
 		lblVmLogPath.setText("VM log path");
-		
+
 		text_6 = new Text(composite_8, SWT.BORDER);
 		text_6.setText("7");
-		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+				1));
 		text_6.setData("VM log path");
 		text_6.addFocusListener(cl);
-		textMap.put((String)text_6.getData(), text_6);
-		
+		textMap.put((String) text_6.getData(), text_6);
+
 		Button btnDefault_2 = new Button(composite_8, SWT.NONE);
-		btnDefault_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_2.setText("Default");
 		btnDefault_2.setData("VM log path");
 		btnDefault_2.addMouseListener(cl);
-		
+
 		Label lblSshPassword = new Label(composite_8, SWT.NONE);
-		lblSshPassword.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblSshPassword.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+				false, 1, 1));
 		lblSshPassword.setText("SSH password");
-		
+
 		text_7 = new Text(composite_8, SWT.BORDER);
 		text_7.setText("8");
-		text_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+				1));
 		text_7.setData("SSH password");
 		text_7.addFocusListener(cl);
-		textMap.put((String)text_7.getData(), text_7);
-		
+		textMap.put((String) text_7.getData(), text_7);
+
 		Button btnDefault_3 = new Button(composite_8, SWT.NONE);
-		btnDefault_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_3.setText("Default");
 		btnDefault_3.setData("SSH password");
 		btnDefault_3.addMouseListener(cl);
-		
+
 		Label lblSshUsername = new Label(composite_8, SWT.NONE);
-		lblSshUsername.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblSshUsername.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+				false, 1, 1));
 		lblSshUsername.setText("SSH username");
-		
+
 		text_8 = new Text(composite_8, SWT.BORDER);
 		text_8.setText("9");
-		text_8.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_8.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+				1));
 		text_8.setData("SSH username");
 		text_8.addFocusListener(cl);
-		textMap.put((String)text_8.getData(), text_8);
-		
+		textMap.put((String) text_8.getData(), text_8);
+
 		Button btnDefault_4 = new Button(composite_8, SWT.NONE);
-		btnDefault_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_4.setText("Default");
 		btnDefault_4.setData("SSH username");
 		btnDefault_4.addMouseListener(cl);
-		
+
 		Label lblVmPath = new Label(composite_8, SWT.NONE);
-		lblVmPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblVmPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+				false, 1, 1));
 		lblVmPath.setText("VM path");
-		
+
 		text_9 = new Text(composite_8, SWT.BORDER);
 		text_9.setText("10");
-		text_9.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_9.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+				1));
 		text_9.setData("VM path");
 		text_9.addFocusListener(cl);
-		textMap.put((String)text_9.getData(), text_9);
-		
+		textMap.put((String) text_9.getData(), text_9);
+
 		Button btnDefault_5 = new Button(composite_8, SWT.NONE);
-		btnDefault_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_5.setText("Default");
 		btnDefault_5.setData("VM path");
 		btnDefault_5.addMouseListener(cl);
-		
+
 		Label lblVmExportPath = new Label(composite_8, SWT.NONE);
-		lblVmExportPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblVmExportPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+				false, 1, 1));
 		lblVmExportPath.setText("VM export path");
-		
+
 		text_10 = new Text(composite_8, SWT.BORDER);
 		text_10.setText("11");
-		text_10.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_10.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_10.setData("VM export path");
 		text_10.addFocusListener(cl);
-		textMap.put((String)text_10.getData(), text_10);
-		
+		textMap.put((String) text_10.getData(), text_10);
+
 		Button btnDefault_6 = new Button(composite_8, SWT.NONE);
-		btnDefault_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_6.setText("Default");
 		btnDefault_6.setData("VM export path");
 		btnDefault_6.addMouseListener(cl);
-		
+
 		Label lblModulePath = new Label(composite_8, SWT.NONE);
-		lblModulePath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblModulePath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+				false, 1, 1));
 		lblModulePath.setText("Module path");
-		
+
 		text_11 = new Text(composite_8, SWT.BORDER);
 		text_11.setText("12");
-		text_11.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_11.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_11.setData("Module path");
 		text_11.addFocusListener(cl);
-		textMap.put((String)text_11.getData(), text_11);
-		
+		textMap.put((String) text_11.getData(), text_11);
+
 		Button btnDefault_7 = new Button(composite_8, SWT.NONE);
-		btnDefault_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_7.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_7.setText("Default");
 		btnDefault_7.setData("Module path");
 		btnDefault_7.addMouseListener(cl);
-		
+
 		Label lblVirtualboxPath = new Label(composite_8, SWT.NONE);
-		lblVirtualboxPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblVirtualboxPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+				true, false, 1, 1));
 		lblVirtualboxPath.setText("Virtualbox path");
-		
+
 		text_12 = new Text(composite_8, SWT.BORDER);
 		text_12.setText("13");
-		text_12.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_12.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_12.setData("Virtualbox path");
 		text_12.addFocusListener(cl);
-		textMap.put((String)text_12.getData(), text_12);
-		
+		textMap.put((String) text_12.getData(), text_12);
+
 		Button btnDefault_8 = new Button(composite_8, SWT.NONE);
-		btnDefault_8.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_8.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_8.setText("Default");
 		btnDefault_8.setData("Virtualbox path");
 		btnDefault_8.addMouseListener(cl);
-		
+
 		Label lblPropertyPath = new Label(composite_8, SWT.NONE);
-		lblPropertyPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblPropertyPath.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+				false, 1, 1));
 		lblPropertyPath.setText("Property path");
-		
+
 		text_13 = new Text(composite_8, SWT.BORDER);
 		text_13.setText("14");
-		text_13.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_13.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_13.setData("Property path");
 		text_13.addFocusListener(cl);
-		textMap.put((String)text_13.getData(), text_13);
-		
+		textMap.put((String) text_13.getData(), text_13);
+
 		Button btnDefault_9 = new Button(composite_8, SWT.NONE);
-		btnDefault_9.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_9.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_9.setText("Default");
 		btnDefault_9.setData("Property path");
 		btnDefault_9.addMouseListener(cl);
-		
+
 		Label lblExternalModuleDirectory = new Label(composite_8, SWT.NONE);
-		lblExternalModuleDirectory.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblExternalModuleDirectory.setLayoutData(new GridData(SWT.RIGHT,
+				SWT.CENTER, true, false, 1, 1));
 		lblExternalModuleDirectory.setText("External module directory");
-		
+
 		text_14 = new Text(composite_8, SWT.BORDER);
 		text_14.setText("15");
-		text_14.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_14.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_14.setData("External module directory");
 		text_14.addFocusListener(cl);
-		textMap.put((String)text_14.getData(), text_14);
-		
+		textMap.put((String) text_14.getData(), text_14);
+
 		Button btnDefault_10 = new Button(composite_8, SWT.NONE);
-		btnDefault_10.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_10.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_10.setText("Default");
 		btnDefault_10.setData("External module directory");
 		btnDefault_10.addMouseListener(cl);
-		
+
 		Label lblExternalScriptDirectory = new Label(composite_8, SWT.NONE);
-		lblExternalScriptDirectory.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblExternalScriptDirectory.setLayoutData(new GridData(SWT.RIGHT,
+				SWT.CENTER, true, false, 1, 1));
 		lblExternalScriptDirectory.setText("External script directory");
-		
+
 		text_15 = new Text(composite_8, SWT.BORDER);
 		text_15.setText("16");
-		text_15.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_15.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_15.setData("External script directory");
 		text_15.addFocusListener(cl);
-		textMap.put((String)text_15.getData(), text_15);
-		
+		textMap.put((String) text_15.getData(), text_15);
+
 		Button btnDefault_11 = new Button(composite_8, SWT.NONE);
-		btnDefault_11.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_11.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_11.setText("Default");
 		btnDefault_11.setData("External script directory");
 		btnDefault_11.addMouseListener(cl);
-		
+
 		Label lblCallbackPort = new Label(composite_8, SWT.NONE);
-		lblCallbackPort.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblCallbackPort.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+				false, 1, 1));
 		lblCallbackPort.setText("Callback port");
-		
+
 		text_16 = new Text(composite_8, SWT.BORDER);
 		text_16.setText("17");
-		text_16.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_16.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_16.setData("Callback port");
 		text_16.addFocusListener(cl);
-		textMap.put((String)text_16.getData(), text_16);
-		
+		textMap.put((String) text_16.getData(), text_16);
+
 		Button btnDefault_12 = new Button(composite_8, SWT.NONE);
-		btnDefault_12.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_12.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_12.setText("Default");
 		btnDefault_12.setData("Callback port");
 		btnDefault_12.addMouseListener(cl);
-		
+
 		Label lblExternalDeployDirectory = new Label(composite_8, SWT.NONE);
-		lblExternalDeployDirectory.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblExternalDeployDirectory.setLayoutData(new GridData(SWT.RIGHT,
+				SWT.CENTER, true, false, 1, 1));
 		lblExternalDeployDirectory.setText("External deploy directory");
-		
+
 		text_17 = new Text(composite_8, SWT.BORDER);
 		text_17.setText("18");
-		text_17.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_17.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_17.setData("External deploy directory");
 		text_17.addFocusListener(cl);
-		textMap.put((String)text_17.getData(), text_17);
-		
+		textMap.put((String) text_17.getData(), text_17);
+
 		Button btnDefault_13 = new Button(composite_8, SWT.NONE);
-		btnDefault_13.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_13.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_13.setText("Default");
 		btnDefault_13.setData("External deploy directory");
 		btnDefault_13.addMouseListener(cl);
-		
+
 		Label lblOutputDirectory = new Label(composite_8, SWT.NONE);
-		lblOutputDirectory.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblOutputDirectory.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+				true, false, 1, 1));
 		lblOutputDirectory.setText("Output directory");
-		
+
 		text_18 = new Text(composite_8, SWT.BORDER);
 		text_18.setText("19");
-		text_18.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_18.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_18.setData("Output directory");
 		text_18.addFocusListener(cl);
-		textMap.put((String)text_18.getData(), text_18);
-		
+		textMap.put((String) text_18.getData(), text_18);
+
 		Button btnDefault_14 = new Button(composite_8, SWT.NONE);
-		btnDefault_14.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_14.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_14.setText("Default");
 		btnDefault_14.setData("Output directory");
 		btnDefault_14.addMouseListener(cl);
-		
+
 		Label lblTempDirectory = new Label(composite_8, SWT.NONE);
-		lblTempDirectory.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblTempDirectory.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+				true, false, 1, 1));
 		lblTempDirectory.setText("Temp directory");
-		
+
 		text_19 = new Text(composite_8, SWT.BORDER);
 		text_19.setText("20");
-		text_19.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_19.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_19.setData("Temp directory");
 		text_19.addFocusListener(cl);
-		textMap.put((String)text_19.getData(), text_19);
-		
+		textMap.put((String) text_19.getData(), text_19);
+
 		Button btnDefault_15 = new Button(composite_8, SWT.NONE);
-		btnDefault_15.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_15.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_15.setText("Default");
 		btnDefault_15.setData("Temp directory");
 		btnDefault_15.addMouseListener(cl);
-		
+
 		Label lblKnownHostsFile = new Label(composite_8, SWT.NONE);
-		lblKnownHostsFile.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		lblKnownHostsFile.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
+				true, false, 1, 1));
 		lblKnownHostsFile.setText("Known hosts file");
-		
+
 		text_20 = new Text(composite_8, SWT.BORDER);
 		text_20.setText("21");
-		text_20.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		text_20.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				1, 1));
 		text_20.setData("Known hosts file");
 		text_20.addFocusListener(cl);
-		textMap.put((String)text_20.getData(), text_20);
-		
+		textMap.put((String) text_20.getData(), text_20);
+
 		Button btnDefault_16 = new Button(composite_8, SWT.NONE);
-		btnDefault_16.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnDefault_16.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
 		btnDefault_16.setText("Default");
 		btnDefault_16.setData("Known hosts file");
 		btnDefault_16.addMouseListener(cl);
-		
+
 		Button btnDefaults_1 = new Button(composite_8, SWT.NONE);
-		btnDefaults_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
+		btnDefaults_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 3, 1));
 		btnDefaults_1.setText("Defaults");
 		btnDefaults_1.setData("Defaults");
 		btnDefaults_1.addMouseListener(cl);
-		
-		for(String key : textMap.keySet()){
+
+		for (String key : textMap.keySet()) {
 			this.updateConfig(key);
 		}
 
 		TabItem tbtmVmGeneration = new TabItem(tabFolder, SWT.NONE);
 		tbtmVmGeneration.setText("VM Generation");
 
-		Composite composite = new Composite(tabFolder, SWT.NONE);
-		composite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
-		tbtmVmGeneration.setControl(composite);
-		composite.setLayout(new GridLayout(1, false));
+		SashForm sashForm_2 = new SashForm(tabFolder, SWT.NONE);
+		sashForm_2.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
+		tbtmVmGeneration.setControl(sashForm_2);
+		sashForm_2.setSashWidth(2);
+		sashForm_2.setOrientation(SWT.VERTICAL);
 
-		Composite composite_4 = new Composite(composite, SWT.NONE);
-		composite_4.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true,
+		Composite composite_14 = new Composite(sashForm_2, SWT.NONE);
+		composite_14.setLayout(new GridLayout(1, false));
+
+		Composite composite_4 = new Composite(composite_14, SWT.NONE);
+		composite_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1));
+		composite_4.setSize(732, 13);
 		GridLayout gl_composite_4 = new GridLayout(3, false);
 		gl_composite_4.horizontalSpacing = 10;
 		gl_composite_4.verticalSpacing = 0;
@@ -883,10 +912,11 @@ public class GUIBuilder implements Observer, ControlListener
 				1, 1));
 		label_3.setText("Overview2");
 
-		Composite composite_1 = new Composite(composite, SWT.NONE);
+		Composite composite_1 = new Composite(composite_14, SWT.NONE);
+		composite_1.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
+				true, 1, 1));
+		composite_1.setSize(296, 222);
 		composite_1.setLayout(new GridLayout(3, false));
-		composite_1.setLayoutData(new GridData(SWT.CENTER, SWT.TOP, true,
-				false, 1, 1));
 
 		Button btnDownload = new Button(composite_1, SWT.NONE);
 		btnDownload.setText("Download");
@@ -900,8 +930,7 @@ public class GUIBuilder implements Observer, ControlListener
 
 		text_1 = new Text(composite_1, SWT.BORDER | SWT.WRAP | SWT.MULTI);
 		text_1.setEnabled(false);
-		text_1
-				.setText("Press the download button to download the default Hazelwire VM.\nYou can also locate a VM on your hard drive, for example if you have already downloaded the default VM. Usage of a non-default VM is not supported and may not work.");
+		text_1.setText("Press the download button to download the default Hazelwire VM.\nYou can also locate a VM on your hard drive, for example if you have already downloaded the default VM. Usage of a non-default VM is not supported and may not work.");
 		GridData gd_text_1 = new GridData(SWT.FILL, SWT.CENTER, false, false,
 				3, 1);
 		gd_text_1.widthHint = 262;
@@ -921,8 +950,13 @@ public class GUIBuilder implements Observer, ControlListener
 				false, 1, 1));
 		btnBrowse.setText("Browse");
 		btnBrowse.addMouseListener(new BrowseMouseListener(text_2));
+		
+		composite_1.layout();
+		
+		Composite composite_15 = new Composite(sashForm_2, SWT.NONE);
+		composite_15.setLayout(new GridLayout(1, false));
 
-		Composite composite_3 = new Composite(composite, SWT.NONE);
+		Composite composite_3 = new Composite(composite_15, SWT.NONE);
 		composite_3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1));
 		GridLayout gl_composite_3 = new GridLayout(3, false);
@@ -947,17 +981,16 @@ public class GUIBuilder implements Observer, ControlListener
 				false, 1, 1));
 		lblOverview_1.setText("Overview2");
 
-		Composite composite_2 = new Composite(composite, SWT.NONE);
-		composite_2.setLayout(new GridLayout(3, false));
-		composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
+		SashForm sashForm_3 = new SashForm(composite_15, SWT.NONE);
+		sashForm_3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
 				1, 1));
+		sashForm_3.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WIDGET_NORMAL_SHADOW));
+		sashForm_3.setSashWidth(2);
+		sashForm_3.setBounds(0, 0, 64, 64);
 
-		Composite composite_5 = new Composite(composite_2, SWT.NONE);
+		Composite composite_5 = new Composite(sashForm_3, SWT.NONE);
 		composite_5.setLayout(new GridLayout(2, false));
-		GridData gd_composite_5 = new GridData(SWT.FILL, SWT.FILL, true, true,
-				1, 2);
-		gd_composite_5.widthHint = 124;
-		composite_5.setLayoutData(gd_composite_5);
 
 		Label lblNewLabel_1 = new Label(composite_5, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
@@ -985,18 +1018,17 @@ public class GUIBuilder implements Observer, ControlListener
 		gd_text_3.widthHint = 100;
 		text_3.setLayoutData(gd_text_3);
 
-		text_output = new Text(composite_5, SWT.BORDER | SWT.READ_ONLY | SWT.WRAP
-				| SWT.MULTI);
-		//text_4.setEnabled(true);
+		text_output = new Text(composite_5, SWT.BORDER | SWT.READ_ONLY
+				| SWT.WRAP | SWT.MULTI);
+		// text_4.setEnabled(true);
 		GridData gd_text_4 = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
-		gd_text_4.widthHint = 426;
+		gd_text_4.widthHint = 300;
 		gd_text_4.heightHint = 266;
 		text_output.setLayoutData(gd_text_4);
 
-		Label lblDerpsep = new Label(composite_2, SWT.SEPARATOR | SWT.VERTICAL);
-		lblDerpsep.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false,
-				false, 1, 2));
-		lblDerpsep.setText("derpsep");
+		Composite composite_2 = new Composite(sashForm_3, SWT.NONE);
+		composite_2.setLayout(new GridLayout(1, false));
+		composite_2.addControlListener(this);
 
 		ScrolledComposite scrolledComposite = new ScrolledComposite(
 				composite_2, SWT.V_SCROLL);
@@ -1019,14 +1051,17 @@ public class GUIBuilder implements Observer, ControlListener
 		lblTotalAmountOf.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1));
 		lblTotalAmountOf.setText("Total amount of points: 0");
+		sashForm_3.setWeights(new int[] { 1, 1 });
 
-		Label label_2 = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
+		Label label_2 = new Label(composite_15, SWT.SEPARATOR | SWT.HORIZONTAL);
 		label_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
 				1, 1));
+		label_2.setSize(899, 2);
 
-		Composite composite_6 = new Composite(composite, SWT.NONE);
+		Composite composite_6 = new Composite(composite_15, SWT.NONE);
 		composite_6.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true,
 				false, 1, 1));
+		composite_6.setSize(260, 23);
 		GridLayout gl_composite_6 = new GridLayout(3, false);
 		gl_composite_6.horizontalSpacing = 10;
 		gl_composite_6.marginWidth = 0;
@@ -1035,11 +1070,12 @@ public class GUIBuilder implements Observer, ControlListener
 		composite_6.setLayout(gl_composite_6);
 
 		Button btnImport = new Button(composite_6, SWT.NONE);
-		btnImport.setText("Import");
+		btnImport.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnImport.setText("Import from XML");
 		btnImport.addMouseListener(new ConfigImportMouseListener(this));
 
 		Button btnGenerate = new Button(composite_6, SWT.NONE);
-		GridData gd_btnGenerate = new GridData(SWT.LEFT, SWT.CENTER, false,
+		GridData gd_btnGenerate = new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1);
 		gd_btnGenerate.widthHint = 70;
 		btnGenerate.setLayoutData(gd_btnGenerate);
@@ -1047,39 +1083,36 @@ public class GUIBuilder implements Observer, ControlListener
 		btnGenerate.addMouseListener(new GenerateListener(this));
 
 		Button btnExport = new Button(composite_6, SWT.NONE);
-		btnExport.setText("Export");
+		btnExport.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		btnExport.setText("Export to XML");
 		btnExport.addMouseListener(new ConfigExportListener(this));
+		sashForm_2.setWeights(new int[] { 150, 200 });
+		
+		composite_6.layout();
 	}
 
 	/*
 	 * Deze methode update de Tree met daarin alle modules geselecteerd op tag
 	 */
-	public void updateTagtree(String search)
-	{
+	public void updateTagtree(String search) {
 		TagTree.updateTagtree(tree, search);
 	}
 
 	/*
 	 * Deze methode update de combobox waar alle challenges instaan
 	 */
-	public void updateCombo(Mod selected)
-	{
+	public void updateCombo(Mod selected) {
 		combo.removeAll();
-		if (selected != null)
-		{
+		if (selected != null) {
 			ArrayList<Challenge> selChals = selected.getChallenges();
-			for (Challenge c : selChals)
-			{
+			for (Challenge c : selChals) {
 				combo.add(c.getIdString());
 			}
-			if (combo.getItemCount() > 0)
-			{
+			if (combo.getItemCount() > 0) {
 				combo.select(0);
 				pl.widgetSelected(null);
 			}
-		}
-		else
-		{
+		} else {
 			pl.widgetSelected(null);
 		}
 
@@ -1088,30 +1121,23 @@ public class GUIBuilder implements Observer, ControlListener
 	/*
 	 * Deze methode update het vlak waarin alle packages staan
 	 */
-	public void updatePackages(Mod selected)
-	{
-		if (selected != null)
-		{
+	public void updatePackages(Mod selected) {
+		if (selected != null) {
 			ArrayList<String> packs = selected.getPackages();
 			String text = "";
-			for (String s : packs)
-			{
+			for (String s : packs) {
 				text += s + "\n";
 			}
 			packages.setText(text);
-		}
-		else
-		{
-			packages
-					.setText("Select a module and the packages associated with it will be displayed here");
+		} else {
+			packages.setText("Select a module and the packages associated with it will be displayed here");
 		}
 	}
 
 	/*
 	 * Deze methode update de lijst met geselecteerde modules
 	 */
-	public void updateModList()
-	{
+	public void updateModList() {
 		canvas.redraw();
 	}
 
@@ -1119,16 +1145,13 @@ public class GUIBuilder implements Observer, ControlListener
 	 * Deze methode update de labels die de totale score bijhouden (op allebei
 	 * de tabs)
 	 */
-	public void updateScoreLabels()
-	{
-		if (label != null)
-		{
+	public void updateScoreLabels() {
+		if (label != null) {
 			label.setText("Total amount of points: "
 					+ ModsBookkeeper.getInstance().getTotalPoints());
 			label.redraw();
 		}
-		if (lblTotalAmountOf != null)
-		{
+		if (lblTotalAmountOf != null) {
 			lblTotalAmountOf.setText("Total amount of points: "
 					+ ModsBookkeeper.getInstance().getTotalPoints());
 			label.redraw();
@@ -1138,34 +1161,32 @@ public class GUIBuilder implements Observer, ControlListener
 	/*
 	 * Deze methode is om de Challenges boom bij te werken.
 	 */
-	public void updateChallengesTree()
-	{
+	public void updateChallengesTree() {
 		ChallengesTree.populateTree(challenges);
 		// Doet populate nog iets anders dan update?
 	}
 
-	public void updateConfig(String key){
-		if(textMap.get(key) != null){
-			textMap.get(key).setText(ModsBookkeeper.getInstance().getConfigFile().getActual(key));
+	public void updateConfig(String key) {
+		if (textMap.get(key) != null) {
+			textMap.get(key)
+					.setText(
+							ModsBookkeeper.getInstance().getConfigFile()
+									.getActual(key));
 		}
 	}
-	
+
 	/*
 	 * Deze methode update het options veld.
 	 */
-	public void updateOptions()
-	{
+	public void updateOptions() {
 		Control[] kids = composite_7.getChildren();
-		for (Control c : kids)
-		{
+		for (Control c : kids) {
 			c.dispose();
 		}
 		Mod selectedMod = ModsBookkeeper.getInstance().getSelectedMod();
-		if (selectedMod != null)
-		{
+		if (selectedMod != null) {
 			HashMap<String, Option> options = selectedMod.getOptions();
-			for (Option o : options.values())
-			{
+			for (Option o : options.values()) {
 				new OptionsComposite(composite_7, SWT.NONE, o, selectedMod,
 						this);
 			}
@@ -1177,27 +1198,22 @@ public class GUIBuilder implements Observer, ControlListener
 	/*
 	 * De update die luistert naar ModsBookkeeper.
 	 */
-	public void update(Observable obs, Object obj)
-	{
+	public void update(Observable obs, Object obj) {
 		updateScoreLabels();
 		int selected = ModsBookkeeper.getInstance().getSelected();
-		if (modName != null)
-		{
-			if (selected != -1)
-			{
-				//FIXME: rare nullpointer als je de laatste in de lijst probeert weg te doen.
-				//FIXME: module verschijnt niet bij dubbelklik
+		if (modName != null) {
+			if (selected != -1) {
+				// FIXME: rare nullpointer als je de laatste in de lijst
+				// probeert weg te doen.
+				// FIXME: module verschijnt niet bij dubbelklik
 				modName.setText("Module: "
-						+ ModsBookkeeper.getInstance().getSelectedMods().get(
-								selected - 1).getName());
-			}
-			else
-			{
+						+ ModsBookkeeper.getInstance().getSelectedMods()
+								.get(selected - 1).getName());
+			} else {
 				modName.setText("No module selected");
 			}
 		}
-		if (combo != null && selected != -1)
-		{
+		if (combo != null && selected != -1) {
 			updateCombo(ModsBookkeeper.getInstance().getSelectedMod());
 		}
 		label.getShell().redraw();
@@ -1206,34 +1222,30 @@ public class GUIBuilder implements Observer, ControlListener
 		updateOptions();
 	}
 
-	public Text getTextOutput()
-	{		
+	public Text getTextOutput() {
 		return text_output;
 	}
 
-	public Display getDisplay()
-	{
+	public Display getDisplay() {
 		return display;
 	}
 
 	@Override
 	public void controlMoved(ControlEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void controlResized(ControlEvent c) {
 		// TODO Auto-generated method stub
-		if(c.getSource() instanceof Shell){
-			((Shell)c.getSource()).layout();
-			((Shell)c.getSource()).redraw();
-		}
-		else if (c.getSource() instanceof Composite){
+		if (c.getSource() instanceof Shell) {
+			((Shell) c.getSource()).layout();
+			((Shell) c.getSource()).redraw();
+		} else if (c.getSource() instanceof Composite) {
 			canvas.redraw();
 			tags.redraw();
 			canvas_1.redraw();
 		}
 	}
-
 }

@@ -78,6 +78,24 @@ public class TagTree implements MouseListener, Observer
 						subItem.setText(m.getName());
 						tree.showItem(subItem);
 					}
+					//Als de beschrijving van een challenge in de module de search
+					//phrase bevat
+					else{
+						TreeItem subItem = null;
+						for(Challenge c : m.getChallenges()){
+							if(c.getDescription().toLowerCase().contains(search.toLowerCase())){
+								if(subItem == null){
+									if(item == null){
+										item = new TreeItem(tree, SWT.NONE);
+										item.setText(t.getName());
+									}
+									subItem = new TreeItem(item, SWT.NONE);
+									subItem.setText(m.getName());
+									tree.showItem(subItem);
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -98,20 +116,23 @@ public class TagTree implements MouseListener, Observer
 			Tree t = ((Tree) m.getSource());
 			t.getSelection();
 			TreeItem ti = t.getItem(new Point(m.x, m.y));
-			//for (TreeItem ti : t.getSelection())
-			//{
 				if (ti != null && ti.getItemCount() == 0 &&!ModsBookkeeper.getInstance().isSelected(ti.getText()))
 				{
 					ModsBookkeeper.getInstance().selectModule(ti.getText());
 					ModsBookkeeper.getInstance().setSelected(ModsBookkeeper.getInstance().getSelectedMods().size());
 				}
-				else if(ti != null)
+				else if(ti != null && ti.getItemCount()== 0)
 				{
 					ModsBookkeeper.getInstance().setSelected(-1);
 					ModsBookkeeper.getInstance().deselectModule(ti.getText());
 				}
-			//}
-			System.out.println("ti: "+ti);
+				else if(ti != null){
+					String osName = System.getProperty("os.name");
+					//TODO: meer? Also: let someone check this.
+					if(osName.toLowerCase().contains("linux") || osName.toLowerCase().contains("mac os")){
+						ti.setExpanded(!ti.getExpanded());
+					}
+				}
 		}
 
 	}
