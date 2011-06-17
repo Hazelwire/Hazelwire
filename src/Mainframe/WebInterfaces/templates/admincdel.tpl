@@ -25,7 +25,7 @@
 					<div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px red;">{$error->getMessage()}</div>
 					{/foreach}{/if}
 					{if isset($cdelsuccess) && $cdelsuccess == "1"}
-					<div style="background: none repeat scroll 0pt 0pt rgb(170, 255, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px rgb(0, 255, 0)">Contestant deleted!</div>
+					<div style="background: none repeat scroll 0pt 0pt rgb(170, 255, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px rgb(0, 255, 0)">Contestant deleted! {if $num_errors >0}(But with errors.){/if}</div>
 					{/if}
 					</div>
 				{/if}

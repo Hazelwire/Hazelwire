@@ -160,6 +160,8 @@ class WebInterface {
                           'link', array ('listitem', 'block', 'inline'), array ());
         $bbcode->addCode ('color', 'callback_replace', 'do_bbcode_color', array (),
                           'inline', array ('listitem', 'block', 'inline','link'), array ());
+        $bbcode->addCode ('size', 'callback_replace', 'do_bbcode_size', array (),
+                          'inline', array ('listitem', 'block', 'inline','link'), array ());
         $bbcode->addCode ('img', 'usecontent', 'do_bbcode_img', array (),
                           'image', array ('listitem', 'block', 'inline', 'link'), array ());
         $bbcode->addCode ('list', 'simple_replace', null, array ('start_tag' => '<ul>', 'end_tag' => '</ul>'),

@@ -9,6 +9,13 @@ class AdminInterface extends WebInterface {
 
     private $state;
     private $created_db = false;
+    private $cadd_success = false;
+    private $cedit_success = false;
+    private $cban_success = false;
+    private $cdel_success = false;
+
+    private $startvpn_success = false;
+    private $endgame_success = false;
 
     public function show() {
         $smarty = &$this->getSmarty();
@@ -43,7 +50,7 @@ class AdminInterface extends WebInterface {
             }
             return $smarty->fetch("config.tpl");
 
-        } elseif ($this->getCurrentState() == POSTGAME) {
+        } elseif ($this->getCurrentState() == POSTGAME && !$this->endgame_success) {
             return $smarty->fetch("game_end.tpl");
         } else {
             $db = &$this->database;
@@ -74,7 +81,7 @@ class AdminInterface extends WebInterface {
                 $smarty->assign("allow_startvpn",!$allow_startvpn);
                 $smarty->assign("allow_stopvpn",$allow_startvpn);
                 $smarty->assign("allow_endgame",$this->getCurrentState() == GAMEINPROGRESS);
-                $smarty->assign("allow_start",$this->getCurrentState() == PREGAMESTART);
+                $smarty->assign("allow_startgame",$this->getCurrentState() == PREGAMESTART);
 
                 $q  = $db->query("SELECT * FROM announcements");
                 $announcements = array();
@@ -90,7 +97,7 @@ class AdminInterface extends WebInterface {
                 return $smarty->fetch("admin.tpl");
             } else if(startsWith ($_GET['aaction'],"cadd")){
                 if (isset($_POST['cadd']) && strtolower($_POST['cadd']) == 'add'){
-                    if(count($this->errors) == 0){
+                    if($this->cadd_success){
                         $smarty->assign("caddsuccess","1");
                     }
 
@@ -106,7 +113,7 @@ class AdminInterface extends WebInterface {
                         $c = Contestant::getById($_POST['cid'], $db);
                     if($c != false)
                         $smarty->assign("contestant",$c);
-                    if(count($this->errors) == 0){
+                    if($this->cedit_success){
                         $smarty->assign("ceditsuccess","1");
                     }
                 } else if(isset($_POST['contestant'])){
@@ -134,7 +141,7 @@ class AdminInterface extends WebInterface {
                 	$c = Contestant::getById($_POST['cid'], $this->database);
                 $smarty->assign("contestant",$c);
                 if (isset($_POST['cid'])){
-                    if(count($this->errors) == 0){
+                    if($this->cban_success){
                         $smarty->assign("cbansuccess","1");
                     }
                 }
@@ -145,7 +152,7 @@ class AdminInterface extends WebInterface {
                 	$c = Contestant::getById(intval($_POST['cid']), $this->database);
                 $smarty->assign("contestant",$c);
                 if (isset($_POST['cid'])){
-                    if(count($this->errors) == 0){
+                    if($this->cdel_success){
                         $smarty->assign("cdelsuccess","1");
                     }
                 }
@@ -201,8 +208,9 @@ class AdminInterface extends WebInterface {
                 }
                 $smarty->assign("announcement",$announcement);
                 return $smarty->fetch("adminadel.tpl");
+
             }else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"startvpn")==0){
-                if(count($this->errors) == 0){
+                if($this->startvpn_success){
                     $string = "VPN servers started.<br />".PHP_EOL."<pre style=\"font-size:1.1em;\">Status:".PHP_EOL;
 
                     foreach ($this->contestant_list as $c){
@@ -414,9 +422,9 @@ class AdminInterface extends WebInterface {
         * Create a VPN config file and a Client Config Dir.
         * Create keys and a CA / DH if necessary (i.e. if this is the first)
         */
-
+        $this->cadd_success = false;
         $db = &$this->database;
-
+        $smarty = &$this->getSmarty();
         /* @var $result PDOStatement */
         $result = $db->query("SELECT COUNT(*) FROM teams");
         $num_teams = $result->fetchColumn();
@@ -441,11 +449,11 @@ class AdminInterface extends WebInterface {
 
             foreach($result as $res){
                 if($_POST['cname'] == $res['name'])
-                    $this->handleError(new Error("team_input_error", "Duplicate name much!", false));
+                    $this->handleError(new Error("team_input_error", "Duplicate name!", false));
                 elseif($subnet == $res['subnet'])
-                    $this->handleError(new Error("team_input_error", "Duplicate subnet much!", false));
+                    $this->handleError(new Error("team_input_error", "Duplicate subnet!", false));
                 elseif($vmip == $res['VMip'])
-                    $this->handleError(new Error("team_input_error", "Duplicate server ip much!", false));
+                    $this->handleError(new Error("team_input_error", "Duplicate server ip!", false));
             }
 
             //check for errors and return
@@ -521,7 +529,9 @@ class AdminInterface extends WebInterface {
                     OpenVPNManager::startVPN($c);
                 }
             }
+            $this->cadd_success = true;
         }
+        
 
     }
 
@@ -534,8 +544,9 @@ class AdminInterface extends WebInterface {
             $this->handleError(new Error("illegal_action", "You're not allowed to edit contestants during this stage of the wargame.", false));
             return;
         }
-
+        $this->cedit_success = false;
         $db = &$this->database;
+        $smarty = &$this->getSmarty();
         //return;
 
         $c = Contestant::getById($_POST['cid'], $db);
@@ -570,11 +581,11 @@ class AdminInterface extends WebInterface {
 
             foreach($result as $res){
                 if($_POST['cname'] == $res['name'])
-                    $this->handleError(new Error("team_input_error", "Duplicate name much!", false));
+                    $this->handleError(new Error("team_input_error", "Duplicate name!", false));
                 elseif($subnet == $res['subnet'])
-                    $this->handleError(new Error("team_input_error", "Duplicate subnet much!", false));
+                    $this->handleError(new Error("team_input_error", "Duplicate subnet!", false));
                 elseif($vmip == $res['VMip'])
-                    $this->handleError(new Error("team_input_error", "Duplicate server ip much!", false));
+                    $this->handleError(new Error("team_input_error", "Duplicate server ip!", false));
             }
 
             //check for errors and return
@@ -593,12 +604,16 @@ class AdminInterface extends WebInterface {
 
                 $this->createVPNServerConf($c);
 
-                OpenVPNManager::diconnectVPN($c);
-                OpenVPNManager::stopVPN($c);
-                sleep(5);
+                if(OpenVPNManager::getVPNStatus($c)){
+                    OpenVPNManager::diconnectVPN($c);
+                    OpenVPNManager::stopVPN($c);
+                    sleep(5);
+                }
                 OpenVPNManager::startVPN($c);
             }
+            $this->cedit_success = true;
         }
+        
     }
 
     public function banContestant(){
@@ -606,6 +621,7 @@ class AdminInterface extends WebInterface {
             $this->handleError(new Error("illegal_action", "You're not allowed to add contestants during this stage of the wargame.", false));
             return;
         }
+        $this->cban_success = false;
 
         if(isset($_POST['cid']) && intval($_POST['cid']) != 0){
             $time = $_POST['cbantime'];
@@ -624,7 +640,8 @@ class AdminInterface extends WebInterface {
             if($time == 0){
                 $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
                 $q->execute(array(intval($id)));
-                OpenVPNManager::diconnectVPN($c);
+                if(OpenVPNManager::getVPNStatus($c))
+                    OpenVPNManager::diconnectVPN($c);
                 return;
             }
 
@@ -651,9 +668,11 @@ class AdminInterface extends WebInterface {
             fwrite($handle, $config_file_data);
             fclose($handle);
 
-            OpenVPNManager::diconnectVPN($c);
-            OpenVPNManager::stopVPN($c);
-            sleep(5);
+            if(OpenVPNManager::getVPNStatus($c)){
+                OpenVPNManager::diconnectVPN($c);
+                OpenVPNManager::stopVPN($c);
+                sleep(5);
+            }
             OpenVPNManager::startVPN($c);
 
             $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
@@ -665,8 +684,10 @@ class AdminInterface extends WebInterface {
                 $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
                 $q->execute(array(intval($id),-1,"Pwned",0));
             }
-
+            
+            $this->cban_success = true;
         }
+        
     }
 
     public function deleteContestant(){
@@ -680,6 +701,7 @@ class AdminInterface extends WebInterface {
              * nor can the OpenVPN server be started for that team making sure that it's not an unwanted backdoor.
              */
 
+            $this->cdel_success = false;
             $db =& $this->database; /* @var $db PDO */
             $c = Contestant::getById(intval($_POST['cid']), $db);
             if($c == false){
@@ -687,9 +709,11 @@ class AdminInterface extends WebInterface {
                 return;
             }
 
-            OpenVPNManager::diconnectVPN($c);
-            OpenVPNManager::stopVPN($c);
-            sleep(3);
+            if(OpenVPNManager::getVPNStatus($c)){
+                OpenVPNManager::diconnectVPN($c);
+                OpenVPNManager::stopVPN($c);
+                sleep(3);
+            }
 
             if(!deleteAll($this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId())){
                 $this->handleError(new Error("cdell_error", "(#1) Could not properly delete files asscociated with this contestant.", false));
@@ -702,7 +726,7 @@ class AdminInterface extends WebInterface {
             $q = $db->prepare("DELETE FROM teams WHERE id = ?");
             $q->execute(array($c->getId()));
 
-
+            $this->cdel_success = true;
         }
     }
 
@@ -773,6 +797,7 @@ class AdminInterface extends WebInterface {
             $this->handleError(new Error("illegal_action", "You can't start the VPNs in this stage.", false));
             return;
         }
+        $this->startvpn_success = false;
 
         foreach ($this->contestant_list as $c){
             if(!OpenVPNManager::getVPNStatus($c))
@@ -782,6 +807,8 @@ class AdminInterface extends WebInterface {
             OpenVPNManager::startBaseVPN();
         if($state == PREVPN)
             $this->setState(PREGAMESTART);
+        sleep(3);
+        $this->startvpn_success = true;
     }
 
     public function stopVPN(){
@@ -821,6 +848,7 @@ class AdminInterface extends WebInterface {
             $this->handleError(new Error("illegal_action", "You can't stop a wargame which is not in progress.", false));
             return;
         }
+        $this->endgame_success = false;
 
         OpenVPNManager::setKernelRouting(false);
 
@@ -847,6 +875,7 @@ class AdminInterface extends WebInterface {
         }
 
         $this->setState(POSTGAME);
+        $this->endgame_success = true;
     }
     /**
      *
@@ -873,7 +902,6 @@ class AdminInterface extends WebInterface {
         fwrite($handle, $config_file_data);
         fclose($handle);
     }
-
 }
 
 ?>

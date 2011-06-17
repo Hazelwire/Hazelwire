@@ -63,11 +63,16 @@ $(document).ready(function(){
          * @type jqXHR
          */
         function ajaxReq(location, expectedAnswer){
+            
             return $.ajax({
                 url: location,
                 type: 'POST',
                 dataType: 'json',
                 success: function(data) {
+                    var height = 0;
+                    if($('#response').length > 0){
+                        height = $('#response').outerHeight();
+                    }
                     $('#response').remove();
                     if(data == null){
                         $('#gamebuttons .content').prepend('<div id="response" style="display:none; position: absolute; left: 25%; right: 25%;height:auto;"><div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); padding: 3px; border: 1px solid red; text-align: center; position: relative; margin-left: auto; margin-right: auto; min-width: 30em; margin-bottom: 3px;">An error ocurred while trying to perfom the specief action.</div></div>');
@@ -79,10 +84,10 @@ $(document).ready(function(){
                         }
                     }
 
-                    $('#gamebuttons').animate({heigth: ($('#gamebuttons').height()+8+$('#response').outerHeight())+'px'});
+                    $('#gamebuttons').animate({height: ($('#gamebuttons').height()+8+$('#response').outerHeight()- height)+'px'});
                     var pos = $('#contestants').position();
-                    $('#contestants').animate({top: (pos.top +8+$('#response').outerHeight())+'px'});
-                    $('#announcements').animate({top: (pos.top +8+$('#response').outerHeight())+'px'});
+                    $('#contestants').animate({top: (pos.top +8+$('#response').outerHeight()- height)+'px'});
+                    $('#announcements').animate({top: (pos.top +8+$('#response').outerHeight()-height)+'px'});
                     $('#response').slideDown();
 
                     timeout = setTimeout(function(){
@@ -91,15 +96,20 @@ $(document).ready(function(){
                         $('#contestants').delay(1000).animate({top: '3.5em'});
                         $('#announcements').delay(1000).animate({top: '3.5em'});
                     },15000);
+                    
                 },
                 error: function() {
+                    var height = 0;
+                    if($('#response').length > 0){
+                        height = $('#response').outerHeight();
+                    }
                     $('#response').remove();
                     $('#gamebuttons .content').prepend('<div id="response" style="display:none; position: absolute; left: 25%; right: 25%;height:auto;"><div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); padding: 3px; border: 1px solid red; text-align: center; position: relative; margin-left: auto; margin-right: auto; min-width: 30em; margin-bottom: 3px;">An error ocurred while trying to perfom the specief action.</div></div>');
 
-                    $('#gamebuttons').animate({heigth: ($('#gamebuttons').height()+8+$('#response').outerHeight())+'px'});
+                    $('#gamebuttons').animate({height: ($('#gamebuttons').height()+8+$('#response').outerHeight()-height)+'px'});
                     var pos = $('#contestants').position();
-                    $('#contestants').animate({top: (pos.top +8+$('#response').outerHeight())+'px'});
-                    $('#announcements').animate({top: (pos.top +8+$('#response').outerHeight())+'px'});
+                    $('#contestants').animate({top: (pos.top +8+$('#response').outerHeight()-height)+'px'});
+                    $('#announcements').animate({top: (pos.top +8+$('#response').outerHeight()-height)+'px'});
                     $('#response').slideDown();
 
                     timeout = setTimeout(function(){
@@ -108,6 +118,7 @@ $(document).ready(function(){
                         $('#contestants').delay(1000).animate({top: '3.5em'});
                         $('#announcements').delay(1000).animate({top: '3.5em'});
                     },15000);
+                    
                 }
             });
         }

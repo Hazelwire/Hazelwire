@@ -132,6 +132,14 @@ function bbcode_stripcontents ($text) {
     return preg_replace ("/[^\n]/", '', $text);
 }
 
+function do_bbcode_size ($action, $attributes, $content, $params, $node_object) {
+    if ($action == 'validate') {
+        return isset($attributes['default']) && preg_match('/(^xx-small|x-small|small|medium|large|x-large|xx-large$)|^([0-9]*\.)?[0-9]+(px|em|pt|%)$/', $attributes['default']);
+    }
+
+    return '<span style="font-size:'.$attributes['default'].';">'.$content.'</span>';
+}
+
 function do_bbcode_color ($action, $attributes, $content, $params, $node_object) {
     if (!isset ($attributes['default'])) {
         $color = "#000000";
