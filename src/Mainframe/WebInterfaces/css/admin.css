@@ -228,6 +228,25 @@ input[type="radio"]
 	font-weight: bold;
 	color: yellow;
 }
+#contestantinfo label.cextrainfo
+{
+    float: none;
+    text-align: left;
+    background-color: rgb(247, 247, 247);
+    margin-right: 0pt;
+    padding-left: 2.5em;
+}
+#contestantinfo label.cextrainfo.cextralabel
+{
+    float: left;
+    width: 25%;
+}
+#contestantinfo label.cextrainfo.cextradata
+{
+    float: right;
+    text-align: left;
+    width: 70%;
+}
 input[type="radio"]:checked + label
 {
 	background-color: #abf !important;

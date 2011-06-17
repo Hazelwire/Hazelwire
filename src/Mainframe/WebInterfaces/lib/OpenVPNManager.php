@@ -180,6 +180,32 @@ class OpenVPNManager {
             fclose($fp);
         }
     }
+
+    /**
+     *
+     * @global WebInterface $interface
+     * @param Contestant $contestant
+     */
+    public static function getNumConnForContestant(&$contestant){
+        global $interface; /* @var $interface WebInterface */
+        $retval = 0;
+        $config =$interface->getConfig();
+        $fp = @fsockopen("127.0.0.1", $config['management_port_base'] + $contestant->getId(), $errno, $errstr, 5);
+        if(!$fp){
+            $interface->handleError(new Error("vpn_error", "Error #1337: Cannot fetch number of connections to openVPN service! (".$errno.")", false));
+            return false;
+        }else{
+            fwrite($fp, "status\r\n");
+            while(!startsWith(($line = fgets($fp)),"END")){
+                if(startsWith($line, "Team".$contestant->getId())){
+                    $retval++;
+                }
+            }
+            fwrite($fp, "quit\n");
+            fclose($fp);
+            return $retval;
+        }
+    }
     
 }
 

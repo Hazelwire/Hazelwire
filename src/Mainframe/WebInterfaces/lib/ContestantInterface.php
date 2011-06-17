@@ -212,7 +212,7 @@ class ContestantInterface extends WebInterface{
                 return;
         // @TODO check for db_ready.
         if($this->getCurrentState() == GAMEINPROGRESS){
-            $interface->unban();
+            $this->unban();
             if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                 if(isset($_POST['sub_flag'])){
                     $now = time(); // take a timestamp.
@@ -269,7 +269,7 @@ class ContestantInterface extends WebInterface{
                             }
                         }else{
                             //fetch old block time
-                            $q = $db->prepare("SELECT * FROM submission_block WHERE team_id = ? AND block_timestamp >= ? ORDER BY try_timestamp DESC LIMIT 0,1");
+                            $q = $db->prepare("SELECT team_id, try_timestamp, block_timestamp as count FROM submission_block WHERE team_id = ? AND block_timestamp >= ? ORDER BY try_timestamp DESC");
                             $q->execute(array($this->contestant->getId(),$now));
                             $res = $q->fetch();
                             if($res != false){
@@ -278,17 +278,22 @@ class ContestantInterface extends WebInterface{
                                 $time_left = $res['block_timestamp'] - $now;
 
                                 // double block time
-                                
-                                $new_block_time = min(array(($time_blocked * 2),3600)) + $now; // @todo make configurable
-                                $q = $db->prepare("INSERT INTO submission_block VALUES (?,?,?)");
-                                $q->execute(array($this->contestant->getId(), $now, $new_block_time));
+                                $q = $db->prepare("SELECT count(*) as count FROM submission_block WHERE team_id = ? AND try_timestamp >= ?"); /* @var $q PDOStatement */
+                                $q->execute(array($this->contestant->getId(), $now - 60 ));
+                                $res = $q->fetch();
+
+                                if($res['count'] >= 9){
+                                    $new_block_time = min(array(($time_blocked * 2),3600)) + $now; // @todo make configurable
+                                    $q = $db->prepare("INSERT INTO submission_block VALUES (?,?,?)");
+                                    $q->execute(array($this->contestant->getId(), $now, $new_block_time));
+                                }
 
                                 $this->handleError(new Error("flag_error", "You are temporarily blocked from submitting flags due to spam! (" . $time_left . "s left)"));
                             }
                         }
                     }
                     
-                     //clear block info that is too long ago now (90 seconds). 
+                     //clear block info that is too long ago now
                     $q = $db->prepare("DELETE FROM submission_block WHERE team_id = ? AND try_timestamp NOT IN (SELECT try_timestamp FROM submission_block WHERE team_id = ? ORDER BY try_timestamp DESC LIMIT 0,10)");
                     $q->execute(array($this->contestant->getId(), $this->contestant->getId()));
                 }

@@ -121,6 +121,14 @@ class Contestant {
         return OpenVPNManager::getVPNStatus($this);
     }
 
+    /**
+     * Fetches the last n sanity check results for the current Contestant
+     * @param integer $n The number of results to fetch
+     */
+    public function getSanityResults($n){
+        return AdminInterface::getSanityResultsForContestant($n,$this);
+    }
+
     /*
      * GETTERS AND SETTERS
      */
@@ -195,6 +203,14 @@ class Contestant {
 
     public function getSane() {
         return $this->sane;
+    }
+
+    public function getNumVPNConn(){
+        return OpenVPNManager::getNumConnForContestant($this);
+    }
+
+    public function getVPNStatus(){
+        return OpenVPNManager::getVPNStatus($this);
     }
 
 

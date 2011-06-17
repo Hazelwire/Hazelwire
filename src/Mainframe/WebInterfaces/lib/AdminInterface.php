@@ -312,7 +312,8 @@ class AdminInterface extends WebInterface {
 
         //Assuming everything went OK, we are now in the PRECONFIG state
         //Going to do the actual work
-
+        if($this->getCurrentState() == GAMEINPROGRESS)
+                $this->unban();
         if($_SERVER['REQUEST_METHOD'] == "POST"){
             if(isset($_POST['configsubmit'])){
                  $this->configure();
@@ -901,6 +902,42 @@ class AdminInterface extends WebInterface {
         }
         fwrite($handle, $config_file_data);
         fclose($handle);
+    }
+
+    /**
+     * Fetches the last n Sanity Check results for the given Contestant
+     * @param Integer $n
+     * @param Contestant $c
+     * @global WebInterface interface
+     */
+    public static function getSanityResultsForContestant($n,&$c){
+        global $interface;
+
+        $db =& $interface->database;
+        
+        // evil_teams ( ip TEXT, port INTEGER, timestamp INTEGER, reporter TEXT, seen INTEGER);
+        // modules (id INTEGER PRIMARY KEY, name TEXT, numFlags INTEGER, deployscript TEXT, serviceport INTEGER);
+        // teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
+        $q = $db->prepare("SELECT et.port as port, et.timestamp as timestamp, m.name as modulename, ifnull(t.name,'System') as reporter
+                            FROM evil_teams et
+                            INNER JOIN modules m ON et.port = m.serviceport
+                            LEFT OUTER JOIN teams t ON et.reporter = t.VMip
+                            WHERE et.ip = ?
+                            ORDER BY et.timestamp DESC");
+        $q->execute(array($c->getVm_ip()));
+
+        $retval = array();
+        while($n>0){
+            $res = $q->fetch();
+            $sanres = new stdClass();
+            $sanres->port = $res['port'];
+            $sanres->service = $res['modulename'];
+            $sanres->timestamp = $res['timestamp'];
+            $sanres->reporter = $res['reporter'];
+            array_push($retval, $sanres);
+            $n--;
+        }
+        return $retval;
     }
 }
 

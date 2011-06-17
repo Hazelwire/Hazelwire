@@ -17,4 +17,18 @@ $(document).ready(function() {
 			}
 		}
 	}).find("div").hide();
+
+
+        $("ul.centries").click(function(e) {
+		var $target = $(e.target);
+		if( $target.is("label")) {
+			$target.children('.cextrainfo').slideToggle('fast');
+		}
+		else {
+			$target = $target.parent();
+			if( $target.is("label") ) {
+				$target.children('.cextrainfo').slideToggle('fast');
+			}
+		}
+	}).find(".cextrainfo").hide();
 });
