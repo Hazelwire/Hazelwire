@@ -209,11 +209,6 @@ class Contestant {
         return OpenVPNManager::getNumConnForContestant($this);
     }
 
-    public function getVPNStatus(){
-        return OpenVPNManager::getVPNStatus($this);
-    }
-
-
 }
 
 ?>

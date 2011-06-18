@@ -228,21 +228,24 @@ input[type="radio"]
 	font-weight: bold;
 	color: yellow;
 }
-#contestantinfo label.cextrainfo
+#contestantinfo div.cextrainfo
 {
+    position:relative;
     float: none;
     text-align: left;
     background-color: rgb(247, 247, 247);
     margin-right: 0pt;
     padding-left: 2.5em;
 }
-#contestantinfo label.cextrainfo.cextralabel
+#contestantinfo div.cextrainfo .cextralabel
 {
+    position:relative;
     float: left;
     width: 25%;
 }
-#contestantinfo label.cextrainfo.cextradata
+#contestantinfo div.cextrainfo .cextradata
 {
+    position:relative;
     float: right;
     text-align: left;
     width: 70%;

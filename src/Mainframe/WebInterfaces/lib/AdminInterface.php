@@ -927,8 +927,7 @@ class AdminInterface extends WebInterface {
         $q->execute(array($c->getVm_ip()));
 
         $retval = array();
-        while($n>0){
-            $res = $q->fetch();
+        while($n>0 && ($res = $q->fetch())){
             $sanres = new stdClass();
             $sanres->port = $res['port'];
             $sanres->service = $res['modulename'];
