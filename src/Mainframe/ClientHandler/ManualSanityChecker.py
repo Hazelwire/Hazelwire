@@ -1,4 +1,4 @@
-import socket
+import socket, copy
 from DatabaseHandler import DatabaseHandler
 from SanityCheck import checkIP
 import P2PSanityCheck
@@ -37,14 +37,18 @@ class ManualSanityCheckerService:
                         self.db.addSuspiciousContestant(IP, result['port'],'')
 
             elif checktype == "P2P":
-                p2p = P2PSanityCheck.PeerToPeerSanityChecker(IP,self.contestants, self.portsToScan)
+                print "Contestants: " + str(self.contestants)
+                self.targets = copy.copy(self.contestants)
+                self.targets.remove(IP)
+                p2p = P2PSanityCheck.PeerToPeerSanityChecker(IP,self.targets, self.portsToScan)
                 p2p.checkIP()
                 results = p2p.getResults()
                 for client in results:
                     for result in client['results']:
                         print "%s reports %s, fine = %s" % (client['IP'], str(result['port']), result['fine'])
-                        if not result['fine']:
+                        if result['fine'] == 'False':
                             self.db.addSuspiciousContestant(IP, result['port'], client['IP'])
+                print "Finished P2PCheck."
 
         elif data == "STOPMANUAL":
             self.running = False
