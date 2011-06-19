@@ -304,7 +304,7 @@ public class Generator
 		{
 			File tempFile = new File(exportPath.getFullPath());
 			unique = !tempFile.exists();
-			exportPath.setFileName(fileName+i++);
+			if(!unique) exportPath.setFileName(fileName+i++);
 		}
 	}
 
