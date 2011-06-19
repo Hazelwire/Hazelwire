@@ -40,6 +40,7 @@ class ManualSanityCheckerService:
                 print "Contestants: " + str(self.contestants)
                 self.targets = copy.copy(self.contestants)
                 self.targets.remove(IP)
+                print "Targets: " + str(self.targets)
                 p2p = P2PSanityCheck.PeerToPeerSanityChecker(IP,self.targets, self.portsToScan)
                 p2p.checkIP()
                 results = p2p.getResults()
