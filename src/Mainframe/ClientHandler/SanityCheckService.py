@@ -1,4 +1,4 @@
-import threading, sys, socket
+import threading, sys, socket, copy
 import DatabaseHandler, SanityCheck, P2PSanityCheck, ManualSanityChecker
 #3 threads: Automatic Sanity checking, Listening for manual sanity check requests, checking for config changes
 
@@ -87,7 +87,7 @@ class SanityChecker:
         print "[P2PCHECK] Running check..."
         print "[P2PCHECK] Contestants: " + str(self.contestants)
         for contestant in self.contestants:
-            temp = self.contestants
+            temp = copy.copy(self.contestants)
             temp.remove(contestant)
             print "[P2PCHECK] " + contestant + " is checking "  + str(temp)
             p2p = P2PSanityCheck.PeerToPeerSanityChecker(contestant, temp, self.ports)
