@@ -29,10 +29,6 @@ class SanityChecker:
         self.normal_interval, self.p2p_interval = self.db.getIntervals()
         self.contestants = self.db.getClientIPs()
         self.ports = self.db.getModulePorts()
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
-        self.sock.bind(('localhost',9996))
-        self.sock.listen(1)
         
     def controlListener(self):
         self.running = True
@@ -40,17 +36,20 @@ class SanityChecker:
             conn, addr = self.sock.accept()
             data = conn.recv(1024).strip('\n')
             if data == "STOPSANITYSERVICE":
-                print "Got a stop signal"
-                self.running = False
-                self.autoNormalTimer.cancel()
-                print "Cancelled NORMALCHECK timer..."
-                self.autoP2PTimer.cancel()
-                print "Cancelled P2PCHECK timer..."
-                self.configTimer.cancel()
-                print "Cancelled CONFIGCHECK timer..."
-                self.msc.stopServer()
-                print "Stopped ManualSanityCheckRequestListener..."
-            conn.close()
+                try:
+                    print "Got a stop signal"
+                    self.running = False
+                    self.autoNormalTimer.cancel()
+                    print "Cancelled NORMALCHECK timer..."
+                    self.autoP2PTimer.cancel()
+                    print "Cancelled P2PCHECK timer..."
+                    self.configTimer.cancel()
+                    print "Cancelled CONFIGCHECK timer..."
+                    self.msc.stopServer()
+                    print "Stopped ManualSanityCheckRequestListener..."
+                except:
+                    pass
+                conn.close()
         self.sock.close()
 
     def checkConfig(self):
@@ -123,6 +122,10 @@ class SanityChecker:
         self.ManualSanityCheckerThread = threading.Thread(target=self.msc.startServer)
         self.ManualSanityCheckerThread.start()
         print "Started Manual Sanity Check Request Service..."
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
+        self.sock.bind(('localhost',9996))
+        self.sock.listen(1)
         self.control = threading.Thread(target=self.controlListener)
         self.control.start()
         print "Started control listener thread..."
