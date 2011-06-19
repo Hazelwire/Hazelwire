@@ -13,17 +13,19 @@ class PeerToPeerSanityChecker:
     def sendRequest(self, clientIP):
         print "[P2PCHECK] Asking " + clientIP + " to do a P2PCheck on " + self.targetIP
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(5)
         try:
             sock.connect((clientIP, 9998))
         except:
-            print "Client " + clientIP + " is not running P2PRequestListener!"
-            self.writeResults({'port':'','fine':"False"}, '')
+            print "[P2PCHECK] Client " + clientIP + " is not running P2PRequestListener!"
+            self.writeResults([{'port':'','fine':"False"}], '')
             return
         msg = 'CHECK ' + str(self.targetIP) + '\n'
         for port in self.ports:
             msg += "PORT " + str(port) + '\n'
         msg += "ENDPORTS\n"
         print repr(msg)
+        sock.settimeout(None)
         sock.send(msg)
         results = []
         data = sock.recv(1024).strip()

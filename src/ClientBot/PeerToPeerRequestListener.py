@@ -47,9 +47,13 @@ class PeerToPeerRequestListener:
             results.append({'port':port,'fine':True})
             failed = False
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(2)
             print "Trying port  " + str(port) + " on " + str(IP)
             try:
                 sock.connect((IP, int(port)))
+            except socket.timeout:
+                print "Got connection timeout"
+                failed = True
             except socket.error as error:
                 if error.strerror == "Connection refused" or error.strerror == "Connection timed out":
                     failed = True

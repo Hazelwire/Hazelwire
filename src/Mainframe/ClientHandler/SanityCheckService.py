@@ -76,10 +76,9 @@ class SanityChecker:
         for contestant in self.contestants:
             print "[NORMALCHECK] Checking " + contestant + " on ports " + str(self.ports)
             results = SanityCheck.checkIP(contestant, self.ports)
-            print results
             for result in results:
                 if not result['fine']:
-                    print "Got a suspicious client at " + str(contestant) + " on port " + str(result['port'])
+                    print "[NORMALCHECK] Got a suspicious client at " + str(contestant) + " on port " + str(result['port'])
                     self.db.addSuspiciousContestant(contestant, result['port'],'')
         print "[NORMALCHECK] Finished check"
 
@@ -89,16 +88,16 @@ class SanityChecker:
         for contestant in self.contestants:
             temp = copy.copy(self.contestants)
             temp.remove(contestant)
-            print "[P2PCHECK] " + contestant + " is checking "  + str(temp)
+            print "[P2PCHECK] " + contestant + " is being checked by "  + str(temp)
             p2p = P2PSanityCheck.PeerToPeerSanityChecker(contestant, temp, self.ports)
             p2p.checkIP()
             allresults = p2p.getResults()
             for client in allresults:
                 for result in client['results']:
-                    print "%s reports %s, fine = %s" % (client['IP'], str(result['port']), result['fine'])
+                    print "[P2PCHECK] %s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), contestant, result['fine'])
                     if result['fine'] != "True":
                         self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
-        print "[P2PCHECK] Finished check"
+        print "[P2PCHECK] Finished check."
 
     def start(self):
         self.autoNormalTimer = RepeatTimer(self.normal_interval*60, self.NormalCheck)
