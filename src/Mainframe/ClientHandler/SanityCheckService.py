@@ -1,4 +1,4 @@
-import threading, sys
+import threading, sys, socket
 import DatabaseHandler, SanityCheck, P2PSanityCheck, ManualSanityChecker
 #3 threads: Automatic Sanity checking, Listening for manual sanity check requests, checking for config changes
 
@@ -23,16 +23,39 @@ class RepeatTimer(threading.Thread):
         self.event.clear()
 
 class SanityChecker:
-    
+
     def __init__(self, db):
         self.db = DatabaseHandler.DatabaseHandler(db)
-	self.normal_interval, self.p2p_interval = self.db.getIntervals()
+        self.normal_interval, self.p2p_interval = self.db.getIntervals()
         self.contestants = self.db.getClientIPs()
         self.ports = self.db.getModulePorts()
-       
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
+        self.sock.bind(('localhost',9996))
+        self.sock.listen(1)
+        
+    def controlListener(self):
+        self.running = True
+        while self.running:
+            conn, addr = self.sock.accept()
+            data = conn.recv(1024).strip('\n')
+            if data == "STOPSANITYSERVICE":
+                print "Got a stop signal"
+                self.running = False
+                self.autoNormalTimer.cancel()
+                print "Cancelled NORMALCHECK timer..."
+                self.autoP2PTimer.cancel()
+                print "Cancelled P2PCHECK timer..."
+                self.configTimer.cancel()
+                print "Cancelled CONFIGCHECK timer..."
+                self.msc.stopServer()
+                print "Stopped ManualSanityCheckRequestListener..."
+            conn.close()
+        self.sock.close()
+
     def checkConfig(self):
         new_normal_interval, new_p2p_interval = self.db.getIntervals()
-	print "[CONFIGCHECK] Got intervals from db " + str(new_normal_interval) + " " + str(new_p2p_interval)
+        print "[CONFIGCHECK] Got intervals from db " + str(new_normal_interval) + " " + str(new_p2p_interval)
         if new_normal_interval != self.normal_interval:
             print "[CONFIGCHECK]  Got a new time for normal_interval"
             self.autoNormalTimer.cancel()
@@ -47,11 +70,11 @@ class SanityChecker:
             self.autoP2PTimer = RepeatTimer(self.p2p_interval*60, self.P2PCheck)
             self.autoP2PTimer.start()
             print "[CONFIGCHECK] Started p2p check Timer with timeout " + str(self.p2p_interval*60)
-            
+
     def NormalCheck(self):
-	print "[NORMALCHECK] Running check..."
+        print "[NORMALCHECK] Running check..."
         for contestant in self.contestants:
-	    print "[NORMALCHECK] Checking " + contestant + " on ports " + str(self.ports)
+            print "[NORMALCHECK] Checking " + contestant + " on ports " + str(self.ports)
             results = SanityCheck.checkIP(contestant, self.ports)
             print results
             for result in results:
@@ -59,10 +82,10 @@ class SanityChecker:
                     print "Got a suspicious client at " + str(contestant) + " on port " + str(result['port'])
                     self.db.addSuspiciousContestant(contestant, result['port'],'')
         print "[NORMALCHECK] Finished check"
-                    
+
     def P2PCheck(self):
-	print "[P2PCHECK] Running check..."
-	print "[P2PCHECK] Contestants: " + str(self.contestants)
+        print "[P2PCHECK] Running check..."
+        print "[P2PCHECK] Contestants: " + str(self.contestants)
         for contestant in self.contestants:
             temp = self.contestants
             temp.remove(contestant)
@@ -75,7 +98,7 @@ class SanityChecker:
                     print "%s reports %s, fine = %s" % (client['IP'], str(result['port']), result['fine'])
                     if result['fine'] != "True":
                         self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
-	print "[P2PCHECK] Finished check"
+        print "[P2PCHECK] Finished check"
 
     def start(self):
         self.autoNormalTimer = RepeatTimer(self.normal_interval*60, self.NormalCheck)
@@ -91,7 +114,10 @@ class SanityChecker:
         self.ManualSanityCheckerThread = threading.Thread(target=self.msc.startServer)
         self.ManualSanityCheckerThread.start()
         print "Started Manual Sanity Check Request Service..."
-        
+        self.control = threading.Thread(target=self.controlListener)
+        self.control.start()
+        print "Started control listener thread..."
+
 if __name__ == "__main__":
     sanityService = SanityChecker(sys.argv[1])
     sanityService.start()

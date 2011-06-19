@@ -7,7 +7,10 @@ class ManualSanityCheckerService:
 
     def __init__(self, host, port, db):
         self.db = db
+        self.host = host
+        self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
         self.sock.bind((host,port))
         self.sock.listen(1)
         self.contestants = self.db.getClientIPs()
@@ -28,9 +31,9 @@ class ManualSanityCheckerService:
             IP = data.split(' ')[3]
             if checktype == "NORMAL":
                 results = checkIP(IP, self.portsToScan)
-		for result in results:
+                for result in results:
                     if not result['fine']:
-			print "Adding " + IP + " with port " + str(result['port'])
+                        print "Adding " + IP + " with port " + str(result['port'])
                         self.db.addSuspiciousContestant(IP, result['port'],'')
 
             elif checktype == "P2P":
@@ -44,6 +47,12 @@ class ManualSanityCheckerService:
                             self.db.addSuspiciousContestant(IP, result['port'], client['IP'])
 
         elif data == "STOPMANUAL":
-            self.running = False       
+            self.running = False
+        
+    def stopServer(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((self.host, self.port))
+        sock.send('STOPMANUAL')
+        sock.close()
             
 
