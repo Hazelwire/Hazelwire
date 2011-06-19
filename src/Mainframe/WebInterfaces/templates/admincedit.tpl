@@ -10,7 +10,7 @@
 	<body>
 		<div id="container">
 			<div class="content">
-                            {if $num_errors >0 or isset($ceditsuccess)}
+                            {if $num_errors >0 or isset($ceditsuccess) or isset($sanchecksuccess)}
 				{literal}<script type="text/javascript">
 				    	$(document).ready(function(){
 				    	
@@ -24,8 +24,8 @@
 					{if isset($errors)}{foreach from=$errors item=error}
 					<div style="background: none repeat scroll 0pt 0pt rgb(255, 170, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px red;">{$error->getMessage()}</div>
 					{/foreach}{/if}
-					{if isset($ceditsuccess) && $ceditsuccess == "1"}
-					<div style="background: none repeat scroll 0pt 0pt rgb(170, 255, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px rgb(0, 255, 0)">Contestant edited! {if $num_errors >0}(But with errors.){/if}</div>
+					{if isset($ceditsuccess) && $ceditsuccess == "1" || isset($sanchecksuccess) && $sanchecksuccess == "1"}
+					<div style="background: none repeat scroll 0pt 0pt rgb(170, 255, 170); left: 0pt; right: 0pt;  padding: 3px; position: relative; border:solid 1px rgb(0, 255, 0)">{if isset($ceditsuccess)}Contestant edited!{else}Sanity check succesfully requested{/if} {if $num_errors >0}(But with errors.){/if}</div>
 					{/if}
 					</div>
 				{/if}
@@ -45,7 +45,7 @@
 							</div>
 							<div class="cformlabel">VM IP:</div>
 							<div class="cformfield">
-								10.<span id="subinvmip">1</span>.<input type="text" value="{if isset($vmip)}{$vmip}{/if}" name="cvmip" value="1" title="#" class="defaultText" />.0
+								10.<span id="subinvmip">1</span>.<input type="text" value="{if isset($vmip)}{$vmip}{/if}" name="cvmip" value="1" title="#" class="defaultText" />.1
 							</div>
 						</div>
 						<div class="buttons">

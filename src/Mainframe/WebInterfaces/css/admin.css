@@ -237,18 +237,21 @@ input[type="radio"]
     margin-right: 0pt;
     padding-left: 2.5em;
 }
+#contestantinfo div.cextrainfo div
+{
+    float:none;
+}
 #contestantinfo div.cextrainfo .cextralabel
 {
-    position:relative;
-    float: left;
-    width: 25%;
+    display: table-cell;
+    width:25%;
 }
 #contestantinfo div.cextrainfo .cextradata
 {
-    position:relative;
-    float: right;
+    display: table-cell; 
     text-align: left;
-    width: 70%;
+    vertical-align: bottom;
+    padding-left: 2em;
 }
 input[type="radio"]:checked + label
 {

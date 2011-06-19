@@ -39,7 +39,8 @@ $(document).ready(function(){
 		$('form').submit();
 	});
 	$("#sanity").click(function(){
-		$('form').attr({action: "sanityshitgoeshere"});
+		$('form').attr({action: "index.php?aaction=cedit"});
+                $('input[name="cedit"]').val("forcesancheck");
 		$('form').submit();
 	});
 
