@@ -11,6 +11,7 @@ class AdminInterface extends WebInterface {
     private $created_db = false;
     private $cadd_success = false;
     private $cedit_success = false;
+    private $sancheckSuccess = false;
     private $cban_success = false;
     private $cdel_success = false;
 
@@ -106,15 +107,24 @@ class AdminInterface extends WebInterface {
                 }
                 return $smarty->fetch("admincadd.tpl");
             } else if(startsWith ($_GET['aaction'],"cedit")){
-                if (isset($_POST['cedit']) && strtolower($_POST['cedit']) == 'save'){
+                if (isset($_POST['cedit']) && (strtolower($_POST['cedit']) == 'save' || strtolower($_POST['cedit']) == 'forcesancheck')){
                     if(isset($_POST['contestant']))
                         $id = Contestant::getById($_POST['contestant'], $db);
                     else if(isset($_POST['cid']))
                         $c = Contestant::getById($_POST['cid'], $db);
-                    if($c != false)
+                    if($c != false){
                         $smarty->assign("contestant",$c);
+                        $boom = explode(".", $c->getSubnet());
+                        $subnet = $boom[1];
+                        $boom = explode(".", $c->getVm_ip());
+                        $vmip = $boom[2];
+                        $smarty->assign("vmip",$vmip);
+                        $smarty->assign("subnet",$subnet);
+                    }
                     if($this->cedit_success){
                         $smarty->assign("ceditsuccess","1");
+                    }else if($this->sancheckSuccess){
+                        $smarty->assign("sanchecksuccess","1");
                     }
                 } else if(isset($_POST['contestant'])){
                     if(isset($_POST['contestant']))
@@ -211,7 +221,7 @@ class AdminInterface extends WebInterface {
 
             }else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"startvpn")==0){
                 if($this->startvpn_success){
-                    $string = "VPN servers started.<br />".PHP_EOL."<pre style=\"font-size:1.1em;\">Status:".PHP_EOL;
+                    $string = "VPN servers started".count($this->errors) > 0?"(but with errrors)":"".".<br />".PHP_EOL."<pre style=\"font-size:1.1em;\">Status:".PHP_EOL;
 
                     foreach ($this->contestant_list as $c){
                         $string .= sprintf("%'.-30s: %s",$c->getTeamname(),OpenVPNManager::getVPNStatus($c)?"Online ":"Offline").PHP_EOL;
@@ -321,6 +331,8 @@ class AdminInterface extends WebInterface {
                 $this->addContestant();
             }else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"cedit")==0 && isset($_POST['cedit']) && strtolower($_POST['cedit']) == 'save'){
                 $this->editContestant();
+            }else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"cedit")==0 && isset($_POST['cedit']) && strtolower($_POST['cedit']) == 'forcesancheck'){
+                $this->forceSanityCheck();
             }else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"cban")==0 ){
                 $this->banContestant();
             }else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"cdel")==0 ){
@@ -829,6 +841,39 @@ class AdminInterface extends WebInterface {
         sleep(3);
     }
 
+    public function forceSanityCheck(){
+        $this->sancheckSuccess = false;
+        if($this->getCurrentState() != PREGAMESTART ) {
+            $this->handleError(new Error("illegal_action", "You can't request a sanity check during this stage.", false));
+            return;
+        }
+        $cid = $_POST['cid'];
+        if(false==($c = Contestant::getById($cid, $this->database))){
+            $this->handleError(new Error("sanity_input_error", "You must specify a team to be checked!", false));
+            return;
+        }
+
+        $fp = @fsockopen("127.0.0.1", 9997, $errno, $errstr, 5);
+        if(!$fp){
+            $interface->handleError(new Error("vpn_error", "Error #42: Cannot connect to Sanity Check Service! (".$errno.")", false));
+            return false;
+        }else{
+            fwrite($fp, "CHECK TYPE NORMAL ".$c->getVm_ip()."\n");
+            fclose($fp);
+        }
+        
+        $fp = @fsockopen("127.0.0.1", 9997, $errno, $errstr, 5);
+        if(!$fp){
+            $interface->handleError(new Error("vpn_error", "Error #42+1: Cannot connect to Sanity Check Service! (".$errno.")", false));
+            return false;
+        }else{
+            fwrite($fp, "CHECK TYPE P2P ".$c->getVm_ip()."\n");
+            fclose($fp);
+        }
+
+        $this->sancheckSuccess = true;
+    }
+
     public function startGame(){
         if($this->getCurrentState() != PREGAMESTART ) {
             $this->handleError(new Error("illegal_action", "You can't start a wargame in this stage.", false));
@@ -837,6 +882,7 @@ class AdminInterface extends WebInterface {
 
         OpenVPNManager::setKernelRouting(true);
         exec("python ". $this->config['ch_location'] . "FlagAdministration.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
+        exec("python ". $this->config['ch_location'] . "SanityCheckService.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
         $db =&$this->database; /* @var $db PDO */
         $q = $db->prepare("INSERT INTO config VALUES (?,?)");
         $q->execute(array("start_time",time()));

@@ -46,7 +46,7 @@
 							</div>
 							<div class="cformlabel">VM IP:</div>
 							<div class="cformfield">
-								10.<span id="subinvmip">1</span>.<input type="text" name="cvmip" value="1" title="#" class="defaultText" />.0
+								10.<span id="subinvmip">1</span>.<input type="text" name="cvmip" value="1" title="#" class="defaultText" />.1
 							</div>
 						</div>
 						<div class="buttons">

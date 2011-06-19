@@ -78,7 +78,7 @@ class Contestant {
             $q->execute(array($result->getVm_ip(), time() -10*60 )); // @TODO make configurable or make seen boolean
 
             if($q->fetch() !== false)
-                $this->sane = false;
+                $result->sane = false;
 
             $q = $db->prepare("SELECT * FROM bans WHERE team_id = ? AND (end_timestamp > ? OR end_timestamp=-1) ORDER BY end_timestamp DESC");
             $q->execute(array($result->getId(),time()));
