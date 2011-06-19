@@ -35,8 +35,16 @@ public class ModuleSelector
 		while(iterator.hasNext())
 		{
 			Module tempModule = iterator.next();
-			tempModule.setId(idCounter++);
-			this.availableModules.put(tempModule.getId(),tempModule);
+			
+			if(tempModule.isHidden())
+			{
+				this.hiddenModules.add(tempModule);
+			}
+			else
+			{
+				tempModule.setId(idCounter++);
+				this.availableModules.put(tempModule.getId(),tempModule);
+			}
 		}
 	}
 	

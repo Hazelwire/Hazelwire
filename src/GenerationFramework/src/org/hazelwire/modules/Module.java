@@ -23,21 +23,26 @@ public class Module
 	private ModulePackage modulePackage;
 	private int id;
 	private FileName filePath;
+	private boolean hidden;
 	
 	public Module(String name, String filePath)
 	{
 		this.name = name;
 		this.filePath = new FileName(filePath,Generator.getInstance().getFileSeperator(),'.');
-		this.flags = new HashMap<Integer,Flag>();
-		this.options = new HashMap<Integer,Option>();
-		this.tags = new ArrayList<String>();
+		init();
 	}
 	
 	public Module()
 	{
+		init();
+	}
+	
+	public void init()
+	{
 		this.flags = new HashMap<Integer,Flag>();
 		this.options = new HashMap<Integer,Option>();
 		this.tags = new ArrayList<String>();
+		this.hidden = false;
 	}
 	
 	public String getName()
@@ -214,5 +219,15 @@ public class Module
 	public Collection<Option> getOptions()
 	{
 		return options.values();
+	}
+
+	public void setHidden(boolean hidden)
+	{
+		this.hidden = hidden;
+	}
+
+	public boolean isHidden()
+	{
+		return hidden;
 	}
 }

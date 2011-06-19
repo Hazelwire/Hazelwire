@@ -47,6 +47,7 @@ public class ParserModuleConfig extends XMLParser
         	tempModule.setDate(dateFormat.parse(this.getTextValue(el, "date")));
         	tempModule.setFileName(this.getTextValue(el, "file"));
         	tempModule.setDeployPath(this.getTextValue(el, "deploy"));
+        	tempModule.setHidden(Boolean.valueOf(this.getTextValue(el, "hidden")));
         }
         
         NodeList packageNl = docElement.getElementsByTagName("package");

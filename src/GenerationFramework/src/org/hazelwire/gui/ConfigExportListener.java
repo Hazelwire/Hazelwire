@@ -43,8 +43,7 @@ public class ConfigExportListener implements MouseListener
 	@Override
 	public void mouseUp(MouseEvent m)
 	{
-		FileDialog fd = null;
-		fd = new FileDialog(((Button)m.getSource()).getShell(), SWT.OPEN);
+		FileDialog fd = new FileDialog(((Button)m.getSource()).getShell(), SWT.OPEN);
         fd.setText("Export configuration");
 
         /*

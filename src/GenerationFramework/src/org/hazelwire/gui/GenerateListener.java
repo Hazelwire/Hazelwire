@@ -34,7 +34,7 @@ public class GenerateListener implements MouseListener
 	public void mouseUp(MouseEvent arg0)
 	{
 		try
-		{			
+		{
 			/*
 			 * Je moet dus ergens de dialog.setInput(<String>)gebruiken om input op iets anders dan null te zetten
 			 * Daarnaast kun je dialog.updateProgressBar(<int>) gebruiken om de progressbar te updaten. 
