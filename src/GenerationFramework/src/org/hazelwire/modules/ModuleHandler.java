@@ -3,15 +3,13 @@ package org.hazelwire.modules;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
+import org.hazelwire.main.Configuration;
 import org.hazelwire.main.Generator;
 import org.hazelwire.xml.ParserModuleConfig;
 
@@ -80,16 +78,17 @@ public class ModuleHandler
 	}
 	
 	/**
-	 * @todo implement the rest of the specification, right now it just extracts the name
+	 * @todo make sure it imports teh config.xml first
 	 * @param packageFile
 	 * @return
 	 * @throws Exception 
 	 */
-	public static Module importModule(File packageFile) throws Exception
+	public static Module importModule(String packageFilePath) throws Exception
 	{
 		Module module = null;
 		try
 		{
+			File packageFile = new File(packageFilePath);
 			ZipFile zipFile = new ZipFile(packageFile);
 			Enumeration<? extends ZipEntry> e = zipFile.entries();
 			BufferedOutputStream dest = null;
@@ -103,22 +102,23 @@ public class ModuleHandler
 					ParserModuleConfig xmlParser = new ParserModuleConfig(zipFile.getInputStream(entry));
 					module = (Module) xmlParser.parseDocument();
 				}
-				else
+				
+				//extract the rest of the files to the harddisk (which should actually just be another .deb)
+				in = new BufferedInputStream(zipFile.getInputStream(entry));
+				int count;
+				byte data[] = new byte[2048];
+				dest = new BufferedOutputStream(
+						new FileOutputStream(
+								Configuration.getInstance().getModulePath()+module.getName()+
+								Generator.getInstance().getFileSeperator()+entry.getName()),2048);
+				
+				while((count = in.read(data,0,2048)) != -1)
 				{
-					//extract the rest of the files to the harddisk (which should actually just be another .deb)
-					in = new BufferedInputStream(zipFile.getInputStream(entry));
-					int count;
-					byte data[] = new byte[2048];
-					dest = new BufferedOutputStream(new FileOutputStream(entry.getName()),2048);
-					
-					while((count = in.read(data,0,2048)) != -1)
-					{
-						dest.write(data);
-					}
-					dest.flush();
-					dest.close();
-					in.close();
+					dest.write(data);
 				}
+				dest.flush();
+				dest.close();
+				in.close();
 			}
 		}
 		catch(IOException e)

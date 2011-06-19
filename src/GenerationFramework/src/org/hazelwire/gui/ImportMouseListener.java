@@ -1,10 +1,14 @@
 package org.hazelwire.gui;
 
+import java.util.ArrayList;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.FileDialog;
+import org.hazelwire.main.Generator;
+import org.hazelwire.modules.ModuleHandler;
 
 /*
  * Deze klasse is voor het importeren van de modules. Nu doet hij nog niks, behalve
@@ -39,13 +43,33 @@ public class ImportMouseListener implements MouseListener
 		 * gewoon met , "*.<extensie>" toevoegen.
 		 */
 		String[] filterExt =
-		{ "*.*" };
+		{ "*.zip" };
 		fd.setFilterExtensions(filterExt);
 		/*
 		 * String selected is het (absolute) pad naar het geselecteerde bestand.
 		 */
 		String selected = fd.open();
-
+		if(selected != null)
+		{
+			/*
+			 * 
+			try
+			{
+				Generator.getInstance().getModuleSelector().addModule(ModuleHandler.importModule(selected));
+				
+				ArrayList<String> availableModules = Generator.getInstance().getAvailableModules();
+				
+				for(String module : availableModules)
+				{
+					System.out.println(module);
+				}
+			}
+			catch (Exception e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
+		}
 	}
 
 }
