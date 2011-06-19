@@ -112,7 +112,16 @@ public class GUIBuilder implements Observer, ControlListener {
 				display.sleep();
 		}
 		display.dispose();
-		Generator.getInstance().shutDown(); // Nice way to shut down
+		try
+		{
+			Generator.getInstance().shutDown(false,false);
+			System.exit(0);
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void addGUIElements(Shell shell) {

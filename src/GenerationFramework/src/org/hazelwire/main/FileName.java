@@ -53,6 +53,11 @@ public class FileName {
     int sep = fullPath.lastIndexOf(pathSeparator);
     return fullPath.substring(sep + 1, dot);
   }
+  
+  public void setFileName(String fileName)
+  {
+	  fullPath = getPath()+pathSeparator+fileName+extensionSeparator+getExtension();
+  }
 
   public String getPath() {
     int sep = fullPath.lastIndexOf(pathSeparator);

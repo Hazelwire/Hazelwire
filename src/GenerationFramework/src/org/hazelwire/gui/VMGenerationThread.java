@@ -10,14 +10,35 @@ import org.hazelwire.modules.Module;
 import org.hazelwire.modules.ModuleSelector;
 import org.hazelwire.modules.Option;
 
+/**
+ * @todo find a way to stop the generation process from another thread when pushed cancel
+ * @author shokora
+ *
+ */
 public class VMGenerationThread extends Thread
 {
-	Display display;
-	Text output;
+	GenerateDialog progressDialog;
+	private static VMGenerationThread genThread;
+	
+	public static synchronized VMGenerationThread getInstance()
+	{
+		if(!(genThread instanceof VMGenerationThread))
+		{
+			genThread = new VMGenerationThread();
+		}
+		
+		return genThread;
+	}
 	
 	public VMGenerationThread()
 	{
 		super("generation thread");
+		
+	}
+	
+	public void init(GenerateDialog progressDialog)
+	{
+		this.progressDialog = progressDialog;
 	}
 	
 	@Override
@@ -26,8 +47,8 @@ public class VMGenerationThread extends Thread
 		try
 		{
 			synchronizeModules();
-			Generator.getInstance().setTui(new GUITextOutput(GUIBuilder.getInstance().getDisplay(),GUIBuilder.getInstance().getTextOutput()));
-			((GUITextOutput) Generator.getInstance().getTui()).clear(); //clear the text area before starting the generation process
+			Generator.getInstance().setTui(new GUIOutput(GUIBuilder.getInstance().getDisplay(),GUIBuilder.getInstance().getTextOutput(),this.progressDialog));
+			((GUIOutput) Generator.getInstance().getTui()).clear(); //clear the text area before starting the generation process
 			Generator.getInstance().generateVM();
 		}
 		catch (Exception e)
@@ -39,7 +60,6 @@ public class VMGenerationThread extends Thread
 	
 	/**
 	 * Synchronizes the selection of modules in the frontend and the backend + their options.
-	 * This will only be done at the very end because there is no reason to keep track of them twice (this can only lead to additional errors).
 	 */
 	public static void synchronizeModules()
 	{

@@ -9,7 +9,7 @@ import java.util.Scanner;
  * @author Tim Strijdhorst
  *
  */
-public class CLI implements TextInterface
+public class CLI implements InterfaceOutput
 {	
 	boolean readyToStop;
 	
@@ -139,5 +139,12 @@ public class CLI implements TextInterface
 		
 		if(params.size() >= 2) params.set(1, params.get(1).substring(1)); //remove leading whitespace
 		return params;
+	}
+
+	@Override
+	public void setProgress(int progress)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

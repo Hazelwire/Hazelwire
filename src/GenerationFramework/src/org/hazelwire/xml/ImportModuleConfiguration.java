@@ -1,17 +1,23 @@
 package org.hazelwire.xml;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import org.hazelwire.main.Generator;
-import org.hazelwire.modules.Flag;
 import org.hazelwire.modules.Module;
-import org.hazelwire.modules.Option;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class ImportModuleConfiguration extends XMLParser
 {
 
+	public ImportModuleConfiguration(String filePath) throws FileNotFoundException
+	{
+		super(filePath);
+	}
+	
 	public ImportModuleConfiguration(InputStream in)
 	{
 		super(in);

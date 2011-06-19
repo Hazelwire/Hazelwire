@@ -1,9 +1,19 @@
 package org.hazelwire.xml;
 
-import java.io.*;
-import javax.xml.parsers.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -13,9 +23,16 @@ public abstract class XMLParser
 {
 	public Document dom;
 	
+	public XMLParser(String filePath) throws FileNotFoundException
+	{
+		File file = new File(filePath);
+		
+	    parseXML(new FileInputStream(file));
+	}
+	
 	public XMLParser(InputStream in)
 	{
-	    parseXML(in);
+		parseXML(in);
 	}
 	
 	/**

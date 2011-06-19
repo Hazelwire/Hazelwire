@@ -35,12 +35,14 @@ public class GenerateListener implements MouseListener
 	{
 		try
 		{			
-			//new VMGenerationThread().start();
 			/*
 			 * Je moet dus ergens de dialog.setInput(<String>)gebruiken om input op iets anders dan null te zetten
 			 * Daarnaast kun je dialog.updateProgressBar(<int>) gebruiken om de progressbar te updaten. 
 			 */
 			GenerateDialog dialog = new GenerateDialog(gUIBuilder.getDisplay().getActiveShell());
+			VMGenerationThread.getInstance().init(dialog);
+			VMGenerationThread.getInstance().start();
+			
 			String s = dialog.open();
 			if(s != null){
 				gUIBuilder.getDisplay().getActiveShell().dispose();

@@ -32,9 +32,10 @@ public class Generator
 	private static String MANIFESTFILENAME = "manifest.xml"; //you should probably not change this...
 	private static boolean DELETEVM = true;
 	private ModuleSelector moduleSelector;
-	private TextInterface tui;
+	private InterfaceOutput tui;
 	Configuration config;
 	private char fileSeperator;
+	VMHandler vmHandler;
 	
 	public static synchronized Generator getInstance()
 	{
@@ -78,9 +79,30 @@ public class Generator
 		moduleSelector = new ModuleSelector();
 	}
 	
-	public void shutDown()
+	public void shutDown(boolean output, boolean export) throws Exception
 	{
-		System.exit(0); //not so nice way to shit down
+    	if(vmHandler != null && vmHandler.checkIfImported())
+    	{
+	    	if(output) tui.println("Stopping VM");
+	    	vmHandler.stopVM();
+	    	if(output) tui.setProgress(90);
+	    	if(output) tui.println("Removing port forwarding");
+	    	vmHandler.removeForward("ssh");
+	    	if(output) tui.setProgress(92);
+	    	if(export)
+	    	{
+	    		FileName exportPath = new FileName(Configuration.getInstance().getVMExportPath(),Generator.getInstance().getFileSeperator(),'.');
+	    		findUniqueExportName(exportPath);
+	    		
+	    		if(output) tui.println("Exporting vm to: "+exportPath.getFullPath());
+	    		
+	    		vmHandler.exportVM(exportPath.getFullPath());
+	    	}
+	    	if(output) tui.setProgress(98);
+	    	if(output) tui.println("Unregistering vm from virtualbox");
+	    	if(output) tui.setProgress(99);
+	    	vmHandler.unregisterVM(DELETEVM);
+    	}
 	}
 
 	public ModuleSelector getModuleSelector()
@@ -121,41 +143,46 @@ public class Generator
 	 */
 	public void generateVM() throws Exception
 	{
-    	VMHandler vmHandler = new VMHandler(config.getVirtualBoxPath(), config.getVMPath(), true);
+    	vmHandler = new VMHandler(config.getVirtualBoxPath(), config.getVMPath(), true);
     	if(!vmHandler.checkIfImported())
     	{
     		tui.println("Importing VM");
     		vmHandler.importAndDiscover();
     	}
     	
+    	tui.setProgress(10);
     	tui.println("Adding portforward for ssh: "+config.getSSHHostPort()+" to "+config.getSSHGuestPort()+" in the vm");
     	vmHandler.addForward("ssh", config.getSSHHostPort(), config.getSSHGuestPort(), "TCP"); //add forward so we can reach the VM
+    	tui.setProgress(15);
     	tui.println("Starting VM");
     	vmHandler.startVM();
     	if(vmHandler.discoverBootedVM(config.getSSHHostPort())) //wait for it to actually be booted so we can use the SSH service
     	{
 	    	SSHConnection ssh = new SSHConnection("localhost",config.getSSHHostPort(),config.getSSHUsername(),config.getSSHPassword());
+	    	tui.setProgress(20);
 	    	tui.println("Creating directories");
 	    	prepareVM(ssh);
+	    	tui.setProgress(25);
 	    	tui.println("Uploading modules");
 	    	uploadModules(ssh);
+	    	tui.setProgress(50);
 	    	tui.println("Generating installation script");
 	    	generateInstallScript(config.getOutputDirectory()+INSTALLNAME);
+	    	tui.setProgress(55);
 	    	tui.println("Generating manifest");
 	    	generateManifest(config.getOutputDirectory()+MANIFESTFILENAME);
+	    	tui.setProgress(60);
 	    	tui.println("Uploading installation script");
 	    	String externalPath = config.getExternalScriptDirectory()+INSTALLNAME;
 	    	uploadInstallScript(ssh, config.getOutputDirectory()+INSTALLNAME,externalPath);
+	    	tui.setProgress(65);
 	    	tui.println("Executing installation script");
 	    	executeInstallScript(ssh,externalPath);
-	    	tui.println("Stopping VM");
-	    	vmHandler.stopVM();
-	    	tui.println("Removing port forwarding");
-	    	vmHandler.removeForward("ssh");
-	    	tui.println("Exporting vm to: "+Configuration.getInstance().getVMExportPath());
-	    	vmHandler.exportVM(Configuration.getInstance().getVMExportPath());
-	    	tui.println("Unregistering vm from virtualbox");
-	    	vmHandler.unregisterVM(DELETEVM);
+	    	tui.setProgress(85);
+	    	shutDown(true,true);
+	    	tui.setProgress(100);
+	    	tui.println("Succesfully created VM");
+	    	tui.setProgress(100);
     	}
     	else
     	{
@@ -267,6 +294,19 @@ public class Generator
 			tui.println("ERROR: something went wrong while generating the manifest file");
 		}
 	}
+	
+	public void findUniqueExportName(FileName exportPath)
+	{
+		boolean unique = false;
+		String fileName = exportPath.getFileName();
+		int i=2;
+		while(!unique)
+		{
+			File tempFile = new File(exportPath.getFullPath());
+			unique = !tempFile.exists();
+			exportPath.setFileName(fileName+i++);
+		}
+	}
 
 	public void setFileSeperator(char fileSeperator)
 	{
@@ -278,12 +318,12 @@ public class Generator
 		return fileSeperator;
 	}
 
-	public TextInterface getTui()
+	public InterfaceOutput getTui()
 	{
 		return tui;
 	}
 
-	public void setTui(TextInterface tui)
+	public void setTui(InterfaceOutput tui)
 	{
 		this.tui = tui;
 	}

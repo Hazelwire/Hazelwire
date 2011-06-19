@@ -5,6 +5,7 @@ import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.graphics.Point;
+import org.hazelwire.main.Generator;
 
 /**
  * This class demonstrates how to create your own dialog classes. It allows users
@@ -15,6 +16,8 @@ public class GenerateDialog extends Dialog {
   private String input;
   private Shell shlGeneratingVm;
   private ProgressBar progressBar;
+  private Button controlButton;
+  private Label lblProgress;
 
   /**
    * InputDialog constructor
@@ -35,8 +38,6 @@ public class GenerateDialog extends Dialog {
   public GenerateDialog(Shell parent, int style) {
     // Let users override the default styles
     super(parent, style);
-    setText("Input Dialog");
-    setMessage("Please enter a value:");
   }
 
   /**
@@ -73,6 +74,11 @@ public class GenerateDialog extends Dialog {
    */
   public void setInput(String input) {
     this.input = input;
+  }
+  
+  public void setText(String text)
+  {
+	  lblProgress.setText(text);
   }
 
   /**
@@ -111,10 +117,10 @@ public class GenerateDialog extends Dialog {
     composite.setLayout(new GridLayout(2, true));
     
         // Show the message
-        Label lblProgress = new Label(composite, SWT.NONE);
+        lblProgress = new Label(composite, SWT.NONE);
         lblProgress.setAlignment(SWT.CENTER);
         lblProgress.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
-        lblProgress.setSize(102, 13);
+        lblProgress.setSize(400, 13);
         lblProgress.setText("Progress....");
                 
                 progressBar = new ProgressBar(composite, SWT.NONE);
@@ -124,14 +130,22 @@ public class GenerateDialog extends Dialog {
                             
                                 // Create the cancel button and add a handler
                                 // so that pressing it will set input to null
-                                Button cancel = new Button(composite, SWT.PUSH);
-                                cancel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
-                                cancel.setSize(112, 23);
-                                cancel.setText("Cancel");
-                                cancel.addSelectionListener(new SelectionAdapter() {
+                                controlButton = new Button(composite, SWT.PUSH);
+                                controlButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
+                                controlButton.setSize(112, 23);
+                                controlButton.setText("Cancel");
+                                controlButton.addSelectionListener(new SelectionAdapter() {
                                   public void widgetSelected(SelectionEvent event) {
                                     input = null;
-                                    //FIXME: stop generating the VM
+                                    try
+									{
+										if(controlButton.getText().equals("Cancel")) Generator.getInstance().shutDown(true,false);
+									}
+									catch (Exception e)
+									{
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
                                     shell.close();
                                   }
                                 });
@@ -141,6 +155,11 @@ public class GenerateDialog extends Dialog {
   public void updateProgressBar(int progress){
 	 if(progress >=0 && progress <=100){
 		 progressBar.setSelection(progress);
+	 }
+	 
+	 if(progress == 100)
+	 {
+		 controlButton.setText("Ok");
 	 }
   }
 }

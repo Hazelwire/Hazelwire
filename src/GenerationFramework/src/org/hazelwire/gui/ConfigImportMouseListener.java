@@ -1,7 +1,12 @@
 package org.hazelwire.gui;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.FileDialog;
+import org.hazelwire.xml.ExportModuleConfiguration;
+import org.hazelwire.xml.ImportModuleConfiguration;
 
 /*
  * Deze klasse is voor het afhandelen van het klikken op de import knop in
@@ -33,10 +38,28 @@ public class ConfigImportMouseListener implements MouseListener
 	}
 
 	@Override
-	public void mouseUp(MouseEvent arg0)
+	public void mouseUp(MouseEvent m)
 	{
-		// TODO Auto-generated method stub
+		FileDialog fd = null;
+		fd = new FileDialog(((Button)m.getSource()).getShell(), SWT.OPEN);
+        fd.setText("Export configuration");
 
+        /*
+         * Dit (String selected) is het (absolute) pad naar het geselecteerde bestand.
+         */
+        String selected = fd.open();
+        if(selected!=null){
+        	try
+			{
+        		VMGenerationThread.synchronizeModules();
+				new ImportModuleConfiguration(selected);
+			}
+			catch (Exception e)
+			{
+				// TODO proper visual errors
+				e.printStackTrace();
+			}
+        }
 	}
 
 }

@@ -60,9 +60,8 @@ public class ModuleHandler
 							fileName = fileList2[a];
 						}
 						else if(fileList2[a].equals("config.xml"))
-						{
-							FileInputStream configFile = new FileInputStream(new File(subdir.getPath()+fileSeperator+fileList2[a]));							
-							ParserModuleConfig xmlParser = new ParserModuleConfig(configFile);
+						{						
+							ParserModuleConfig xmlParser = new ParserModuleConfig(subdir.getPath()+fileSeperator+fileList2[a]);
 							module = (Module) xmlParser.parseDocument();
 						}
 					}

@@ -1,5 +1,6 @@
 package org.hazelwire.xml;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 
@@ -14,10 +15,15 @@ public class ParserModuleConfig extends XMLParser
 {
 	Module tempModule;
 	
+	public ParserModuleConfig(String filePath) throws FileNotFoundException
+	{
+		super(filePath);
+		tempModule = new Module();
+	}
+	
 	public ParserModuleConfig(InputStream in)
 	{
 		super(in);
-		tempModule = new Module();
 	}
 
 	@Override
