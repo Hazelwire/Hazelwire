@@ -84,12 +84,12 @@ class SanityChecker:
         print "[NORMALCHECK] Finished check"
         
     def NormalCheck_checkIP(self, IP, ports):
-        results = SanityCheck.checkIP(contestant, self.ports)
+        results = SanityCheck.checkIP(IP, self.ports)
         for result in results:
             if not result['fine']:
-                print "[NORMALCHECK] Got a suspicious client at " + str(contestant) + " on port " + str(result['port'])
+                print "[NORMALCHECK] Got a suspicious client at " + IP + " on port " + str(result['port'])
                 self.normal_dbWriteLock.acquire()
-                self.db.addSuspiciousContestant(contestant, result['port'],'')
+                self.db.addSuspiciousContestant(IP, result['port'],'')
                 self.normal_dbWriteLock.release()
 
     def P2PCheck(self):
