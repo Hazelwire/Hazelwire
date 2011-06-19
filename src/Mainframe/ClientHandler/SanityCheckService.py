@@ -72,15 +72,25 @@ class SanityChecker:
             print "[CONFIGCHECK] Started p2p check Timer with timeout " + str(self.p2p_interval*60)
 
     def NormalCheck(self):
+        self.normal_dbWriteLock = threading.Lock()
+        self.normal_threads = []
         print "[NORMALCHECK] Running check..."
         for contestant in self.contestants:
             print "[NORMALCHECK] Checking " + contestant + " on ports " + str(self.ports)
-            results = SanityCheck.checkIP(contestant, self.ports)
-            for result in results:
-                if not result['fine']:
-                    print "[NORMALCHECK] Got a suspicious client at " + str(contestant) + " on port " + str(result['port'])
-                    self.db.addSuspiciousContestant(contestant, result['port'],'')
+            self.normal_threads.append(threading.Thread(target=self.NormalCheck_checkIP, args=[contestant, self.ports]))
+            self.normal_threads[-1].start()
+        for thread in self.normal_threads:
+            thread.join()
         print "[NORMALCHECK] Finished check"
+        
+    def NormalCheck_checkIP(self, IP, ports):
+        results = SanityCheck.checkIP(contestant, self.ports)
+        for result in results:
+            if not result['fine']:
+                print "[NORMALCHECK] Got a suspicious client at " + str(contestant) + " on port " + str(result['port'])
+                self.normal_dbWriteLock.acquire()
+                self.db.addSuspiciousContestant(contestant, result['port'],'')
+                self.normal_dbWriteLock.release()
 
     def P2PCheck(self):
         print "[P2PCHECK] Running check..."
