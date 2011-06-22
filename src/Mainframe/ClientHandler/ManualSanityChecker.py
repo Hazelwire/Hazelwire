@@ -1,4 +1,4 @@
-import socket, copy
+import socket, copy, logging
 from DatabaseHandler import DatabaseHandler
 from SanityCheck import checkIP
 import P2PSanityCheck
@@ -30,28 +30,31 @@ class ManualSanityCheckerService:
             checktype = data.split(' ')[2]
             IP = data.split(' ')[3]
             if checktype == "NORMAL":
+                logging.info("[MANUALNORMAL] Starting check")
                 results = checkIP(IP, self.portsToScan)
                 for result in results:
                     if not result['fine']:
-                        print "Adding " + IP + " with port " + str(result['port'])
+                        logging.info("[MANUALNORMAL] Adding " + IP + " with port " + str(result['port']))
                         self.db.addSuspiciousContestant(IP, result['port'],'')
+                logging.info("[MANUALNORMAL] Finished check")
 
             elif checktype == "P2P":
-                print "Contestants: " + str(self.contestants)
+                logging.info("[MANUALP2P] Starting check")
                 self.targets = copy.copy(self.contestants)
                 self.targets.remove(IP)
-                print "Targets: " + str(self.targets)
                 p2p = P2PSanityCheck.PeerToPeerSanityChecker(IP,self.targets, self.portsToScan)
                 p2p.checkIP()
                 results = p2p.getResults()
                 for client in results:
                     for result in client['results']:
-                        print "%s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), IP, result['fine'])
+                        #print "%s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), IP, result['fine'])
                         if result['fine'] == 'False':
+                            logging.info("[MANUALP2P] Adding " + IP + " with port " + str(result['port']) + "reported by " + client['IP'])
                             self.db.addSuspiciousContestant(IP, result['port'], client['IP'])
-                print "Finished P2PCheck."
+                logging.info("[MANUALP2P] Finished check.")
 
         elif data == "STOPMANUAL":
+            logging.info("[MANUALSERVICE] Stopping Manual Sanity Check Service...")
             self.running = False
         
     def stopServer(self):

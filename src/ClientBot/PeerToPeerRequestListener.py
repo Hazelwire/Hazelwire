@@ -18,10 +18,8 @@ class PeerToPeerRequestListener:
 
     def handle(self, conn):
         data = conn.recv(1024).strip()
-        print "Got " + data
         if data == '':
             data = conn.recv(1024).strip()
-            print "Got " + data
         lines = data.replace('\\n', '\n').split('\n')
         if data.startswith("CHECK"):
             ip = lines[0].split(' ')[1]
@@ -30,7 +28,6 @@ class PeerToPeerRequestListener:
             for line in lines:
                 if line.startswith("PORT"):
                     portsToScan.append(line.split(' ')[1].strip())
-            print "Checking " + ip + " on ports " + str(portsToScan)
             results = self.checkIP(ip, portsToScan)
             msg = ''
             for result in results:
@@ -48,21 +45,17 @@ class PeerToPeerRequestListener:
             failed = False
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(2)
-            print "Trying port  " + str(port) + " on " + str(IP)
             try:
                 sock.connect((IP, int(port)))
             except socket.timeout:
-                print "Got connection timeout"
                 failed = True
             except socket.error as error:
                 if error.strerror == "Connection refused" or error.strerror == "Connection timed out":
                     failed = True
             if failed:
                 results[-1]['fine'] = False
-            print "Checked %s on %s, fine = %s" % (port, IP, results[-1]['fine'])
         return results
 
 if __name__ == "__main__":
     l = PeerToPeerRequestListener('',9998)
-    print 'Starting PeerToPeerRequestListener on port 9998'
     l.startServer()
