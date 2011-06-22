@@ -6,7 +6,7 @@ import P2PSanityCheck
 class ManualSanityCheckerService:
 
     def __init__(self, host, port, db):
-        self.db = db
+        self.db = DatabaseHandler(db)
         self.host = host
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

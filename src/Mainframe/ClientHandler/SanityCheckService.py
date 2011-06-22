@@ -54,7 +54,9 @@ class SanityChecker:
         self.sock.close()
 
     def checkConfig(self):
+        self.normal_dbWriteLock.acquire()
         new_normal_interval, new_p2p_interval = self.db.getIntervals()
+        self.normal_dbWriteLock.release()
         logging.info("[CONFIGCHECK] Got intervals from db " + str(new_normal_interval) + " " + str(new_p2p_interval))
         if new_normal_interval != self.normal_interval:
             logging.info( "[CONFIGCHECK]  Got a new time for normal_interval")
@@ -109,7 +111,9 @@ class SanityChecker:
                     else:
                         logging.info("[P2PCHECK] Adding " + contestant + " with port " + str(result['port']) + "reported by " + client['IP'])
                     if result['fine'] != "True":
+                        self.normal_dbWriteLock.acquire()
                         self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
+                        self.normal_dbWriteLock.release()
         logging.info("[P2PCHECK] Finished check.")
 
     def start(self):
@@ -122,7 +126,7 @@ class SanityChecker:
         self.configTimer = RepeatTimer(60, self.checkConfig)
         self.configTimer.start()
         logging.info("[SANITYSERVICE] Started config checking timer...")
-        self.msc = ManualSanityChecker.ManualSanityCheckerService('127.0.0.1',9997, self.db)
+        self.msc = ManualSanityChecker.ManualSanityCheckerService('127.0.0.1',9997, sys.argv[1])
         self.ManualSanityCheckerThread = threading.Thread(target=self.msc.startServer)
         self.ManualSanityCheckerThread.start()
         logging.info("[SANITYSERVICE] Started Manual Sanity Check Request Service...")
