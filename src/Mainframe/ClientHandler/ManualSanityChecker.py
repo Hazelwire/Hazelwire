@@ -1,11 +1,25 @@
+r"""
+This service listens for manual sanity check requests from the Admin interface.
+It supports both the normal and peer-to-peer sanity checks.
+Send C{CHECK TYPE} <type> <IP> to port 9997 on C{localhost} to request a sanity check.
+"""
 import socket, copy, logging
 from DatabaseHandler import DatabaseHandler
 from SanityCheck import checkIP
 import P2PSanityCheck
 
 class ManualSanityCheckerService:
-
+    
     def __init__(self, host, port, db):
+        """
+        Initialises the service.
+        @type host: string
+        @param host: the IP to listen on.
+        @type port: integer
+        @param port: the port to listen on.
+        @type db: string
+        @param db: path to the SQLite database file.
+        """
         self.db = DatabaseHandler(db)
         self.host = host
         self.port = port
@@ -25,6 +39,7 @@ class ManualSanityCheckerService:
         self.sock.close()
 
     def handle(self, conn, addr):
+        """Handles a request"""
         data = conn.recv(1024).strip('\n')
         if data.startswith("CHECK TYPE "):
             checktype = data.split(' ')[2]

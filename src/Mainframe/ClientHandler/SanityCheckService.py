@@ -1,8 +1,21 @@
+"""
+The main class for the sanity checks.
+This module is started when the game is started.
+It creates 4 threads:
+    - Configuration check (checks the database to see if the intervals have changed)
+    - Automatic normal sanity check
+    - Automatic peer-to-peer sanity check
+    - Manual sanity check request listener
+    - Control listener, listens for stop signals and shuts down the service    
+"""
+
 import threading, sys, socket, copy, logging
 import DatabaseHandler, SanityCheck, P2PSanityCheck, ManualSanityChecker
-#3 threads: Automatic Sanity checking, Listening for manual sanity check requests, checking for config changes
 
 class RepeatTimer(threading.Thread):
+    """
+    Helper class that implements repeating timers, because apparently python's default Timer class only executes once.
+    """
     def __init__(self, interval, callable, *args, **kwargs):
         threading.Thread.__init__(self)
         self.interval = interval
@@ -23,8 +36,13 @@ class RepeatTimer(threading.Thread):
         self.event.clear()
 
 class SanityChecker:
-
+    
     def __init__(self, db):
+        """
+        Initialises the service. Creates a L{DatabaseHandler} for the given database file.
+        @type db: string
+        @param db: path to the SQLite database file.
+        """
         self.db = DatabaseHandler.DatabaseHandler(db)
         self.normal_interval, self.p2p_interval = self.db.getIntervals()
         self.contestants = self.db.getClientIPs()
@@ -32,6 +50,10 @@ class SanityChecker:
         logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', level=logging.INFO, filename='sanitycheck.log')
         
     def controlListener(self):
+        """
+        The control listener. Listens for the STOPSANITYSERVICE commands, which shuts down the service by
+        cancelling the timers and stopping the Manual Sanity Check Request Listener.
+        """
         self.running = True
         while self.running:
             conn, addr = self.sock.accept()
@@ -54,6 +76,9 @@ class SanityChecker:
         self.sock.close()
 
     def checkConfig(self):
+        """
+        The configuration check thread. Checks the database every minute to see if the intervals have changed. Sets the class variables accordingly.
+        """
         self.normal_dbWriteLock.acquire()
         new_normal_interval, new_p2p_interval = self.db.getIntervals()
         self.normal_dbWriteLock.release()
@@ -74,6 +99,11 @@ class SanityChecker:
             logging.info( "[CONFIGCHECK] Started p2p check Timer with timeout " + str(self.p2p_interval*60))
 
     def NormalCheck(self):
+        """
+        The automatic normal sanity check.
+        Normal sanity checking involves the Mainframe to check every port used by the modules on all the team's VMs.
+        When it can't connect to a specific port it adds an entry to the suspicious IP table.
+        """
         self.normal_dbWriteLock = threading.Lock()
         self.normal_threads = []
         logging.info("[NORMALCHECK] Running check...")
@@ -86,6 +116,13 @@ class SanityChecker:
         logging.info("[NORMALCHECK] Finished check")
         
     def NormalCheck_checkIP(self, IP, ports):
+        """
+        Helper function to simultaneously check all the IPs
+        @type IP: string
+        @param IP: the IP to check
+        @type ports: list
+        @param ports: the list of ports to check
+        """
         results = SanityCheck.checkIP(IP, self.ports)
         for result in results:
             if not result['fine']:
@@ -95,6 +132,11 @@ class SanityChecker:
                 self.normal_dbWriteLock.release()
 
     def P2PCheck(self):
+        """
+        The automatic Peer-to-Peer sanity check thread.
+        Peer-to-peer sanity checking involves the mainframe asking all the VMs to scan each other.
+        When a VM finds a suspicious client the IP of the reporting VM will also be added to the database.
+        """
         logging.info( "[P2PCHECK] Running check...")
         for contestant in self.contestants:
             temp = copy.copy(self.contestants)
@@ -117,6 +159,9 @@ class SanityChecker:
         logging.info("[P2PCHECK] Finished check.")
 
     def start(self):
+        """
+        Starts the service by creating the Timers and threads
+        """
         self.autoNormalTimer = RepeatTimer(self.normal_interval*60, self.NormalCheck)
         self.autoNormalTimer.start()
         logging.info("[SANITYSERVICE] Started Automatic Sanity Checking timer...")
