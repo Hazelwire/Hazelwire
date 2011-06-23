@@ -74,7 +74,7 @@ COMMIT;""")
         db = sqlite3.connect("temp.db")
         c = db.cursor()               
         res = c.execute("SELECT IP, port, reporterIP FROM evil_teams").fetchall()
-        expected_res = [('127.0.0.1',31337, '127.0.0.1'),('127.0.0.1',61281,'127.0.0.1')]
+        expected_res = [('127.0.0.1',31337, '127.0.0.1'),('127.0.0.1',61281,'127.0.0.1'), ('127.0.0.1',31337, '127.0.0.1'),('127.0.0.1',61281, '127.0.0.1')]
         self.assertEqual(res, expected_res)
         
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -102,4 +102,4 @@ COMMIT;""")
         db = sqlite3.connect("temp.db")
         c = db.cursor()               
         res = c.execute("SELECT IP, port, reporterIP FROM evil_teams").fetchall()
-        self.assertEqual(res, [])
+        self.assertEqual(res, [('127.0.0.1',31337, '127.0.0.1'),('127.0.0.1',61281, '127.0.0.1')])

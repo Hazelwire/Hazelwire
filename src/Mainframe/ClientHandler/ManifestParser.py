@@ -1,11 +1,23 @@
+"""
+Parses the MANIFEST.xml file created by the GenerationFramework.
+Available tags are: MANIFEST, module, name, deployscript, serviceport, flags, flag, points.
+The module information is stored in a list of dictionaries. The dictionaries have the following keys:
+    - name: The name of the module.
+    - numFlags: the number of flags for the module.
+    - deployScript: the path to the manage script (deploy flags and setting other options if applicable)
+    - flagpoints: a list of points indicating how much points the flags are worth.
+    - serviceport: the port the module uses.
+"""
+
 import xml.sax, sys
 import DatabaseHandler
 
-modules = []
-correctXML = True
+
+modules = [] #: the module information.
+correctXML = True #: boolean to keep track if the XML file is well-formed.
 
 class ManifestHandler(xml.sax.ContentHandler):
-
+   
     isNameElement, isDeployScriptElement, startFlagsection, inFlagDefinition, startPointElement, isServicePortElement = False,False,False, False, False, False
 
     def startElement(self, name, attrs):
@@ -50,6 +62,15 @@ class ManifestHandler(xml.sax.ContentHandler):
             modules[-1]['serviceport'] += ch.strip('\r\t\n ')
 
 def parseManifest(manifest, db):
+    """
+    Parse a given MANIFEST.xml file and store the parsed module information in the database, if the XML is well-formed.
+    @type manifest: string
+    @param manifest: path to the MANIFEST.xml file
+    @type db: string
+    @param db: path to the SQLite database
+    @rtype: boolean
+    @return: True if the XML was well-formed, False if not.
+    """
     correctXML = True
     parser = xml.sax.make_parser()
     parser.setContentHandler(ManifestHandler())
@@ -58,14 +79,14 @@ def parseManifest(manifest, db):
     except:
         correctXML = False
     for module in modules:
-            module['numFlags'] = len(module['flagpoints'])
-            if module['numFlags'] == 0 or module['name'] == '' or module['deployscript'] == '' or module['serviceport'] == '':
-                #incorrect XML
-                correctXML = False
+        module['numFlags'] = len(module['flagpoints'])
+        if module['numFlags'] == 0 or module['name'] == '' or module['deployscript'] == '' or module['serviceport'] == '':
+            #incorrect XML
+            correctXML = False
     if correctXML:
         db = DatabaseHandler.DatabaseHandler(db)
         db.addModuleInfo(modules)
-	print modules
+        print modules
         return True
     return False
 

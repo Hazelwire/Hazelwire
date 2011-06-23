@@ -1,19 +1,35 @@
+"""
+This module handles the distribution of flags.
+When the game is started, this service is started alongside. 
+The module information (how many flags) is retrieved from the database first.
+The team's VMs connect to this service and request flags for their modules.
+When they haven't yet requested any flags, the service generates flags and sends them to the requesting VM.
+When a VM tries to request flags again, it will fail.
+
+@var modules: A list of dictionaries which contain the module info. The dictionary contains the following keys: `modulename`, `numFlags`, `deployscript`
+@var db: The DatabaseHandler instance.
+
+"""
+
 import threading, string, random, sys
 import SocketServer
 import DatabaseHandler
 
-# Modules are represented by an array of dictionaries with the keys ModuleName and numFlags, BasePath, InstallScript path
 modules = []
 db = DatabaseHandler.DatabaseHandler()
 
 class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
+    """Helper class to handle multiple requests at the same time"""
 
     def handle(self):
+        """
+        Handles a request.
+            1. Check client IP to see if already requested, if yes: return REQFAIL
+            2. Generate number of flags that are needed according to the manifest
+            3. Send the flags one by one separated by a new module
+        """
         self.data = self.rfile.readline().strip()
         if self.data == "REQFLAGS":
-            # * Check client IP to see if already requested, if yes: return REQFAIL
-            # * Generate number of flags that are needed according to the manifest
-            # * Send the flags one by one separated by a new module
             print "[FLAGDISTRIB] Got request from " + self.client_address[0]
             if db.checkClientIP(self.client_address[0]):
                 #Client already requested flags in the past
@@ -42,28 +58,50 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
 def setDB(dbname):
+    """Sets the database module variable to a new DatabaseHandler
+    @type dbname: string
+    @param dbname: The filename of the SQLite database.
+    """
     global db
     db = DatabaseHandler.DatabaseHandler(dbname)
 
 
 def getModules():
-    """Check the database for list of modules, how many flags must be created for each module and the paths"""
+    """
+    Get module info from the database.
+    """
     global modules
     modules = db.getModuleInfo()
 
 
-def generateFlags(modulename, number, clientIP):
-    """Takes a number of flags that need to be generated for clientIP. Adds them to the database"""
+def generateFlags(modulename, number, IP):
+    """
+    Generates a number of flags for the module with the given modulename and for the given team VM ip and adds them to the database.
+    Flags always start with the string FLG and 61 random characters/digits follow that.
+    @type modulename: string
+    @param modulename: the name of the module
+    @type number: integer
+    @param number: the number of flags to generate
+    @type IP: string
+    @param IP: the IP of the team VM the flags will belong to
+    """
     while True:
         flags = []
         for x in range(number):
             flags.append("FLG")
             for x in range(61):
                 flags[-1] += random.choice(string.letters+string.digits) #choose a random letter or digit
-        if db.addFlags(modulename, flags, clientIP): break #if succesfully added, we're done.
+        if db.addFlags(modulename, flags, IP): break #if succesfully added, we're done.
     return flags
 
 def startServer(host,port):
+    """
+    Starts the FlagAdministration service on the given host and port
+    @type host: string
+    @param host: the IP to listen on
+    @type port: integer
+    @param port: the port to listen on
+    """
     server = ThreadedTCPServer((host,port), ThreadedTCPRequestHandler)
     ip, port = server.server_address
     server_thread = threading.Thread(target=server.serve_forever)

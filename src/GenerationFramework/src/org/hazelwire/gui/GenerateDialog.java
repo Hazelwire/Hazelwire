@@ -117,14 +117,16 @@ public class GenerateDialog extends Dialog {
     composite.setLayout(new GridLayout(2, true));
     
         // Show the message
-        lblProgress = new Label(composite, SWT.NONE);
+        lblProgress = new Label(composite, SWT.WRAP);
         lblProgress.setAlignment(SWT.CENTER);
-        lblProgress.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1));
+        GridData gd_lblProgress = new GridData(SWT.CENTER, SWT.CENTER, false, false, 2, 1);
+        gd_lblProgress.widthHint = 266;
+        lblProgress.setLayoutData(gd_lblProgress);
         lblProgress.setSize(400, 13);
-        lblProgress.setText("Progress....");
+        lblProgress.setText("Progress.... Very very very very very very very very very very very very very very very very very long text");
                 
                 progressBar = new ProgressBar(composite, SWT.NONE);
-                progressBar.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+                progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
                 progressBar.setMaximum(100);
                 progressBar.setMinimum(0);
                             
