@@ -233,25 +233,41 @@ input[type="radio"]
     position:relative;
     float: none;
     text-align: left;
-    background-color: rgb(247, 247, 247);
     margin-right: 0pt;
     padding-left: 2.5em;
+    color: #000;
+    font-size:0.85em;
 }
-#contestantinfo div.cextrainfo div
+#contestantinfo li:nth-child(2n) div.cextrainfo
 {
-    float:none;
+	background-color: #eee;
+	border-color: #eee;
+}
+#contestantinfo li:nth-child(2n+1) div.cextrainfo
+{
+	background-color: #f7f7f7;
+	border-color: #f7f7f7;
 }
 #contestantinfo div.cextrainfo .cextralabel
 {
-    display: table-cell;
-    width:25%;
+    position:relative;
+    float: left;
+    width: 25%;
 }
 #contestantinfo div.cextrainfo .cextradata
 {
-    display: table-cell; 
+    position:relative;
+    float: right;
     text-align: left;
-    vertical-align: bottom;
-    padding-left: 2em;
+    width: 70%;
+}
+#contestantinfo div.cextrainfo .clr
+{
+    clear: both;
+    content: '.';
+    display: block;
+    height: 0;
+    visibility: hidden;
 }
 input[type="radio"]:checked + label
 {

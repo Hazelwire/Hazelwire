@@ -84,7 +84,7 @@ class AdminInterface extends WebInterface {
                 $smarty->assign("allow_endgame",$this->getCurrentState() == GAMEINPROGRESS);
                 $smarty->assign("allow_startgame",$this->getCurrentState() == PREGAMESTART);
 
-                $q  = $db->query("SELECT * FROM announcements");
+                $q  = $db->query("SELECT * FROM announcements ORDER BY timestamp");
                 $announcements = array();
                 foreach ($q as $announce){
                     $announcement = new stdClass();
@@ -522,6 +522,7 @@ class AdminInterface extends WebInterface {
 
                 $gc = &$this->gameConfig; /* @var $gc GameConfig */
 
+                // VPN client config for the team players
                 $tpl = $smarty->createTemplate("client.conf"); /* @var $tpl Smarty_Internal_Template */
                 $tpl->assign("teamname", "Team".$c->getId());
                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
@@ -529,6 +530,22 @@ class AdminInterface extends WebInterface {
                 $config_file_data = $tpl->fetch();
 
                 $config_file_loc = $this->config['openvpn_location'] ."Team".$c->getId() . "_client.conf";
+                $handle = @fopen($config_file_loc, 'w');
+                if($handle === false){
+                    $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
+                    return;
+                }
+                fwrite($handle, $config_file_data);
+                fclose($handle);
+
+                // VPN client config for the Virtual Machine
+                $tpl = $smarty->createTemplate("client.conf"); /* @var $tpl Smarty_Internal_Template */
+                $tpl->assign("teamname", "Team".$c->getId()."_vm");
+                $tpl->assign("port",$this->config['base_port'] + $c->getId());
+                $tpl->assign("server_ip", $gc->server_ip);
+                $config_file_data = $tpl->fetch();
+
+                $config_file_loc = $this->config['openvpn_location'] ."Team".$c->getId() . "_vm_client.conf";
                 $handle = @fopen($config_file_loc, 'w');
                 if($handle === false){
                     $this->handleError(new Error("fatal_error", "Cannot write to file " .$config_file_loc. "!" , true));
@@ -754,8 +771,8 @@ class AdminInterface extends WebInterface {
             return;
         }
 
-        $q = $this->database->prepare("INSERT INTO announcements VALUES (null,?,?)");
-        $q->execute(array($_POST['atitle'],$_POST['abody']));
+        $q = $this->database->prepare("INSERT INTO announcements VALUES (null,?,?,?)");
+        $q->execute(array($_POST['atitle'],$_POST['abody'], time()));
     }
 
     public function editAnnouncement(){
@@ -843,7 +860,7 @@ class AdminInterface extends WebInterface {
 
     public function forceSanityCheck(){
         $this->sancheckSuccess = false;
-        if($this->getCurrentState() != PREGAMESTART ) {
+        if($this->getCurrentState() != GAMEINPROGRESS ) {
             $this->handleError(new Error("illegal_action", "You can't request a sanity check during this stage.", false));
             return;
         }
@@ -855,7 +872,7 @@ class AdminInterface extends WebInterface {
 
         $fp = @fsockopen("127.0.0.1", 9997, $errno, $errstr, 5);
         if(!$fp){
-            $interface->handleError(new Error("vpn_error", "Error #42: Cannot connect to Sanity Check Service! (".$errno.")", false));
+            $this->handleError(new Error("vpn_error", "Error #42: Cannot connect to Sanity Check Service! (".$errno.")", false));
             return false;
         }else{
             fwrite($fp, "CHECK TYPE NORMAL ".$c->getVm_ip()."\n");
@@ -864,7 +881,7 @@ class AdminInterface extends WebInterface {
         
         $fp = @fsockopen("127.0.0.1", 9997, $errno, $errstr, 5);
         if(!$fp){
-            $interface->handleError(new Error("vpn_error", "Error #42+1: Cannot connect to Sanity Check Service! (".$errno.")", false));
+            $this->handleError(new Error("vpn_error", "Error #42+1: Cannot connect to Sanity Check Service! (".$errno.")", false));
             return false;
         }else{
             fwrite($fp, "CHECK TYPE P2P ".$c->getVm_ip()."\n");

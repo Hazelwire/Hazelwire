@@ -14,6 +14,7 @@ if(strcmp($_SERVER['REMOTE_ADDR'], '127.0.0.1') === 0 || ip_in_range($_SERVER['R
     $zip->addFile($config['RSA_location'] . "keys/Team" . $_GET['team'] . "_vm.key","Team". $_GET['team'] . "_vm.key");
     $zip->addFile($config['RSA_location'] . "keys/Team" . $_GET['team'] . "_vm.crt","Team" . $_GET['team'] . "_vm.crt");
     $zip->addFile($config['openvpn_location'] ."Team". $_GET['team'] . "_client.conf","Team". $_GET['team'] . "_client.conf");
+    $zip->addFile($config['openvpn_location'] ."Team". $_GET['team'] . "_client.conf","Team". $_GET['team'] . "_vm_client.conf");
     $zip->addFile($config['RSA_location'] . "keys/ca.crt","ca.crt");
     $zip->close();
 

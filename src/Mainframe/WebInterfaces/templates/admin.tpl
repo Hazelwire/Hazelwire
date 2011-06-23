@@ -45,26 +45,16 @@
 										<div class="cpoints">{$contestant->getPoints()}</div>
 										<div class="cname">{$contestant->getTeamname()}</div>
                                                                                 <div class="cextrainfo">
-                                                                                    <div style="display: table;">
-                                                                                        <div style="display: table-row;">
-                                                                                            <div class="cextralabel">Virtual Machine IP:</div>
-                                                                                            <div class="cextradata">{$contestant->getVm_ip()}</div>
+                                                                                        <div class="cextralabel">Virtual Machine IP:</div>
+                                                                                        <div class="cextradata">{$contestant->getVm_ip()}</div>
+                                                                                        <div class="cextralabel">VPN Status:</div>
+                                                                                        <div class="cextradata">{if $contestant->getVPNStatus()}Online{else}Offline{/if}</div>
+                                                                                        <div class="cextralabel"># VPN Conn:</div> {assign "num" $contestant->getNumVPNConn()}
+                                                                                        <div class="cextradata">{if $num==false}-{else}{$num}{/if}</div>
+                                                                                        <div class="cextralabel">Last 5 Sanity:</div>
+                                                                                        <div class="cextradata">{foreach $contestant->getSanityResults(5) as $sanres}
+                                                                                        {$sanres->timestamp|date_format:"%H:%M:%S"} &nbsp; Port {$sanres->port} ({$sanres->service|escape:'html'}) reported by {$sanres->reporter}{if not $sanres@last}<br />{/if}{/foreach}
                                                                                         </div>
-                                                                                        <div style="display: table-row;">
-                                                                                            <div class="cextralabel">VPN Status:</div>
-                                                                                            <div class="cextradata">{if $contestant->getVPNStatus()}Online{else}Offline{/if}</div>
-                                                                                        </div>
-                                                                                        <div style="display: table-row;">
-                                                                                            <div class="cextralabel"># VPN Conn:</div>{assign "num" $contestant->getNumVPNConn()}
-                                                                                            <div class="cextradata">{if $num===false}-{else}{$num}{/if}</div>
-                                                                                        </div>
-                                                                                        <div style="display: table-row;">
-                                                                                            <div class="cextralabel">Last 10 Sanity:</div>{assign "num" $contestant->getNumVPNConn()}
-                                                                                            <div class="cextradata">{foreach $contestant->getSanityResults(10) as $sanres}
-                                                                                                {$sanres->timestamp|date_format:"%H:%M:%S"} &nbsp; Port {$sanres->port} ({$sanres->service|escape:'html'}) reported by {$sanres->reporter}{if not $sanres@last}<br />{/if}{/foreach}
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
                                                                                 </div>
 									</label>
 								</li>{/foreach}
@@ -112,3 +102,28 @@
 		</div>
 	</body>
 </html>
+
+<!--
+<div style="display: block;" class="cextrainfo"> <-- float left, 100% width, no padding
+<div style="float: left; width: 100%; position: relative; margin-right: 0pt; ">
+<table style="width: 100%; float: left; position: relative;">
+	<tbody><tr>
+		<td style="width:10em;">Virtual Machine IP:</td> <-- +2.5em en die dan padden.BAM
+		<td>10.1.1.1</td>
+	</tr>
+	<tr>
+		<td style="width:10em">VPN Status:</td>
+		<td>Online</td>
+	</tr>
+	<tr>
+		<td style="width:10em;"># VPN Conn:</td>
+		<td>0
+	</td></tr>
+	<tr>
+		<td style="width: 10em;">Last 10 Sanity:</td>
+		<td></td>
+	</tr>
+</tbody></table>
+</div>
+</div>
+-->

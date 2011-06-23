@@ -136,7 +136,7 @@ class ContestantInterface extends WebInterface{
                 }
                 
                 
-                $q  = $db->query("SELECT * FROM announcements");
+                $q  = $db->query("SELECT * FROM announcements ORDER BY timestamp");
                 $announcements = array();
                 foreach ($q as $announce){
                     $announcement = new stdClass();
