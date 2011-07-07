@@ -322,7 +322,7 @@ public class GUIBuilder implements Observer, ControlListener {
 		tagt.setText("Tags");
 
 		ScrolledComposite tagswrap = new ScrolledComposite(composite_11,
-				SWT.V_SCROLL | SWT.BORDER);
+				SWT.V_SCROLL);
 		GridData gd_tagswrap = new GridData(SWT.FILL, SWT.FILL, true, true, 1,
 				1);
 		gd_tagswrap.widthHint = 125;
@@ -331,12 +331,13 @@ public class GUIBuilder implements Observer, ControlListener {
 		tagswrap.setAlwaysShowScrollBars(true);
 		tagswrap.setMinWidth(110);
 		tagswrap.setExpandHorizontal(true);
-		tagswrap.setExpandVertical(true);
+		tagswrap.setExpandVertical(false);
 		tagswrap.getVerticalBar().setIncrement(15);
 		tagswrap.setBackground(display.getSystemColor(SWT.COLOR_LIST_SELECTION));
 		tagswrap.setLayout(new GridLayout(1, true));
 
 		tags = new Canvas(tagswrap, SWT.NONE);
+		tags.setSize(tags.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		TagListPainter tlp = new TagListPainter(this);
 
 		tags.addPaintListener(tlp);

@@ -46,11 +46,11 @@ public class ModListPainter implements PaintListener, MouseListener, Observer
 				.size()) * 15;
 		if (curSize > modsSize)
 		{
-			canvas.setBounds(0, 0, canvas.getSize().x, curSize);
+			canvas.setSize(canvas.getSize().x, curSize);
 		}
 		else
 		{
-			canvas.setBounds(0, 0, canvas.getSize().x, modsSize);
+			canvas.setSize(canvas.getSize().x, modsSize);
 		}
 	}
 
@@ -90,6 +90,7 @@ public class ModListPainter implements PaintListener, MouseListener, Observer
 	public void paintControl(PaintEvent p)
 	{
 		canvas = ((Canvas) p.getSource());
+		
 		fillHeight();
 		// System.out.println(canvas.getBounds());
 		Display display = canvas.getDisplay();
@@ -176,6 +177,25 @@ public class ModListPainter implements PaintListener, MouseListener, Observer
 		g.drawLine(x + 1, y + height - 1, x + width - 1, y + height - 1);
 		g.drawLine(x + 1, y + 1, x + 1, y + height - 1);
 		g.drawLine(x + width - 1, y + 1, x + width - 1, y + height - 1);
+		
+		this.updateSize();
+		//canvas.setSize(canvas.getSize().x, canvas.getParent().getSize().y - 4);
+//		int curSize = canvas.getParent().getSize().y;
+//		int modsSize = (1 + ModsBookkeeper.getInstance().getSelectedMods()
+//				.size()) * 15;
+//		//int modsSize = 30;
+//		if (curSize > modsSize)
+//		{
+//			canvas.setSize(canvas.getSize().x, curSize);
+//		}
+//		else
+//		{
+//			canvas.setSize(canvas.getSize().x, modsSize);
+//		}
+		
+		//System.out.println("ModList: " + canvas.getBounds());
+		//System.out.println("ModList.parent: " + canvas.getParent().getBounds());
+		
 	}
 
 	@Override

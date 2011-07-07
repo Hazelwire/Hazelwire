@@ -39,17 +39,12 @@ public class OverviewPainter implements PaintListener, Observer, MouseListener
 		int modsSize = (1 + printThis.size()) * 15;
 		if (curSize > modsSize)
 		{
-			canvas.setBounds(0, 0, canvas.getSize().x, curSize);
-			// canvas.setSize(canvas.computeSize(canvas.getSize().x, curSize));
-			System.out.println("Stick to current size: " + curSize);
+			canvas.setSize(canvas.getSize().x, curSize);
 		}
 		else
 		{
-			canvas.setBounds(0, 0, canvas.getSize().x, modsSize);
-			// canvas.setSize(canvas.computeSize(canvas.getSize().x, modsSize));
-			System.out.println("Increase size to :" + modsSize);
+			canvas.setSize(canvas.getSize().x, modsSize);
 		}
-		System.out.println("canvas size: " + canvas.getBounds());
 	}
 
 	public void shrink()
@@ -67,7 +62,7 @@ public class OverviewPainter implements PaintListener, Observer, MouseListener
 		{
 			canvas.setBounds(0, 0, canvas.getSize().x, modsSize);
 		}
-		System.out.println("canvas size: " + canvas.getBounds());
+		//System.out.println("canvas size: " + canvas.getBounds());
 	}
 
 	public void fillHeight()
@@ -195,6 +190,9 @@ public class OverviewPainter implements PaintListener, Observer, MouseListener
 		g.drawLine(x + 1, y + height - 1, x + width - 1, y + height - 1);
 		g.drawLine(x + 1, y + 1, x + 1, y + height - 1);
 		g.drawLine(x + width - 1, y + 1, x + width - 1, y + height - 1);
+		
+		
+		this.updateSize();
 	}
 
 	private void updatePrintList()
