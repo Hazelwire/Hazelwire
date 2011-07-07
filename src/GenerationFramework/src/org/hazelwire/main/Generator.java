@@ -61,14 +61,14 @@ public class Generator
 	{
 		tui = new CLI();
 		try
-		{
+		{		
+	    	if(System.getProperty("os.name").equals("windows")) setFileSeperator('\\');
+	    	else setFileSeperator('/');
+			
 			//Initialize configuration
 	    	config = Configuration.getInstance();
-	    	config.loadDefaultProperties("config/defaultProperties");
+	    	config.loadDefaultProperties("config"+this.getFileSeperator()+"defaultProperties");
 	    	config.loadUserProperties();
-	    	
-	    	if(config.getOS().equals("windows")) setFileSeperator('\\');
-	    	else setFileSeperator('/');
 		}
 		catch(IOException e)
 		{

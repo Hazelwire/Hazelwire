@@ -241,6 +241,26 @@ public class Configuration
 		applicationProps.setProperty("knownHostsFile", filePath);
 	}
 	
+	public void setBaseVMMirror(String mirror)
+	{
+		applicationProps.setProperty("baseVMMirror", mirror);
+	}
+	
+	public String getBaseVMMirror()
+	{
+		return applicationProps.getProperty("baseVMMirror");
+	}
+	
+	public void setDownloadDirectory(String downloadDir)
+	{
+		applicationProps.setProperty("downloadDirectory", downloadDir);
+	}
+	
+	public String getDownloadDirectory()
+	{
+		return applicationProps.getProperty("downloadDirectory");
+	}
+	
 	public String getOS()
 	{
 		return System.getProperty("os.name");
