@@ -1,6 +1,7 @@
 package org.hazelwire.gui;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -36,11 +37,11 @@ public class TagListPainter implements PaintListener, Observer
 				.size()) * 15;
 		if (curSize > modsSize)
 		{
-			canvas.setBounds(0, 0, canvas.getSize().x, curSize);
+			canvas.setSize(canvas.getSize().x, curSize);
 		}
 		else
 		{
-			canvas.setBounds(0, 0, canvas.getSize().x, modsSize);
+			canvas.setSize(canvas.getSize().x, modsSize);
 		}
 	}
 
@@ -75,7 +76,7 @@ public class TagListPainter implements PaintListener, Observer
 					.getBounds().height - 4);
 		}
 	}
-
+	//@TODO Fix resizen on change contents, telkens iets te groot ofzo daardoor krijg je scrolls 
 	@Override
 	public void paintControl(PaintEvent p)
 	{
@@ -100,7 +101,7 @@ public class TagListPainter implements PaintListener, Observer
 			tags = mod.getTags();
 		}
 		// ArrayList<Mod> mods = ModsBookkeeper.getInstance().getSelectedMods();
-
+		
 		int i;
 		for (i = 15; i <= height; i = i + 15)
 		{
@@ -161,6 +162,8 @@ public class TagListPainter implements PaintListener, Observer
 		g.drawLine(x + 1, y + height - 1, x + width - 1, y + height - 1);
 		g.drawLine(x + 1, y + 1, x + 1, y + height - 1);
 		g.drawLine(x + width - 1, y + 1, x + width - 1, y + height - 1);
+		
+		this.updateSize();
 	}
 
 	@Override
@@ -171,8 +174,8 @@ public class TagListPainter implements PaintListener, Observer
 		{
 			if (canvas != null)
 			{
-				// canvas.redraw();
-				this.updateSize();
+				canvas.redraw();
+				//this.updateSize();
 			}
 		}
 		else if (s.equals("DESELECTED"))
