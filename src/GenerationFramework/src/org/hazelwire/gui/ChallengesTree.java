@@ -11,15 +11,40 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.hazelwire.modules.Module;
 
+/**
+ * This class is necessary to update the tree of {@link Challenge}s that
+ * is displayed in the GUI. Whenever a {@link Module} is selected or deselected,
+ * its {@link Challenge}s must be added to or removed from the tree. That is 
+ * what ChallengesTree is responsible for.
+ */
 public class ChallengesTree implements MouseListener
 {
 
+	/**
+	 * A helper method that calls updateTree after retrieving the index of the 
+	 * currently selected {@link Module}, using that index and the {@link Tree}
+	 * parameter.
+	 * @param tree {@link Tree} that will be updated by the method
+	 */
 	public static void populateTree(Tree tree)
 	{
 		updateTree(tree, ModsBookkeeper.getInstance().getSelected());
 	}
 
+	/**
+	 * Method that updates the given {@link Tree} based on the index of the 
+	 * given {@link Module}. It first removes all previous entries in the
+	 * {@link Tree}. Next, it adds the id, number of points and the description
+	 * of each {@link Challenge} that is associated with the selected {@link Module}.
+	 * Finally, it calls redraw(), so that all changes will be displayed in the GUI.
+	 * @param challenges {@link Tree} that will be updated
+	 * @param selected int that represents the index of the selected {@link Module}.
+	 * @requires challenges != null
+	 * @requires selected == -1 || (selected >= 1 && selected =< 
+	 * ModsBookkeeper.getInstance().getSelectedModules().size())
+	 */
 	public static void updateTree(Tree challenges, int selected)
 	{
 		ChallengesTree ct = new ChallengesTree();
@@ -44,8 +69,6 @@ public class ChallengesTree implements MouseListener
 				pointsSub.setText("Nr. of points: " + c.getPoints());
 
 				String d = c.getDescription();
-				// String d =
-				// "kjersg i eghw woegih ewg egkhewjegjg kjdjjvdjnmsd kjdjkds gejgsejhkgoirv jiej srvlkjv nl ejn esvjn ,sdnfkjeee";
 				int width = challenges.getBounds().width;
 				int length = width / 6;
 				String[] split = d.split(" ");
@@ -71,21 +94,15 @@ public class ChallengesTree implements MouseListener
 	@Override
 	public void mouseDoubleClick(MouseEvent arg0)
 	{
-		// TODO Auto-generated method stub
+		// FIXME: uitvouwen in linux?
 
 	}
 
 	@Override
 	public void mouseDown(MouseEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
 	public void mouseUp(MouseEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 }
