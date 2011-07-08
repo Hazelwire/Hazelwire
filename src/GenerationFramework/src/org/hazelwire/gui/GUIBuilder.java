@@ -48,7 +48,7 @@ public class GUIBuilder implements Observer, ControlListener {
 	private PointsListener pl;
 	private Text packages;
 	private Text text_1;
-	private Text text_2;
+	private Text text_filepath;
 	private Text txtHazelwireVm;
 	private Text text_3;
 	private Text text_output;
@@ -74,7 +74,8 @@ public class GUIBuilder implements Observer, ControlListener {
 	private Text text_19;
 	private Text text_20;
 	private HashMap<String, Text> textMap = new HashMap<String, Text>();
-
+	private ProgressBar progressBar;
+	
 	public static void main(String[] args) {
 		GUIBuilder builder = GUIBuilder.getInstance();
 		builder.init();
@@ -121,6 +122,7 @@ public class GUIBuilder implements Observer, ControlListener {
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 
@@ -932,11 +934,13 @@ public class GUIBuilder implements Observer, ControlListener {
 		btnDownload.setText("Download");
 		btnDownload.addMouseListener(new DownLoadListener(this));
 
-		ProgressBar progressBar = new ProgressBar(composite_1, SWT.SMOOTH);
+		progressBar = new ProgressBar(composite_1, SWT.SMOOTH);
 		GridData gd_progressBar = new GridData(SWT.LEFT, SWT.CENTER, true,
 				false, 2, 1);
 		gd_progressBar.widthHint = 222;
 		progressBar.setLayoutData(gd_progressBar);
+		progressBar.setMinimum(0);
+		progressBar.setMaximum(100);
 
 		text_1 = new Text(composite_1, SWT.BORDER | SWT.WRAP | SWT.MULTI);
 		text_1.setEnabled(false);
@@ -947,19 +951,19 @@ public class GUIBuilder implements Observer, ControlListener {
 		gd_text_1.heightHint = 150;
 		text_1.setLayoutData(gd_text_1);
 
-		text_2 = new Text(composite_1, SWT.BORDER);
-		text_2.setText("");
+		text_filepath = new Text(composite_1, SWT.BORDER);
+		text_filepath.setText("");
 		GridData gd_text_2 = new GridData(SWT.FILL, SWT.CENTER, false, false,
 				2, 1);
 		gd_text_2.widthHint = 200;
-		text_2.setLayoutData(gd_text_2);
-		text_2.addMouseListener(new BrowseMouseListener(text_2));
+		text_filepath.setLayoutData(gd_text_2);
+		text_filepath.addMouseListener(new BrowseMouseListener(text_filepath));
 
 		Button btnBrowse = new Button(composite_1, SWT.NONE);
 		btnBrowse.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 1, 1));
 		btnBrowse.setText("Browse");
-		btnBrowse.addMouseListener(new BrowseMouseListener(text_2));
+		btnBrowse.addMouseListener(new BrowseMouseListener(text_filepath));
 		
 		composite_1.layout();
 		
@@ -1235,6 +1239,11 @@ public class GUIBuilder implements Observer, ControlListener {
 	public Text getTextOutput() {
 		return text_output;
 	}
+	
+	public Text getTextFilePath()
+	{
+		return text_filepath;
+	}
 
 	public Display getDisplay() {
 		return display;
@@ -1257,5 +1266,9 @@ public class GUIBuilder implements Observer, ControlListener {
 			tags.redraw();
 			canvas_1.redraw();
 		}
+	}
+
+	public ProgressBar getProgressBar() {
+		return progressBar;
 	}
 }

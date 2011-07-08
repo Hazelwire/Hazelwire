@@ -17,3 +17,5 @@ callbackPort=31337
 externalDeployDirectory=/home/hazelwire/deploy/
 knownHostsFile=config/known_hosts
 modulePath=modules/
+baseVMMirror=http://shokora.student.utwente.nl/HazelwireTest.ova
+downloadDirectory=download/
