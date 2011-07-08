@@ -22,7 +22,17 @@ $(document).ready(function() {
         $("ul.centries").click(function(e) {
 		var $target = $(e.target);
 
-		$target.parents('label').find('.cextrainfo').slideToggle("fast");
+                if( $target.is("label") ) {
+			$target.children('.cextrainfo').slideToggle("fast");
+		}
+		else {
+			$target = $target.parent();
+			if( $target.is("label") ) {
+				$target.children('.cextrainfo').slideToggle("fast");
+			}
+		}
+
+		//$target.parents('label').find('.cextrainfo').slideToggle("fast");
 
 	}).find(".cextrainfo").hide();
 });

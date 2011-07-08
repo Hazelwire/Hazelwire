@@ -1,5 +1,7 @@
 $(document).ready(function(){
 
+        setTimeout("updateClist()", 30000);
+
         function bindDefaultText() {
 		$(".defaultText").focus(function(srcc)
 		{
@@ -110,146 +112,154 @@ $(document).ready(function(){
 
 
         //buttons
-        $("#okaadd").click(function(){
-		var data = "submitted=true&atitle=" + $('#atitle [name="atitle"]').val() + "&abody=" + $('#abody [name="abody"]').val();
-                ajaxReq("index.php?aaction=aadd", data, "aaddReply",
-                    function(data){
-                            if(data.success == true && data.errorcount == 0)
-                                addNotification("Announcement added.", "notifygood");
-                            else if(data.success == true)
-                                addNotification("Announcement added, but with errors.", "notifyneutral");
+        function loadFormButtons(){
+            $("#okaadd").click(function(){
+                    var data = "submitted=true&atitle=" + $('#atitle [name="atitle"]').val() + "&abody=" + $('#abody [name="abody"]').val();
+                    ajaxReq("index.php?aaction=aadd", data, "aaddReply",
+                        function(data){
+                                if(data.success == true && data.errorcount == 0)
+                                    addNotification("Announcement added.", "notifygood");
+                                else if(data.success == true)
+                                    addNotification("Announcement added, but with errors.", "notifyneutral");
 
-                            for(var error in data.errors){
-                                addNotification(error, "notifybad");
-                            }
+                                for(var error in data.errors){
+                                    addNotification(error, "notifybad");
+                                }
 
-                            if(data.success == true)
-                                disablePopup();
-                });
-	});
-        $("#okadel").click(function(){
-		var data = "&aid=" + $('#acform [name="aid"]').val();
-                ajaxReq("index.php?aaction=adel", data, "adelReply",
-                    function(data){
-                            if(data.success == true && data.errorcount == 0)
-                                addNotification("Announcement deleted.", "notifygood");
-                            else if(data.success == true)
-                                addNotification("Announcement deleted, but with errors.", "notifyneutral");
+                                if(data.success == true)
+                                    disablePopup();
+                                updateAlist();
+                    });
+            });
+            $("#okadel").click(function(){
+                    var data = "&aid=" + $('#acform [name="aid"]').val();
+                    ajaxReq("index.php?aaction=adel", data, "adelReply",
+                        function(data){
+                                if(data.success == true && data.errorcount == 0)
+                                    addNotification("Announcement deleted.", "notifygood");
+                                else if(data.success == true)
+                                    addNotification("Announcement deleted, but with errors.", "notifyneutral");
 
-                            for(var error in data.errors){
-                                addNotification(error, "notifybad");
-                            }
+                                for(var error in data.errors){
+                                    addNotification(error, "notifybad");
+                                }
 
-                            if(data.success == true)
-                                disablePopup();
-                });
-	});
-        $("#okaedit").click(function(){
-		var data = "submitted=true&atitle=" + $('#atitle [name="atitle"]').val() + "&abody=" + $('#abody [name="abody"]').val() +
-                            "&aid=" + $('#acform [name="aid"]').val();
-                ajaxReq("index.php?aaction=aedit", data, "aeditReply",
-                    function(data){
-                            if(data.success == true && data.errorcount == 0)
-                                addNotification("Announcement edited.", "notifygood");
-                            else if(data.success == true)
-                                addNotification("Announcement edited, but with errors.", "notifyneutral");
+                                if(data.success == true)
+                                    disablePopup();
+                                updateAlist();
+                    });
+            });
+            $("#okaedit").click(function(){
+                    var data = "submitted=true&atitle=" + $('#atitle [name="atitle"]').val() + "&abody=" + $('#abody [name="abody"]').val() +
+                                "&aid=" + $('#acform [name="aid"]').val();
+                    ajaxReq("index.php?aaction=aedit", data, "aeditReply",
+                        function(data){
+                                if(data.success == true && data.errorcount == 0)
+                                    addNotification("Announcement edited.", "notifygood");
+                                else if(data.success == true)
+                                    addNotification("Announcement edited, but with errors.", "notifyneutral");
 
-                            for(var error in data.errors){
-                                addNotification(error, "notifybad");
-                            }
+                                for(var error in data.errors){
+                                    addNotification(error, "notifybad");
+                                }
 
-                            if(data.success == true)
-                                disablePopup();
-                });
-	});
-        $("#okcdel").click(function(){
-		var data = "cid=" + $('#cformfield [name="cid"]').val();
-                ajaxReq("index.php?aaction=cdel", data, "cdelReply",
-                    function(data){
-                            if(data.success == true && data.errorcount == 0)
-                                addNotification("Contestant deleted.", "notifygood");
-                            else if(data.success == true)
-                                addNotification("Contestant deleted, but with errors.", "notifyneutral");
+                                if(data.success == true)
+                                    disablePopup();
+                                updateAlist();
+                    });
+            });
+            $("#okcdel").click(function(){
+                    var data = "cid=" + $('.cformfield [name="cid"]').val();
+                    ajaxReq("index.php?aaction=cdel", data, "cdelReply",
+                        function(data){
+                                if(data.success == true && data.errorcount == 0)
+                                    addNotification("Contestant deleted.", "notifygood");
+                                else if(data.success == true)
+                                    addNotification("Contestant deleted, but with errors.", "notifyneutral");
 
-                            for(var error in data.errors){
-                                addNotification(error, "notifybad");
-                            }
+                                for(var error in data.errors){
+                                    addNotification(error, "notifybad");
+                                }
 
-                            if(data.success == true)
-                                disablePopup();
-                });
-	});
-        $("#okcban").click(function(){
-		var data = "cid=" + $('#acform [name="cid"]').val() + "&cbantime=" + $('#cformfield [name="cbantime"]').val();
-                ajaxReq("index.php?aaction=cban", data, "cbanReply",
-                    function(data){
-                            if(data.success == true && data.errorcount == 0)
-                                addNotification("Contestant banned.", "notifygood");
-                            else if(data.success == true)
-                                addNotification("Contestant banned, but with errors.", "notifyneutral");
+                                if(data.success == true)
+                                    disablePopup();
+                                updateClist();
+                    });
+            });
+            $("#okcban").click(function(){
+                    var data = "cid=" + $('#acform [name="cid"]').val() + "&contestant=" + $('#acform [name="cid"]').val() + "&cbantime=" + $('#acform [name="cbantime"]').val();
+                    ajaxReq("index.php?aaction=cban", data, "cbanReply",
+                        function(data){
+                                if(data.success == true && data.errorcount == 0)
+                                    addNotification("Contestant banned.", "notifygood");
+                                else if(data.success == true)
+                                    addNotification("Contestant banned, but with errors.", "notifyneutral");
 
-                            for(var error in data.errors){
-                                addNotification(error, "notifybad");
-                            }
+                                for(var error in data.errors){
+                                    addNotification(error, "notifybad");
+                                }
 
-                            if(data.success == true)
-                                disablePopup();
+                                if(data.success == true)
+                                    disablePopup();
+                                updateClist();
 
-                });
-	});
-	$("#caddok").click(function(){
-                var data = "cname=" + $('#cformfield [name="cname"]').val() + "&csubnet=" + $('#cformfield [name="csubnet"]').val()
-                            + "&cvmip=" + $('#cformfield [name="cvmip"]').val() + "&cadd=add";
-                ajaxReq("index.php?aaction=cadd", data, "caddReply",
-                    function(data){
-                            if(data.success == true && data.errorcount == 0)
-                                addNotification("Contestant added.", "notifygood");
-                            else if(data.success == true)
-                                addNotification("Contestant added, but with errors.", "notifyneutral");
+                    });
+            });
+            $("#caddok").click(function(){
+                    var data = "cname=" + $('.cformfield [name="cname"]').val() + "&csubnet=" + $('.cformfield [name="csubnet"]').val()
+                                + "&cvmip=" + $('.cformfield [name="cvmip"]').val() + "&cadd=add";
+                    ajaxReq("index.php?aaction=cadd", data, "caddReply",
+                        function(data){
+                                if(data.success == true && data.errorcount == 0)
+                                    addNotification("Contestant added.", "notifygood");
+                                else if(data.success == true)
+                                    addNotification("Contestant added, but with errors.", "notifyneutral");
 
-                            for(var error in data.errors){
-                                addNotification(error, "notifybad");
-                            }
+                                for(var error in data.errors){
+                                    addNotification(error, "notifybad");
+                                }
 
-                            if(data.success == true)
-                                disablePopup();
+                                if(data.success == true)
+                                    disablePopup();
+                                updateClist();
 
-                });
-	});
-        $("#okcedit").click(function(){
-		var data = "cname=" + $('#cformfield [name="cname"]').val() + "&csubnet=" + $('#cformfield [name="csubnet"]').val()
-                            + "&cvmip=" + $('#cformfield [name="cvmip"]').val() +"&cid="+$('#acform [name="cid"]').val() +"&cedit=save";
-                ajaxReq("index.php?aaction=cedit", data, "ceditReply",
-                    function(data){
-                            if(data.success == true && data.errorcount == 0)
-                                addNotification("Contestant edited.", "notifygood");
-                            else if(data.success == true)
-                                addNotification("Contestant edited, but with errors.", "notifyneutral");
+                    });
+            });
+            $("#okcedit").click(function(){
+                    var data = "cname=" + $('.cformfield [name="cname"]').val() + "&csubnet=" + $('.cformfield [name="csubnet"]').val()
+                                + "&cvmip=" + $('.cformfield [name="cvmip"]').val() +"&cid="+$('#acform [name="cid"]').val() +"&cedit=save";
+                    ajaxReq("index.php?aaction=cedit", data, "ceditReply",
+                        function(data){
+                                if(data.success == true && data.errorcount == 0)
+                                    addNotification("Contestant edited.", "notifygood");
+                                else if(data.success == true)
+                                    addNotification("Contestant edited, but with errors.", "notifyneutral");
 
-                            for(var error in data.errors){
-                                addNotification(error, "notifybad");
-                            }
+                                for(var error in data.errors){
+                                    addNotification(error, "notifybad");
+                                }
 
-                            if(data.success == true)
-                                disablePopup();
+                                if(data.success == true)
+                                    disablePopup();
+                                updateClist();
 
-                });
-	});
-	$("#cancel").click(function(){
-		disablePopup();
-	});
-	$("#keys").click(function(){
-		$('form').attr({action: "download.php?team="+$('form input[name="cid"]').val()});
-		$('form').submit();
-	});
-	$("#sanity").click(function(){
-		$('form').attr({action: "index.php?aaction=cedit"});
-                $('input[name="cedit"]').val("forcesancheck");
-		$('form').submit();
-	});
+                    });
+            });
+            $("#cancel").click(function(){
+                    disablePopup();
+            });
+            $("#keys").click(function(){
+                    window.location = "download.php?team="+$('#acform input[name="cid"]').val();
+            });
+            $("#sanity").click(function(){
+                    $('form').attr({action: "index.php?aaction=cedit"});
+                    $('input[name="cedit"]').val("forcesancheck");
+                    $('form').submit();
+            });
+        }
+
 
         // background: none repeat scroll 0pt 0pt rgb(170, 255, 170); padding: 3px; border: 1px solid rgb(0, 255, 0); text-align: center; position: relative; margin-left: auto; margin-right: auto; min-width: 30em; margin-bottom: 3px;
-        var timeout;
         $("#vpnstart").click(function(){
             $("#vpnstart").attr("disabled", true);
 
@@ -268,7 +278,7 @@ $(document).ready(function(){
                     $("#vpnstart").attr("disabled", false);
                     $('#vpnstop').attr("disabled",false);
                 });
-		
+
 	});
 
         /**
@@ -279,7 +289,6 @@ $(document).ready(function(){
          * @type jqXHR
          */
         function ajaxReq(location,payload, expectedAnswer,callback){
-            
             return $.ajax({
                 url: location,
                 type: 'POST',
@@ -290,7 +299,7 @@ $(document).ready(function(){
                         addNotification("Something went wrong when trying to contact the server: the response is null.", "notifybad");
                     }else{
                         if(data.action==expectedAnswer){
-                            if(isFunction(callback))
+                            if($.isFunction(callback))
                             {
                                 callback(data);
                             }
@@ -302,6 +311,22 @@ $(document).ready(function(){
                 error: function(jqXHR, textStatus, errorThrown) {
                     addNotification("Something went wrong when trying to contact the server: the server returned '" + textStatus + "'", "notifybad");
                 }
+            }).complete(function(){
+                    loadFormButtons();
+                    $("#popupClose").click(function(){
+                        disablePopup();
+                });});
+        }
+
+        function updateClist(){
+            ajaxReq("index.php?aaction=getcs", "", "getcs", function(data){
+                $('#cform').html(data.reply);
+            });
+        }
+
+        function updateAlist(){
+            ajaxReq("index.php?aaction=getas", "", "getas", function(data){
+                $('#announcementdisplay').html(data.reply);
             });
         }
 
@@ -368,70 +393,81 @@ $(document).ready(function(){
 	});
 
 	$("#cadd").click(function(){
-                ajaxReq("index.php?aaction=cadd","","cadd",function(data){$("#popup").html(data.reply);});
-		$("#popupcontent").css({
+                ajaxReq("index.php?aaction=cadd","","cadd",function(data){$("#popup").html(data.reply);}).complete(function(){
+                    $("#popupcontent").css({
 			"width": "300px",
 			"height": "100px"
 		});
 		centerPopup(0);
 		loadPopup();
+                });
 	});
 	$("#cedit").click(function(){
-		ajaxReq("index.php?aaction=cedit","contestant="+$('cform [name=contestant]').val(),"cedit",function(data){$("#popup").html(data.reply);});
-                $("#popupcontent").css({
-			"width": "300px",
-			"height": "100px"
+		ajaxReq("index.php?aaction=cedit","contestant="+$('#cform input:radio[name="contestant"]:checked').val(),"cedit",function(data){$("#popup").html(data.reply);}).complete(function(){
+			$("#popupcontent").css({
+				"width": "300px",
+				"height": "100px"
+				});
+				centerPopup(0);
+				loadPopup();
 		});
-		centerPopup(0);
-		loadPopup();
 	});
 	$("#cban").click(function(){
-                ajaxReq("index.php?aaction=cban","contestant="+$('cform [name=contestant]').val(),"cban",function(data){$("#popup").html(data.reply);});
-                $("#popupcontent").css({
+                ajaxReq("index.php?aaction=cban","contestant="+$('#cform input:radio[name="contestant"]:checked').val(),"cban",function(data){$("#popup").html(data.reply);}).complete(function(){
+                    $("#popupcontent").css({
 			"width": "135px",
 			"height": "75px"
-		});
-		centerPopup(0);
-		loadPopup();
+                    });
+                    centerPopup(0);
+                    loadPopup();
+                });
+
 	});
 	$("#cdelete").click(function(){
-                ajaxReq("index.php?aaction=cdel","contestant="+$('cform [name=contestant]').val(),"cdelete",function(data){$("#popup").html(data.reply);});
-                $("#popupcontent").css({
-			"width": "125px",
-			"height": "2em"
-		});
-		centerPopup(0);
-		loadPopup();
+                ajaxReq("index.php?aaction=cdel","contestant="+$('#cform input:radio[name="contestant"]:checked').val(),"cdelete",function(data){$("#popup").html(data.reply);}).complete(function(){
+                    $("#popupcontent").css({
+                            "width": "125px",
+                            "height": "2em"
+                    });
+                    centerPopup(0);
+                    loadPopup();
+                });
+
 	});
 	$("#cpoints").click(function(){
-		
+
 	});
 
 	$("#apost").click(function(){
-                ajaxReq("index.php?aaction=aadd","","aadd",function(data){$("#popup").html(data.reply);});
-                $("#popupcontent").css({
-			"width": "600px",
-			"height": "400px"
-		});
-		centerPopup(0);
-		loadPopup();
+                ajaxReq("index.php?aaction=aadd","","aadd",function(data){$("#popup").html(data.reply);}).complete(function(){
+                    $("#popupcontent").css({
+                            "width": "600px",
+                            "height": "400px"
+                    });
+                    centerPopup(0);
+                    loadPopup();
+                });
+
 	});
 	$("#aedit").click(function(){
-                ajaxReq("index.php?aaction=aedit","announcement="+$('aform [name=announcement]').val(),"aedit",function(data){$("#popup").html(data.reply);});
-                $("#popupcontent").css({
-			"width": "600px",
-			"height": "400px"
-		});
-		centerPopup(0);
-		loadPopup();
+                ajaxReq("index.php?aaction=aedit","announcement="+$('#aform input:radio[name="announcement"]:checked').val(),"aedit",function(data){$("#popup").html(data.reply);}).complete(function(){
+                    $("#popupcontent").css({
+                            "width": "600px",
+                            "height": "400px"
+                    });
+                    centerPopup(0);
+                    loadPopup();
+                });
 	});
 	$("#adelete").click(function(){
-                ajaxReq("index.php?aaction=adel","announcement="+$('aform [name=announcement]').val(),"adel",function(data){$("#popup").html(data.reply);});
-                $("#popupcontent").css({
-			"width": "125px",
-			"height": "2em"
-		});
-		centerPopup(0);
-		loadPopup();
+                ajaxReq("index.php?aaction=adel","announcement="+$('#aform input:radio[name="announcement"]:checked').val(),"adel",function(data){$("#popup").html(data.reply);}).complete(function(){
+                    $("#popupcontent").css({
+                            "width": "125px",
+                            "height": "2em"
+                    });
+                    centerPopup(0);
+                    loadPopup();
+                });
+
 	});
 });

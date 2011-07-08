@@ -129,6 +129,57 @@ class AdminInterface extends WebInterface {
                 $smarty->assign("announcements",$announcements);
 
                 return $smarty->fetch("admin.tpl");
+            } else if(startsWith ($_GET['aaction'],"getcs")){
+                /*
+                 * Ajax request for update of contestant list
+                 */
+                /*
+                 * Get the contestants ordered by their points
+                 */
+                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
+                             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
+                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
+
+                $contestants = array();
+                while (($res = $q->fetch()) !== false){
+                    $c = Contestant::getById($res['team_id'], $db);
+                    $allow_startvpn = $allow_startvpn && OpenVPNManager::getVPNStatus($c);
+                    $allow_stopvpn = $allow_stopvpn || OpenVPNManager::getVPNStatus($c);
+                    array_push($contestants, $c);
+                }
+                $smarty->assign("contestants",$contestants);
+
+                $retval = new stdClass();
+                $retval->action="getcs";
+                $retval->reply = $smarty->fetch("admin_ajax_clist.tpl");
+
+                return json_encode($retval);
+
+            } else if(startsWith ($_GET['aaction'],"getas")){
+                /*
+                 * Ajax request for update of announcement list
+                 */
+                /*
+                 * Get all the announcements with the newest first.
+                 */
+                $q  = $db->query("SELECT * FROM announcements ORDER BY timestamp DESC");
+                $announcements = array();
+                foreach ($q as $announce){
+                    $announcement = new stdClass();
+                    $announcement->id = $announce['id'];
+                    $announcement->timestamp = $announce['timestamp'];
+                    $announcement->title = htmlspecialchars($announce['title']);
+                    $announcement->content = $this->parseBB($announce['announcement']);
+                    array_push($announcements, $announcement);
+                }
+                $smarty->assign("announcements",$announcements);
+
+                $retval = new stdClass();
+                $retval->action="getas";
+                $retval->reply = $smarty->fetch("admin_ajax_alist.tpl");
+
+                return json_encode($retval);
+
             } else if(startsWith ($_GET['aaction'],"cadd")){
                 /*
                  * Show the page to add a Contestant.
@@ -885,7 +936,7 @@ class AdminInterface extends WebInterface {
      */
     public function banContestant(){
         if($this->getCurrentState() != GAMEINPROGRESS ) {
-            $this->handleError(new Error("illegal_action", "You're not allowed to add contestants during this stage of the wargame.", false));
+            $this->handleError(new Error("illegal_action", "You're not allowed to ban contestants during this stage of the wargame.", false));
             return;
         }
         $this->cban_success = false;
