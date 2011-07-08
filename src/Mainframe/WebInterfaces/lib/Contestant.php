@@ -1,6 +1,8 @@
 <?php
 /**
- * Description of Contestant
+ * Contestant models a contesant in the wargame. It contains all the information
+ * the system needs about the contestant. A Contestant initially does not have an
+ * ID, but gets this once saved for the first time.
  *
  * @author sjikke
  */
@@ -15,7 +17,15 @@ class Contestant {
     private $banned;
     private $bantime;
     private $sane = true;
-    
+
+    /**
+     * Creates a new Contestant using the given information.
+     * 
+     * @param string $name The name of the contestant
+     * @param string $subnet The subnet of the contestant in CIDR notation (e.g. 10.1.1.0/24) which the players can use.
+     * @param string $vm_ip The IP of the Virtual Machine of the Contestant in decimal dotted notation.
+     * @param int $id The id of the Contestant. This is only set when it is already stored in the database.
+     */
     function __construct($name, $subnet, $vm_ip, $id = -1) {
         $this->teamname = $name;
         $this->subnet = $subnet;
@@ -47,8 +57,9 @@ class Contestant {
 
 
     /** 
-     *
-     * @param integer $id The ID of the Contestant to fetch
+     * Tries to get a Contestant from the database with the given ID.
+     * 
+     * @param int $id The ID of the Contestant to fetch
      * @param PDO $db The database in which the Contestant resides.
      * 
      * @return Contestant|bool Returns the Contestant with given ID. On failure returns false;
@@ -57,6 +68,7 @@ class Contestant {
         $q = $db->prepare("SELECT * FROM teams WHERE id = ?");
         $q->execute(array($id));
         $res = $q->fetchAll();
+        
         if($res !== false && count($res) > 0){
             $result =  new Contestant($res[0]['name'],$res[0]['subnet'],$res[0]['VMip'],$res[0]['id']);
             
@@ -113,9 +125,9 @@ class Contestant {
     }
     
     /** 
-     * Wrappert voor OpenVPNManager's getVPNStatus(...)
+     * Wrapper for OpenVPNManager's getVPNStatus(...)
      * 
-     * @return boolean true als VPN draait voor deze contestant, anders false.
+     * @return boolean true if VPN is running for this contestant, otherwise false.
      */
     public function getVPNStatus(){
         return OpenVPNManager::getVPNStatus($this);

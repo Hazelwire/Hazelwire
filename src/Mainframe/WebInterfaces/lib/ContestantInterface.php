@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of ContestantInterface
+ * The interface which handles the interaction between the Contestants and the Mainframe.
  *
  * @author Daniel
  */
@@ -21,7 +21,11 @@ class ContestantInterface extends WebInterface{
         }
     }
     
-    
+    /**
+     * Generates the HTML / JSON which should be send back to the user.
+     * 
+     * @return void Nothing ...
+     */
     public function show(){
         if($this->contestant === false)
             die("Not allowed to access this webpage. Shoo!");
@@ -136,11 +140,12 @@ class ContestantInterface extends WebInterface{
                 }
                 
                 
-                $q  = $db->query("SELECT * FROM announcements ORDER BY timestamp");
+                $q  = $db->query("SELECT * FROM announcements ORDER BY timestamp DESC");
                 $announcements = array();
                 foreach ($q as $announce){
                     $announcement = new stdClass();
                     $announcement->id = $announce['id'];
+                    $announcement->timestamp = $announce['timestamp'];
                     $announcement->title = htmlspecialchars($announce['title']);
                     $announcement->content = $this->parseBB($announce['announcement']);
                     array_push($announcements, $announcement);
@@ -206,7 +211,11 @@ class ContestantInterface extends WebInterface{
             }
         }
     }
-    
+
+    /**
+     * Handles the user input and executes the requested actions
+     * @return void Nothing..
+     */
     public function doWork(){
         if($this->contestant === false || !$this->db_ready)
                 return;
@@ -217,10 +226,16 @@ class ContestantInterface extends WebInterface{
                 if(isset($_POST['sub_flag'])){
                     $now = time(); // take a timestamp.
                     $db = &$this->database; /* @var $db PDO */
-                    
+
+                    /*
+                     * If a flag is submitted it should handle this
+                     */
                     if(isset($_POST['flag'])){
+                        // But only if the contestant can actually submit flags
                         if(!$this->contestant->isFlagSubmissionBlocked()){
                             $flag = $_POST['flag'];
+                            
+                            // Check for basic validity
                             if((startsWith($flag, "FLG") && strlen($flag) && ctype_alnum($flag))){
 
                                 // Check for duplicate flag
@@ -231,10 +246,10 @@ class ContestantInterface extends WebInterface{
                                     $this->addFlagFailure($now);
                                     return;
                                 }
-                                // flags (flag_id INTEGER, mod_id INTEGER, team_id INTEGER, flag TEXT);
-                                // flagpoints (flag_id INTEGER, mod_id INTEGER, points INTEGER);
-                                // teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
-                                // scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
+
+                                /*
+                                 * Select all the flags from the database (along with relevant information) which is the same as the submitted flag.
+                                 */
                                 $q = $db->prepare("SELECT flags.team_id as team_id, flags.flag as flag, flagpoints.points as points FROM flags INNER JOIN flagpoints ON flagpoints.flag_id = flags.flag_id AND flagpoints.mod_id = flags.mod_id WHERE flag = ?");
                                 $q->execute(array($flag));
                                 $result = $q->fetch();
@@ -246,12 +261,18 @@ class ContestantInterface extends WebInterface{
                                     $this->addFlagFailure($now);
                                 } else {
                                     
-                                    //Calculate points
+                                    /*
+                                     * Calculate points
+                                     *
+                                     * First select the already scored flags of this Contestant which have the same type
+                                     */
                                     $q = $db->prepare("SELECT f.flag_id FROM scores s INNER JOIN flags f ON s.flag = f.flag WHERE s.team_id = ? AND " . 
                                                         "f.flag_id = (SELECT flag_id FROM flags WHERE flag = ?) AND f.mod_id = (SELECT mod_id FROM flags WHERE flag = ?)");
                                     $q->execute(array($this->contestant->getId(), $flag, $flag));
                                     $exp = count($q->fetchAll(PDO::FETCH_COLUMN, 0));
                                     $gc = &$this->gameConfig; /* @var $gc GameConfig */
+                                    
+                                    /* Decrease the amount of points using the points decay modifier */
                                     $mult = pow($gc->points_decay_mod, $exp);
                                     $points = intval(intval($result['points']) * $mult);
                                     

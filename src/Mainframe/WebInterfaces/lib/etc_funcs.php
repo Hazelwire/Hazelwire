@@ -160,6 +160,9 @@ function do_bbcode_url ($action, $attributes, $content, $params, $node_object) {
         $url = $attributes['default'];
         $text = $content;
     }
+    if ( strpos( $url, '://' ) === false ) {
+        $url = 'http://' . $url;
+    }
     if ($action == 'validate') {
         if (substr ($url, 0, 5) == 'data:' || substr ($url, 0, 5) == 'file:'
           || substr ($url, 0, 11) == 'javascript:' || substr ($url, 0, 4) == 'jar:') {

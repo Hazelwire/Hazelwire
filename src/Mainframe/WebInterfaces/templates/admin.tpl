@@ -4,10 +4,18 @@
 		<title>{$title} - powered by Hazelwire</title>
 		<link rel="stylesheet" type="text/css" href="css/admin.css"></link>
 		<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
-		<script type="text/javascript" src="js/buttons.js"></script>
+		<script type="text/javascript" src="buttons.js"></script>
 		<script type="text/javascript" src="js/collapse.js"></script>
 	</head>
 	<body>
+                <div id="popup">
+			<a id="popupClose">x</a>
+			<h1>Insert popup title here.</h1>
+			<div id="popupcontent">Insert popup contents here.<br /><br />
+				Maecenas velit nisi, ornare sed rhoncus ut, suscipit eget velit. Integer a augue nisi. Vestibulum mi elit, gravida in pharetra id, consectetur quis neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum sollicitudin suscipit tellus, vitae cursus ligula pulvinar vitae. Integer pellentesque erat nec massa laoreet quis luctus turpis lacinia. Vivamus quis odio at ligula ornare aliquam. Vivamus nibh erat, suscipit non egestas vel, lacinia ut tortor. Ut mauris elit, mollis sit amet lobortis nec, semper lacinia dui. Aliquam accumsan semper felis sed interdum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla facilisi. Fusce dignissim rutrum gravida.
+			</div>
+		</div>
+		<div id="backgroundPopup"></div>
 		<div id="container">
 			<div id="gamebuttons">
 				<div class="content">
@@ -67,7 +75,7 @@
 							<input type="button" id="cedit" value="Edit" />
 							<input type="button" id="cban" value="Ban" />
 							<input type="button" id="cdelete" value="Delete" />
-							<input type="button" id="cpoints" value="Points" disabled="disabled" />
+							{*<input type="button" id="cpoints" value="Points" disabled="disabled" />*}
 							<input type="button" id="csanity" value="Sanity log" />
 						</div>
 					</div>
@@ -84,6 +92,7 @@
 		 {foreach from=$announcements item=announcement}<li>
 									<input type="radio" name="announcement" value="{$announcement->id}" id="announcement{$announcement->id}"/>
 									<label for="announcement{$announcement->id}">{$announcement->title}
+                                                                                <span style="float: right; display: block; font-size: 0.8em; padding-right: 0.3em; padding-top: 2px;">{$announcement->timestamp|date_format:'%b %e, %Y @ %H:%M:%S'}</span>
 										<div>{$announcement->content}</div>
 									</label>
 								</li>{/foreach}

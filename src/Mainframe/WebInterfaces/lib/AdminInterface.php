@@ -1,12 +1,17 @@
 <?php
 
 /**
- * Description of AdminInterface
+ * AdminInterface handles all the interaction between the administrator of the wargame and the Mainframe.
+ * It is responsible for showing the interface to the user and of handling the user's input.
  *
  * @author Daniel
  */
 class AdminInterface extends WebInterface {
 
+    /**
+     *
+     * @var int The state of the wargame, as defined in index.php
+     */
     private $state;
     private $created_db = false;
     private $cadd_success = false;
@@ -14,15 +19,27 @@ class AdminInterface extends WebInterface {
     private $sancheckSuccess = false;
     private $cban_success = false;
     private $cdel_success = false;
+    private $aadd_success = false;
+    private $aedit_success = false;
+    private $adel_success = false;
 
     private $startvpn_success = false;
+    private $startgame_success = false;
+    private $stopvpn_success = false;
     private $endgame_success = false;
 
+    /**
+     * This function returns the string that will be returned to the user.
+     * This can either be full fledged HTML or JSON encoded data, depending on the request type.
+     * Internal it handles the errors (i.e. makes them ready for display) and then generates the
+     * output which corresponds to the request made. For this purpose it makes use of Smarty.
+     *
+     * @return string The string that will be displayed to the user. 
+     */
     public function show() {
         $smarty = &$this->getSmarty();
-
         /*
-         * Error handling
+         * Error handling. It adds all the reported errors to Smarty for displaying.
          */
         $smarty->assign("num_errors", count($this->errors));
         if ($this->fatal_error) {
@@ -39,9 +56,10 @@ class AdminInterface extends WebInterface {
             }
             $smarty->assignByRef("errors", $this->errors);
         }
-
         /*
-         * Actual showing the pages
+         * Actual showing the pages.
+         *
+         * First: On PRECONFIG show the config page, with a message if the DB has just been created
          */
         if (($this->state = $this->getCurrentState()) == PRECONFIG) {
             $smarty->assign("db_created", ($this->created_db ? 1 : 0));
@@ -50,16 +68,22 @@ class AdminInterface extends WebInterface {
                 $smarty->assign("site_path", $this->config['site_folder']);
             }
             return $smarty->fetch("config.tpl");
-
+            /* If there's no game, and the has not been just stopped, show the End Game page*/
         } elseif ($this->getCurrentState() == POSTGAME && !$this->endgame_success) {
             return $smarty->fetch("game_end.tpl");
         } else {
+            // Get the name of the game
             $db = &$this->database;
             $q = $db->query("SELECT value FROM config WHERE config_name = 'gamename'");
             $res = $q->fetch();
             $smarty->assign("title",$res[0]);
-            if(!isset($_GET['aaction'])){
 
+            /*
+             * If there's not a specified action, assume it is a full page load
+             * and show everything.
+             */
+            if(!isset($_GET['aaction'])){
+                
                 $allow_startvpn = OpenVPNManager::getBaseVPNStatus();
                 $allow_stopvpn = OpenVPNManager::getBaseVPNStatus();
 
@@ -67,6 +91,9 @@ class AdminInterface extends WebInterface {
                 $res = $q->fetch();
                 $smarty->assign("title",$res[0]);
 
+                /*
+                 * Get the contestants ordered by their points
+                 */
                 $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
                              "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
                              "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
@@ -79,16 +106,22 @@ class AdminInterface extends WebInterface {
                     array_push($contestants, $c);
                 }
                 $smarty->assign("contestants",$contestants);
+
+                /* assign the vlaue of 'disabled' to the corrent buttons */
                 $smarty->assign("allow_startvpn",!$allow_startvpn);
                 $smarty->assign("allow_stopvpn",$allow_startvpn);
                 $smarty->assign("allow_endgame",$this->getCurrentState() == GAMEINPROGRESS);
                 $smarty->assign("allow_startgame",$this->getCurrentState() == PREGAMESTART);
 
-                $q  = $db->query("SELECT * FROM announcements ORDER BY timestamp");
+                /*
+                 * Get all the announcements with the newest first.
+                 */
+                $q  = $db->query("SELECT * FROM announcements ORDER BY timestamp DESC");
                 $announcements = array();
                 foreach ($q as $announce){
                     $announcement = new stdClass();
                     $announcement->id = $announce['id'];
+                    $announcement->timestamp = $announce['timestamp'];
                     $announcement->title = htmlspecialchars($announce['title']);
                     $announcement->content = $this->parseBB($announce['announcement']);
                     array_push($announcements, $announcement);
@@ -97,16 +130,36 @@ class AdminInterface extends WebInterface {
 
                 return $smarty->fetch("admin.tpl");
             } else if(startsWith ($_GET['aaction'],"cadd")){
+                /*
+                 * Show the page to add a Contestant.
+                 * On success it also shows a success message.
+                 */
                 if (isset($_POST['cadd']) && strtolower($_POST['cadd']) == 'add'){
-                    if($this->cadd_success){
-                        $smarty->assign("caddsuccess","1");
+                    $retval = new stdClass();
+                    $retval->errorcount = count($this->errors);
+                    $errorArray = array();
+                    foreach($this->errors as $error){
+                        array_push($errorArray, $error->getMessage());
                     }
-
-                }else{
-
+                    $retval->errors = $errorArray;
+                    $retval->success = $this->cadd_success;
+                    $retval->action = "caddReply";
+                    $retval->reply = "Contestand added.";
+                    return json_encode($retval);
                 }
-                return $smarty->fetch("admincadd.tpl");
+                else{
+                    $retval = new stdClass();
+                    $retval->action = "cadd";
+                    $retval->reply = $smarty->fetch("admincadd.tpl");
+                    return json_encode($retval);
+                }
             } else if(startsWith ($_GET['aaction'],"cedit")){
+                /*
+                 * Show the page to edit a contestant, with preloaded values if a contestant ID has been given.
+                 * This can either be from the form itself ('cedit') or from the mainpage form ('contestant')
+                 * On success it also shows a success message.
+                 */
+
                 if (isset($_POST['cedit']) && (strtolower($_POST['cedit']) == 'save' || strtolower($_POST['cedit']) == 'forcesancheck')){
                     if(isset($_POST['contestant']))
                         $id = Contestant::getById($_POST['contestant'], $db);
@@ -121,11 +174,19 @@ class AdminInterface extends WebInterface {
                         $smarty->assign("vmip",$vmip);
                         $smarty->assign("subnet",$subnet);
                     }
-                    if($this->cedit_success){
-                        $smarty->assign("ceditsuccess","1");
-                    }else if($this->sancheckSuccess){
-                        $smarty->assign("sanchecksuccess","1");
+
+                    $retval = new stdClass();
+                    $retval->errorcount = count($this->errors);
+                    $errorArray = array();
+                    foreach($this->errors as $error){
+                        array_push($errorArray, $error->getMessage());
                     }
+                    $retval->errors = $errorArray;
+                    $retval->success = $this->cedit_success || $this->sancheckSuccess;
+                    $retval->action = "ceditReply";
+                    $retval->reply = "Contestand edited.";
+                    return json_encode($retval);
+
                 } else if(isset($_POST['contestant'])){
                     if(isset($_POST['contestant']))
                         $id = intval($_POST['contestant']);
@@ -144,41 +205,99 @@ class AdminInterface extends WebInterface {
                         $smarty->assign("subnet",$subnet);
                     }
                 }
-                return $smarty->fetch("admincedit.tpl");
+                $retval = new stdClass();
+                $retval->action = "cedit";
+                $retval->reply = $smarty->fetch("admincedit.tpl");
+                return json_encode($retval);
             }else if(startsWith ($_GET['aaction'],"cban")){
+                /*
+                 * Show the banning page for contestant, with preloaded name. On success it also shows a success message.
+                 */
                 $c = Contestant::getById($_POST['contestant'], $this->database);
                 if($c == false)
                 	$c = Contestant::getById($_POST['cid'], $this->database);
                 $smarty->assign("contestant",$c);
+                
                 if (isset($_POST['cid'])){
-                    if($this->cban_success){
-                        $smarty->assign("cbansuccess","1");
+                    $retval = new stdClass();
+                    $retval->errorcount = count($this->errors);
+                    $errorArray = array();
+                    foreach($this->errors as $error){
+                        array_push($errorArray, $error->getMessage());
                     }
+                    $retval->errors = $errorArray;
+                    $retval->success = $this->cban_success;
+                    $retval->action = "cbanReply";
+                    $retval->reply = "Contestand banned.";
+                    return json_encode($retval);
                 }
-                return $smarty->fetch("admincban.tpl");
+                $retval = new stdClass();
+                $retval->action = "cban";
+                $retval->reply = $smarty->fetch("admincban.tpl");
+                return json_encode($retval);
             }else if(startsWith ($_GET['aaction'],"cdel")){
+                /*
+                 * Show the Contestant deletion page, with a preloaded name if it exists. On success it also shows a success message.
+                 */
                 $c = Contestant::getById($_POST['contestant'], $this->database);
                 if($c == false)
                 	$c = Contestant::getById(intval($_POST['cid']), $this->database);
                 $smarty->assign("contestant",$c);
                 if (isset($_POST['cid'])){
-                    if($this->cdel_success){
-                        $smarty->assign("cdelsuccess","1");
+                    $retval = new stdClass();
+                    $retval->errorcount = count($this->errors);
+                    $errorArray = array();
+                    foreach($this->errors as $error){
+                        array_push($errorArray, $error->getMessage());
                     }
+                    $retval->errors = $errorArray;
+                    $retval->success = $this->cdel_success;
+                    $retval->action = "cdelReply";
+                    $retval->reply = "Contestand deleted.";
+                    return json_encode($retval);
                 }
-                return $smarty->fetch("admincdel.tpl");
+                $retval = new stdClass();
+                $retval->action = "cdel";
+                $retval->reply = $smarty->fetch("admincdel.tpl");
+                return json_encode($retval);
             }else if(startsWith ($_GET['aaction'],"aadd")){
+                /*
+                 * Show the page to add announcement. This includes a message if an announcement has just been added.
+                 */
                 if (isset($_POST['submitted'])){
-                    if(count($this->errors) == 0){
-                        $smarty->assign("aaddsuccess","1");
+                    $retval = new stdClass();
+                    $retval->errorcount = count($this->errors);
+                    $errorArray = array();
+                    foreach($this->errors as $error){
+                        array_push($errorArray, $error->getMessage());
                     }
+                    $retval->errors = $errorArray;
+                    $retval->success = $this->aadd_success;
+                    $retval->action = "aaddReply";
+                    $retval->reply = "Announcement added.";
+                    return json_encode($retval);
                 }
-                return $smarty->fetch("adminapost.tpl");
+                $retval = new stdClass();
+                $retval->action = "aadd";
+                $retval->reply = $smarty->fetch("adminapost.tpl");
+                return json_encode($retval);
             }else if(startsWith ($_GET['aaction'],"aedit")){
+                /*
+                 * Show the page for editing an announcement with preloaded values.
+                 * On success it also shows a success message.
+                 */
                 if (isset($_POST['submitted'])){
-                    if(count($this->errors) == 0){
-                        $smarty->assign("aeditsuccess","1");
+                    $retval = new stdClass();
+                    $retval->errorcount = count($this->errors);
+                    $errorArray = array();
+                    foreach($this->errors as $error){
+                        array_push($errorArray, $error->getMessage());
                     }
+                    $retval->errors = $errorArray;
+                    $retval->success = $this->aedit_success;
+                    $retval->action = "aeditReply";
+                    $retval->reply = "Announcement edited.";
+                    return json_encode($retval);
                 }
                 $q  = $db->prepare("SELECT * FROM announcements WHERE id = ?");
                 $q->execute(array(isset($_POST['announcement'])?$_POST['announcement']:(isset($_POST['aid'])?$_POST['aid']:-1)));
@@ -196,12 +315,28 @@ class AdminInterface extends WebInterface {
                     $announcement->content = $announce['announcement'];
                 }
                 $smarty->assign("announcement",$announcement);
-                return $smarty->fetch("adminaedit.tpl");
+                
+                $retval = new stdClass();
+                $retval->action = "aedit";
+                $retval->reply = $smarty->fetch("adminaedit.tpl");
+                return json_encode($retval);
             }else if(startsWith ($_GET['aaction'],"adel")){
+                /*
+                 * Show the page to delete an announcement, with preloaded title.
+                 * On success it also shows a success message.
+                 */
                 if (isset($_POST['submitted'])){
-                    if(count($this->errors) == 0){
-                        $smarty->assign("adelsuccess","1");
+                    $retval = new stdClass();
+                    $retval->errorcount = count($this->errors);
+                    $errorArray = array();
+                    foreach($this->errors as $error){
+                        array_push($errorArray, $error->getMessage());
                     }
+                    $retval->errors = $errorArray;
+                    $retval->success = $this->adel_success;
+                    $retval->action = "adelReply";
+                    $retval->reply = "Announcement deleted.";
+                    return json_encode($retval);
                 }
                 $q  = $db->prepare("SELECT * FROM announcements WHERE id = ?");
                 $q->execute(array(isset($_POST['announcement'])?$_POST['announcement']:(isset($_POST['aid'])?$_POST['aid']:-1)));
@@ -217,11 +352,20 @@ class AdminInterface extends WebInterface {
                     $announcement->title = $announce['title'];
                 }
                 $smarty->assign("announcement",$announcement);
-                return $smarty->fetch("adminadel.tpl");
+                $retval = new stdClass();
+                $retval->action = "adel";
+                $retval->reply = $smarty->fetch("adminadel.tpl");
+                return json_encode($retval);
 
             }else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"startvpn")==0){
+                /*
+                 * Show the result for the startvpn action. It consists of a success message or a list of errors and possibly both.
+                 * The success message includes a list of all the VPNs running and their status.
+                 * The result is JSON encoded and returned.
+                 */
+                $string= "";
                 if($this->startvpn_success){
-                    $string = "VPN servers started".count($this->errors) > 0?"(but with errrors)":"".".<br />".PHP_EOL."<pre style=\"font-size:1.1em;\">Status:".PHP_EOL;
+                    $string = "VPN servers started".((count($this->errors) > 0)?"(but with errrors)":"").".<br />".PHP_EOL."<pre style=\"font-size:1.1em;\">Status:".PHP_EOL;
 
                     foreach ($this->contestant_list as $c){
                         $string .= sprintf("%'.-30s: %s",$c->getTeamname(),OpenVPNManager::getVPNStatus($c)?"Online ":"Offline").PHP_EOL;
@@ -230,14 +374,28 @@ class AdminInterface extends WebInterface {
 
                     $string .="</pre>";
 
-                    $smarty->assignByRef("success", $string);
+                    //$smarty->assignByRef("success", $string);
                 }
                 $retval = new stdClass();
+                $retval->errorcount = count($this->errors);
+                $errorArray = array();
+                foreach($this->errors as $error){
+                    array_push($errorArray, $error->getMessage());
+                }
+                $retval->errors = $errorArray;
+                $retval->success = $this->startvpn_success;
                 $retval->action = "startvpn";
-                $retval->reply = $smarty->fetch("admin_ajax_startvpn.tpl");
+                $retval->reply = $string;
+                        //$smarty->fetch("admin_ajax_startvpn.tpl");
 
                 return json_encode($retval);
             } else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"stopvpn")==0){
+                /*
+                 * Show the result for the stopvpn action. It consists of a success message or a list of errors and possibly both.
+                 * The success message includes a list of all the VPNs running and their status.
+                 * The result is JSON encoded and returned.
+                 */
+                $string="";
                 if(count($this->errors) == 0){
                     $string = "VPN servers stopped.<br />".PHP_EOL."<pre style=\"font-size:1.1em;\">Status:".PHP_EOL;
 
@@ -248,33 +406,71 @@ class AdminInterface extends WebInterface {
 
                     $string .="</pre>";
 
-                    $smarty->assignByRef("success", $string);
+                    //$smarty->assignByRef("success", $string);
                 }
                 $retval = new stdClass();
+                $retval->errorcount = count($this->errors);
+                $errorArray = array();
+                foreach($this->errors as $error){
+                    array_push($errorArray, $error->getMessage());
+                }
+                $retval->errors = $errorArray;
+                $retval->success = $this->stopvpn_success;
                 $retval->action = "stopvpn";
-                $retval->reply = $smarty->fetch("admin_ajax_startvpn.tpl");
+                $retval->reply = $string;
+                        //$smarty->fetch("admin_ajax_startvpn.tpl");
 
                 return json_encode($retval);
             } else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"startgame")==0){
+                /*
+                 * Shows the result of the startgame action. This consists of a list of error when an error has occured, or a success message
+                 * when there was no error.
+                 *
+                 * @todo Create more accurate result by using a field
+                 */
+                $string="";
                 if(count($this->errors) == 0){
                     $string = "The wargame has started! To the bunkers!";
 
-                    $smarty->assignByRef("success", $string);
+                    //$smarty->assignByRef("success", $string);
                 }
                 $retval = new stdClass();
+                $retval->errorcount = count($this->errors);
+                $errorArray = array();
+                foreach($this->errors as $error){
+                    array_push($errorArray, $error->getMessage());
+                }
+                $retval->errors = $errorArray;
+                $retval->success = $this->startgame_success;
                 $retval->action = "startgame";
-                $retval->reply = $smarty->fetch("admin_ajax_startvpn.tpl");
+                $retval->reply = $string;
+                        //$smarty->fetch("admin_ajax_startvpn.tpl");
 
                 return json_encode($retval);
             } else if(isset($_GET['aaction']) && strcmp ($_GET['aaction'],"endgame")==0){
+                /*
+                 * Shows the result of the endgame action. This consists of This consists of a list of error when an error has occured, or a success message
+                 * when there was no error.
+                 *
+                 * @todo make more accurate return message
+                 */
+                $string="";
                 if(count($this->errors) == 0){
                     $string = "The wargame has ended! Hail the champions!!";
 
-                    $smarty->assignByRef("success", $string);
+                    //$smarty->assignByRef("success", $string);
                 }
                 $retval = new stdClass();
+                $retval->errorcount = count($this->errors);
+                $errorArray = array();
+                foreach($this->errors as $error){
+                    array_push($errorArray, $error->getMessage());
+                }
+                $retval->errors = $errorArray;
+                $retval->success = $this->endgame_success;
                 $retval->action = "endgame";
-                $retval->reply = $smarty->fetch("admin_ajax_startvpn.tpl");
+                $retval->reply = $string;
+                        //$smarty->fetch("admin_ajax_startvpn.tpl");
 
                 return json_encode($retval);
             }
@@ -304,7 +500,10 @@ class AdminInterface extends WebInterface {
     }
 
     /**
-     * Does all the work. It interprets form data, etc.
+     * This function handles all the 'work' (i.e. user input). <br />
+     * It creates a database if there isn't any yet. Then it does the unban job to unban people who are again allowed to play.
+     * Finally it tests the input of the user to see what action it should do, and calls the method to perform this action.
+     * @return void Nothing ...
      */
     public function doWork() {
         if (!$this->db_ready) {
@@ -323,7 +522,7 @@ class AdminInterface extends WebInterface {
         //Assuming everything went OK, we are now in the PRECONFIG state
         //Going to do the actual work
         if($this->getCurrentState() == GAMEINPROGRESS)
-                $this->unban();
+                $this->unban(); //@todo make scheduled?
         if($_SERVER['REQUEST_METHOD'] == "POST"){
             if(isset($_POST['configsubmit'])){
                  $this->configure();
@@ -356,6 +555,10 @@ class AdminInterface extends WebInterface {
 
     }
 
+    /**
+     * Configure handles the configuration of the wargame, i.e. it handles the input from the config page.
+     * @return void Nothing ...
+     */
     public function configure(){
         if($this->getCurrentState() != PRECONFIG ) {
             $this->handleError(new Error("illegal_action", "You can't configure the wargame now.", false));
@@ -365,15 +568,18 @@ class AdminInterface extends WebInterface {
         /* @var $db PDO */
         $db = &$this->database;
 
-        $gamename = $_POST['name'];
+        /*
+         * fetch all the values from the POST array
+         */
+        $gamename = htmlspecialchars($_POST['name']);
         $auto_p2p_interval = intval($_POST['p2p_interval']);
         $auto_s2p_interval = intval($_POST['s2p_interval']);
         $server_ip = $_POST['server_ip'];
 
-        $decay_mod = $_POST['points_decay_mod'];
-        $points_min = $_POST['points_min'];
-        $point_penalty_mod = $_POST['point_penalty_mod'];
-        $penalty_offline = $_POST['penalty_offline'];
+        $decay_mod = floatval($_POST['points_decay_mod']);
+        $points_min = intval($_POST['points_min']);
+        $point_penalty_mod = floatval($_POST['point_penalty_mod']);
+        $penalty_offline = intval($_POST['penalty_offline']);
 
         $manifest = $_FILES['manifest'];
         $temp = explode(".", $manifest['name']);
@@ -382,8 +588,15 @@ class AdminInterface extends WebInterface {
         if (strcmp($ext, "xml") != 0) {
             $this->handleError(new Error("config_input_error", "You can only upload XML files!", false));
             return;
-        } elseif ($auto_p2p_interval > 0 && $auto_s2p_interval > 0 && $manifest['error'] === 0 && checkValidIp($server_ip)) {
+        } elseif (  $auto_p2p_interval > 0 &&
+                    $auto_s2p_interval > 0 &&
+                    $manifest['error'] === 0 &&
+                    checkValidIp($server_ip)) {
 
+            /*
+             * Assume the input is correct. Only a few things are checked, mainly because we should assume the administrator is not
+             * trying to mess with his own game.
+             */
 
             move_uploaded_file($manifest['tmp_name'], "manifest.xml");
 
@@ -393,6 +606,9 @@ class AdminInterface extends WebInterface {
                 return;
             }
 
+            /*
+             * Save all the configs in the database
+             */
             $update = $db->prepare("INSERT INTO config (value,config_name) VALUES (?,?);");
             /* @var $update PDOStatement */
             $result = $update->execute(array($gamename, 'gamename'));
@@ -421,6 +637,15 @@ class AdminInterface extends WebInterface {
         }
     }
 
+    /**
+     * This function handles adding a Contestant based on user input. If it is
+     * the first Contestant being made (more specific: if the number of
+     * contestants in the database equals 0) also some initial keys are created
+     * and the configuration for the initial VPN is created (10.0.0.1). <br>
+     * Finally, if the game is already started, the new VPN will automatically
+     * be started as well.
+     * @return void Nothing ...
+     */
     public function addContestant(){
         if($this->getCurrentState() != GAMEINPROGRESS &&
             $this->getCurrentState() != PREVPN &&
@@ -513,8 +738,6 @@ class AdminInterface extends WebInterface {
                 OpenVPNManager::buildServerKeys("Team".$c->getId());
                 OpenVPNManager::buildClientKeys("Team".$c->getId());
 
-                // @TODO We moeten ook Apache configs aanpassen enzo om Limit te allowen voor .htaccess
-                // create the CCD file
                 OpenVPNManager::createClientConfigFile("Team".$c->getId(), $vmip, $vmip_endpoint);
 
                 $this->createVPNServerConf($c);
@@ -565,6 +788,12 @@ class AdminInterface extends WebInterface {
 
     }
 
+    /**
+     * This function handling editing a Contestant by using the input given in
+     * the POST array. It checks the validity of the input, stores it and
+     * restarts the VPN server (thus disconnecting the Contestant for a while).
+     * @return void Nothing ...
+     */
     public function editContestant(){
         $state = $this->getCurrentState();
         if($state != GAMEINPROGRESS &&
@@ -589,8 +818,6 @@ class AdminInterface extends WebInterface {
         $result = $db->query("SELECT COUNT(*) FROM teams");
         $num_teams = $result->fetchColumn();
 
-
-        // @FIXME doe dubbele code weghalen?
         if(!ctype_alnum($_POST['cname']))
             $this->handleError(new Error("team_input_error", "Illegal name. Only alphanumeric allowed!", false));
         elseif((!(intval($_POST['cvmip']) > 0 && intval($_POST['cvmip']) < 255)) || !((intval($_POST['csubnet']) > 0 && intval($_POST['csubnet']) < 255)))
@@ -646,6 +873,16 @@ class AdminInterface extends WebInterface {
         
     }
 
+    /**
+     * Handles banning a Contestant identified by user input. The bantime is
+     * taken from the POST array, and verfied. <br>0 only disconnects the client
+     * (but with auto reconnect this does not matter) and deletes a prevous ban.
+     * <br>Negative values asside from -1 disconnect the Contestant and create a ban
+     * for a time in the past, thus unbanning as well. <br>A value of -1 bans the
+     * Contestant in such a way that he can only be unbanned by an Administrator.
+     * <br>Any positive value bans the Contestant for the given number of minutes.
+     * @return void Nothing ...
+     */
     public function banContestant(){
         if($this->getCurrentState() != GAMEINPROGRESS ) {
             $this->handleError(new Error("illegal_action", "You're not allowed to add contestants during this stage of the wargame.", false));
@@ -720,6 +957,14 @@ class AdminInterface extends WebInterface {
         
     }
 
+    /**
+     * Handles deleting a contestant, identied by $_POST['cid']. The VPN is
+     * stopped, then the Client Config Directory file (which is needed for a
+     * client to log in) is removed along with the VPNs config file. Finally the
+     * entry in the database is removed, altough all references do still exist
+     * (if any).
+     * @return void Nothing ...
+     */
     public function deleteContestant(){
         if(isset($_POST['cid']) && intval($_POST['cid']) != 0){
 
@@ -760,7 +1005,12 @@ class AdminInterface extends WebInterface {
         }
     }
 
+    /**
+     * Handles adding an Announcement based on user input.
+     * @return void Nothing ...
+     */
     public function addAnnouncement(){
+        $this->aadd_success = false;
         if($this->getCurrentState() == PRECONFIG ) {
             $this->handleError(new Error("illegal_action", "You're not allowed to add announcements during this stage of the wargame.", false));
             return;
@@ -773,9 +1023,16 @@ class AdminInterface extends WebInterface {
 
         $q = $this->database->prepare("INSERT INTO announcements VALUES (null,?,?,?)");
         $q->execute(array($_POST['atitle'],$_POST['abody'], time()));
+
+        $this->aadd_success = true;
     }
 
+    /**
+     * Handles editting an Announcement, if it exists.
+     * @return void Nothing ...
+     */
     public function editAnnouncement(){
+        $this->aedit_success = false;
         if($this->getCurrentState() == PRECONFIG ) {
             $this->handleError(new Error("illegal_action", "You're not allowed to edit announcements during this stage of the wargame.", false));
             return;
@@ -795,9 +1052,16 @@ class AdminInterface extends WebInterface {
 
         $q = $this->database->prepare("UPDATE announcements SET title = ?, announcement = ? WHERE id = ?");
         $q->execute(array($_POST['atitle'],$_POST['abody'],$_POST['aid']));
+
+        $this->aedit_success = true;
     }
 
+    /**
+     * Handles deleting an Announcement identified by the given ID.
+     * @return void Nothing ...
+     */
     public function deleteAnnouncement(){
+        $this->adel_success = false;
         if($this->getCurrentState() == PRECONFIG ) {
             $this->handleError(new Error("illegal_action", "You're not allowed to delete announcements during this stage of the wargame.", false));
             return;
@@ -817,8 +1081,17 @@ class AdminInterface extends WebInterface {
 
         $q = $this->database->prepare("DELETE FROM announcements WHERE id = ?");
         $q->execute(array($_POST['aid']));
+
+        $this->adel_success = true;
     }
 
+    /**
+     * Handles starting the VPN servers. <br>
+     * It only starts the VPN servers of the Contestants whose VPN is currently
+     * not running. It also starts the base VPN if necessary.
+     * 
+     * @return void Nothing ...
+     */
     public function startVPN(){
         $state = $this->getCurrentState();
         if($state != PREVPN &&
@@ -841,6 +1114,13 @@ class AdminInterface extends WebInterface {
         $this->startvpn_success = true;
     }
 
+    /**
+     * Handles stopping the VPN servers. <br>
+     * It only stops the VPN servers of the Contestants whose VPN is currently
+     * running. It also stops the base VPN if necessary.
+     *
+     * @return void Nothing ...
+     */
     public function stopVPN(){
         $state = $this->getCurrentState();
         if($state != PREGAMESTART &&
@@ -849,6 +1129,7 @@ class AdminInterface extends WebInterface {
             $this->handleError(new Error("illegal_action", "You can't stop the VPNs in this stage.", false));
             return;
         }
+        $this->stopvpn_success = false;
         foreach ($this->contestant_list as $c){
             if(OpenVPNManager::getVPNStatus($c))
                 OpenVPNManager::stopVPN($c);
@@ -856,8 +1137,15 @@ class AdminInterface extends WebInterface {
         if(OpenVPNManager::getBaseVPNStatus())
             OpenVPNManager::stopBaseVPN();
         sleep(3);
+
+        $this->stopvpn_success=true;
     }
 
+    /**
+     * Handles requesting both types of Sanity Check for the specified Contestant.
+     * 
+     * @return void Nothing ...
+     */
     public function forceSanityCheck(){
         $this->sancheckSuccess = false;
         if($this->getCurrentState() != GAMEINPROGRESS ) {
@@ -891,12 +1179,21 @@ class AdminInterface extends WebInterface {
         $this->sancheckSuccess = true;
     }
 
+    /**
+     * Handles starting the game. <br>
+     * It starts the kernel routing, Flag Administration and Sanity Check Service.
+     * It also stores the start time of the game, used to  create plot the graph 
+     * for the Contestants.
+     * 
+     * @return void Nothing ...
+     */
     public function startGame(){
+        $this->startgame_success = false;
         if($this->getCurrentState() != PREGAMESTART ) {
             $this->handleError(new Error("illegal_action", "You can't start a wargame in this stage.", false));
             return;
         }
-
+        
         OpenVPNManager::setKernelRouting(true);
         exec("python ". $this->config['ch_location'] . "FlagAdministration.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
         exec("python ". $this->config['ch_location'] . "SanityCheckService.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
@@ -905,8 +1202,15 @@ class AdminInterface extends WebInterface {
         $q->execute(array("start_time",time()));
 
         $this->setState(GAMEINPROGRESS);
+        $this->startgame_success = false;
     }
 
+    /**
+     * Handles stopping the game. <br> It stops kernel routing, Flag Administration,
+     * OpenVPN Service, Sanity Check Service and all VPNs. Lastly it changes the
+     * game state.
+     * @return void Nothing ...
+     */
     public function endGame(){
         if($this->getCurrentState() != GAMEINPROGRESS ) {
             $this->handleError(new Error("illegal_action", "You can't stop a wargame which is not in progress.", false));
@@ -920,7 +1224,15 @@ class AdminInterface extends WebInterface {
         if(!$fp){
             $this->handleError(new Error("game_administration_error", "Cannot stop Flag Administration! (".$errno.")", false));
         }else{
-            fwrite($fp, "REQSHUTDOWN");
+            fwrite($fp, "REQSHUTDOWN\n");
+            fclose($fp);
+        }
+
+        $fp = @fsockopen("127.0.0.1", 9996, $errno, $errstr, 5);
+        if(!$fp){
+            $this->handleError(new Error("game_administration_error", "Cannot stop Sanity Check Service! (".$errno.")", false));
+        }else{
+            fwrite($fp, "STOPSANITYSERVICE\n");
             fclose($fp);
         }
 
@@ -934,15 +1246,17 @@ class AdminInterface extends WebInterface {
         if(!$fp){
             $this->handleError(new Error("game_administration_error", "Cannot stop OpenVPNService.py! (".$errno.")", false));
         }else{
-            fwrite($fp, "STOPSERVICE");
+            fwrite($fp, "STOPSERVICE\n");
             fclose($fp);
         }
 
         $this->setState(POSTGAME);
         $this->endgame_success = true;
     }
+
     /**
-     *
+     * Generates VPN server configuration file for the given Contestant.
+     * 
      * @param Contestant $c The contestant which needs a new VPN server config file
      */
     private function createVPNServerConf(&$c){
@@ -969,7 +1283,8 @@ class AdminInterface extends WebInterface {
 
     /**
      * Fetches the last n Sanity Check results for the given Contestant
-     * @param Integer $n
+     * 
+     * @param int $n
      * @param Contestant $c
      * @global WebInterface interface
      */

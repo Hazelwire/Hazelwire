@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	
 	function toggledata(target) {
-		target.children().slideToggle("fast");
+		target.children("div").slideToggle("fast");
 		target.toggleClass("open");
 	}
 	
