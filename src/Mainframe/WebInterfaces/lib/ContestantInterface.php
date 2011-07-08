@@ -194,20 +194,29 @@ class ContestantInterface extends WebInterface{
                 if($this->flag_success){
                     $smarty->assign("flag_success", 1);
                 }
-                return $smarty->fetch("contestant_ajax_flagsub.tpl");
-            }else if(strcmp($_POST['ajax'],"leaderboard")==0){
+                $retval = new stdClass();
+                $retval->action = "flagsub";
+                $retval->reply = $smarty->fetch("contestant_ajax_flagsub.tpl");
+                return json_encode($retval);
+                
+                //return $smarty->fetch("contestant_ajax_flagsub.tpl");
+            }else if(strcmp($_POST['ajax'],"announcements")==0){
                 $db = &$this->database;
-                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
-                             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
-                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
-
-                $contestants = array();
-                while (($res = $q->fetch()) !== false){
-                    $c = Contestant::getById($res['team_id'], $db);
-                    array_push($contestants, $c);
+                $q  = $db->query("SELECT * FROM announcements ORDER BY timestamp DESC");
+                $announcements = array();
+                foreach ($q as $announce){
+                    $announcement = new stdClass();
+                    $announcement->id = $announce['id'];
+                    $announcement->timestamp = $announce['timestamp'];
+                    $announcement->title = htmlspecialchars($announce['title']);
+                    $announcement->content = $this->parseBB($announce['announcement']);
+                    array_push($announcements, $announcement);
                 }
-                $smarty->assign("contestants",$contestants);
-                return $smarty->fetch("contestant_ajax_leaderboard.tpl");
+                $smarty->assign("announcements",$announcements);
+                $retval = new stdClass();
+                $retval->action = "announcements";
+                $retval->reply = $smarty->fetch("contestant_ajax_announcements.tpl");
+                return json_encode($retval);
             }
         }
     }

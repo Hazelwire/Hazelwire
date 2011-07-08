@@ -143,8 +143,6 @@ class AdminInterface extends WebInterface {
                 $contestants = array();
                 while (($res = $q->fetch()) !== false){
                     $c = Contestant::getById($res['team_id'], $db);
-                    $allow_startvpn = $allow_startvpn && OpenVPNManager::getVPNStatus($c);
-                    $allow_stopvpn = $allow_stopvpn || OpenVPNManager::getVPNStatus($c);
                     array_push($contestants, $c);
                 }
                 $smarty->assign("contestants",$contestants);
@@ -480,7 +478,7 @@ class AdminInterface extends WebInterface {
                  * @todo Create more accurate result by using a field
                  */
                 $string="";
-                if(count($this->errors) == 0){
+                if($this->startgame_success){
                     $string = "The wargame has started! To the bunkers!";
 
                     //$smarty->assignByRef("success", $string);
@@ -506,7 +504,7 @@ class AdminInterface extends WebInterface {
                  * @todo make more accurate return message
                  */
                 $string="";
-                if(count($this->errors) == 0){
+                if($this->endgame_success){
                     $string = "The wargame has ended! Hail the champions!!";
 
                     //$smarty->assignByRef("success", $string);
@@ -1253,7 +1251,7 @@ class AdminInterface extends WebInterface {
         $q->execute(array("start_time",time()));
 
         $this->setState(GAMEINPROGRESS);
-        $this->startgame_success = false;
+        $this->startgame_success = true;
     }
 
     /**
