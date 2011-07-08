@@ -27,6 +27,7 @@
                               {foreach from=$series->series item=serie}
                                 var {$serie->id}={$serie->string};
                               {/foreach}
+                                  
                               plot1 = $.jqplot('chart1', [{$series->seriesString}],{literal} {
                                   legend:{show:true},
                                   axes:{

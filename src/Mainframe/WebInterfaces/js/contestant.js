@@ -1,6 +1,7 @@
 $(document).ready(function() {
         setTimeout("updateLeaderboard()",30000);
         setTimeout("updateAnnouncements()",30000);
+        setTimeout("updatePlotData()",5*60000);
         var flgsubmsgt;
         //$('#chart1').append('<div id="toolTip" style="position:absolute;display:none;background:#E5DACA;padding:4px;"></div>');
 
@@ -87,6 +88,62 @@ function updateAnnouncements(){
                   $('label[for="announcement_'+openAnnouncements[i]+ '"]').find('div').show();
                 }
                 setTimeout("updateAnnouncements()",60000);
+            }
+        }
+    });
+}
+
+var seriesInfo;
+
+function updatePlotData(){
+    var dataString = 'ajax=plotdata';
+
+    $.ajax({
+        type: "POST",
+        url: "index.php",
+        dataType: 'json',
+        data: dataString,
+        success: function(data) {
+            if(data != null && data.action == "plotdata"){
+                seriesInfo = new Array();
+
+                for(var i = 0; i< data.series.length; i++){
+                    var serieInf = new Object();
+                    serieInf.showLabel = true;
+                    serieInf.label = data.series[i];
+                    seriesInfo.push(serieInf);
+                }
+                
+                $('#chart1').empty();
+                plot1 = $.jqplot('chart1', data.plotdata, {
+                    legend:{show:true},
+                    axes:{
+                      xaxis:{
+                        renderer:$.jqplot.DateAxisRenderer,
+                                showTicks: false,
+                                min: data.starttime,
+                        tickOptions:{
+                          formatString:'%r'
+                        }
+                      },
+                      yaxis:{
+                        tickOptions:{
+                          formatString:'%i'
+                          }
+                      }
+                    },
+                    highlighter: {
+                      show: true,
+                      sizeAdjust: 7.5,
+                              formatString: '%s, %s pts'
+                    },
+                    cursor: {
+                              zoom: true,
+                              showTooltip:false
+                    },
+                    series: seriesInfo
+                });
+                setTimeout("updatePlotData()",5*60000);
             }
         }
     });

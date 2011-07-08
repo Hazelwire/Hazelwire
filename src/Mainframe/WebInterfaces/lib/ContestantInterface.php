@@ -172,24 +172,61 @@ class ContestantInterface extends WebInterface{
                     $serie->id   = "line".$contest['id'];
                     $series->seriesString .= $serie->id.",";
                     $serie->name = $contest['name'];
-                    $serie->string = "[";
+                    $string = "[";
 
-                    $serie->string .= "[".($start_time).",0],";
+                    $string .= "[".($start_time).",0],";
                     $total = 0;
 
                     $point_fetch->execute(array($contest['id']));
                     foreach($point_fetch as $points){
                         $total += intval($points['points']);
-                        $serie->string .= "[".($points['timestamp']*1000).",".$total."],";
+                        $string .= "[".($points['timestamp']*1000).",".$total."],";
                     }
-                    $serie->string .= "[".($now*1000).",".$total."]]";
+                    $string .= "[".($now*1000).",".$total."]]";
+                    
                     array_push($series->series, $serie);
                 }
+                
                 $series->seriesString = substr($series->seriesString, 0, strlen($series->seriesString)-1);
+                
                 $smarty->assign("series",$series);
                 
                 return $smarty->fetch("contestant.tpl");
 
+            }else if(strcmp($_POST['ajax'],"plotdata")==0){
+                $db = &$this->database;
+                $retval = new stdClass();
+                $retval->action="plotdata";
+
+                $q = $db->query("SELECT value FROM config WHERE config_name = 'start_time'");
+                $res = $q->fetch();
+                $retval->starttime = $res['value']*1000 - 60000;
+                
+                $now = time();
+                $point_fetch = $db->prepare("SELECT points,timestamp FROM scores WHERE team_id=? ORDER BY timestamp"); /* @var $point_fetch PDOStatement */
+                $q = $db->prepare("SELECT id, name FROM teams");
+                $q->execute();
+                
+                $retval->plotdata = array();
+                $retval->series = array();
+                foreach($q as $contest){
+                    $serie = array();
+
+                    array_push($serie, array(($retval->starttime+60000),0));
+
+                    $total = 0;
+
+                    $point_fetch->execute(array($contest['id']));
+                    foreach($point_fetch as $points){
+                        $total += intval($points['points']);
+                        array_push($serie,array(($points['timestamp']*1000),$total));
+                    }
+                    array_push($serie,array(($now*1000),$total));
+                    array_push($retval->plotdata, $serie);
+                    array_push($retval->series, $contest['name']);
+                }
+
+                return json_encode($retval);
             }else if(strcmp($_POST['ajax'],"flagsub")==0){
                 if($this->flag_success){
                     $smarty->assign("flag_success", 1);
