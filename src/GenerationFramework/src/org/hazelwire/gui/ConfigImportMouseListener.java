@@ -5,7 +5,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.FileDialog;
-import org.hazelwire.xml.ExportModuleConfiguration;
 import org.hazelwire.xml.ImportModuleConfiguration;
 
 /**
@@ -18,20 +17,6 @@ import org.hazelwire.xml.ImportModuleConfiguration;
  */
 public class ConfigImportMouseListener implements MouseListener
 {
-
-	private GUIBuilder gUIBuilder;
-
-	/**
-	 * Constructs an instance of ConfigImportMouseListener
-	 * @param gUIBuilder the {@link GUIBuilder} is needed in
-	 * order to store the information obtained from the 
-	 * XML file into the GUI.
-	 */
-	public ConfigImportMouseListener(GUIBuilder gUIBuilder)
-	{
-		this.gUIBuilder = gUIBuilder;
-	}
-
 	@Override
 	public void mouseDoubleClick(MouseEvent arg0)
 	{}
@@ -54,7 +39,10 @@ public class ConfigImportMouseListener implements MouseListener
 		FileDialog fd = new FileDialog(((Button)m.getSource()).getShell(), SWT.OPEN);
         //Hier stond eerst export. Nu niet meer.
 		fd.setText("Import configuration");
-
+		String[] ext = new String[1];
+		ext[0] = ".xml";
+		fd.setFilterExtensions(ext);
+		
         String selected = fd.open();
         if(selected!=null){
         	try

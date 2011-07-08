@@ -44,14 +44,8 @@ public class BrowseMouseListener implements MouseListener {
 			fd = new FileDialog(((Text)m.getSource()).getShell(), SWT.OPEN);
 		}
         fd.setText("Browse");
-        /*
-         * De extensie van het bestand die is toegestaan.
-         */
         String[] filterExt = { "*.ova", "*.ovf" };
         fd.setFilterExtensions(filterExt);
-        /*
-         * Dit (String selected) is het (absolute) pad naar het geselecteerde bestand.
-         */
         String selected = fd.open();
         if(selected!=null){
         	text.setText(selected);

@@ -1,14 +1,10 @@
 package org.hazelwire.gui;
 
-import java.io.IOException;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Text;
-import org.hazelwire.main.Configuration;
 import org.hazelwire.xml.ExportModuleConfiguration;
 
 /**
@@ -18,21 +14,7 @@ import org.hazelwire.xml.ExportModuleConfiguration;
  * XML' button.
  */
 public class ConfigExportListener implements MouseListener
-{
-
-	private GUIBuilder gUIBuilder;
-	
-	/**
-	 * Constructs an instance of ConfigExportListener.
-	 * @param gUIBuilder the {@link GUIBuilder} is needed to
-	 * be able to obtain the current configurations and 
-	 * settings that need to be saved in the XML file. 
-	 */
-	public ConfigExportListener(GUIBuilder gUIBuilder)
-	{
-		this.gUIBuilder = gUIBuilder;
-	}
-
+{	
 	@Override
 	public void mouseDoubleClick(MouseEvent arg0)
 	{}
@@ -51,11 +33,11 @@ public class ConfigExportListener implements MouseListener
 	 */
 	public void mouseUp(MouseEvent m)
 	{
-		//Heb de optie open in save veranderd. Misschien is het ook mogelijk een standaard
-		//extensie te setten? Of je append gewoon zelf .xml als dat er nog niet achter
-		//staat
 		FileDialog fd = new FileDialog(((Button)m.getSource()).getShell(), SWT.SAVE);
         fd.setText("Export configuration");
+        String[] ext = new String[1];
+        ext[0] = ".xml";
+        fd.setFilterExtensions(ext);
 
         String selected = fd.open();
         if(selected!=null){

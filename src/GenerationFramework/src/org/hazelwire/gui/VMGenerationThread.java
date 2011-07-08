@@ -1,9 +1,6 @@
 package org.hazelwire.gui;
 
 import java.util.ArrayList;
-
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Text;
 import org.hazelwire.main.Generator;
 import org.hazelwire.modules.Flag;
 import org.hazelwire.modules.Module;

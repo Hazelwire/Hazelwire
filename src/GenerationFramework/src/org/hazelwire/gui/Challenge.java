@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.hazelwire.modules.Flag;
-import org.hazelwire.modules.Module;
 
 /**
  * Instances of this class represent a challenge, which is a part
- * of a {@link Module} that represents a {@link Flag} and the values 
+ * of a {@link Mod} that represents a {@link Flag} and the values 
  * associated with it.
  *
  */
