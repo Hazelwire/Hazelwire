@@ -62,4 +62,54 @@ public class GUIBridge
 		
 		return tempMods;
 	}
+	
+	/**
+	 * Synchronizes the selection of modules in the frontend and the backend + their options.
+	 */
+	public static void synchronizeModulesFrontToBack()
+	{
+		ModuleSelector modSelect = Generator.getInstance().getModuleSelector();
+		ModsBookkeeper modBook = ModsBookkeeper.getInstance();
+		
+		for(Mod mod : modBook.getSelectedMods())
+		{
+			ArrayList<Challenge> challenges = mod.getChallenges();
+			ArrayList<Flag> flags = new ArrayList<Flag>();
+			
+			for(Challenge challenge : challenges)
+			{
+				flags.add(challenge.toFlag());
+			}
+			
+			ArrayList<Option> options = new ArrayList<Option>(mod.getOptions().values());
+			
+			Module tempModule = modSelect.getAvailableModules().get(mod.getId());
+			tempModule.setFlags(flags);
+			tempModule.setOptions(options); //replace all the options with their user specified values
+			modSelect.selectModule(mod.getId()); //id corresponds to the backend id
+		}
+	}
+	
+	public static void synchronizeModulesBackToFront()
+	{
+		ModuleSelector modSelect = Generator.getInstance().getModuleSelector();
+		ModsBookkeeper modBook = ModsBookkeeper.getInstance();
+		
+		for(Module module : modSelect.getSelectedModules().values())
+		{
+			Collection<Flag> flags = module.getFlags();
+			ArrayList<Challenge> challenges = new ArrayList<Challenge>();
+			
+			for(Flag flag : flags)
+			{
+				challenges.add(new Challenge(flag));
+			}
+			
+			Mod tempMod = modBook.getModuleByName(module.getName());
+			tempMod.setChallenges(challenges);
+			tempMod.setOptions(module.getOptions());
+			modBook.selectModule(module.getName());	
+		}
+		GUIBuilder.getInstance().updateModList();
+	}
 }

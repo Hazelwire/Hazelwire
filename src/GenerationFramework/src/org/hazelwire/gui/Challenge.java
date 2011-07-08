@@ -56,6 +56,15 @@ public class Challenge
 		this.points = 0;
 		this.defaultPoints = 0;
 	}
+	
+	public Challenge(Flag flag)
+	{
+		this.id = flag.getId();
+		this.tags = new ArrayList<Tag>();
+		this.description = flag.getDescription();
+		this.points = flag.getPoints();
+		this.defaultPoints = flag.getDefaultPoints();
+	}
 
 	/**
 	 * Returns the Challenges id, as a String value

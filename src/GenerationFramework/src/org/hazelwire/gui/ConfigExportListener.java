@@ -61,7 +61,7 @@ public class ConfigExportListener implements MouseListener
         if(selected!=null){
         	try
 			{
-        		VMGenerationThread.synchronizeModules();
+        		GUIBridge.synchronizeModulesFrontToBack();
 				new ExportModuleConfiguration().exportModuleConfiguration(selected);
 			}
 			catch (Exception e)

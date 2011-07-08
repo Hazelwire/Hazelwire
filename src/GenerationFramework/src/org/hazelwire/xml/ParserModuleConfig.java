@@ -78,7 +78,8 @@ public class ParserModuleConfig extends XMLParser
         	for(int i=0;i<flagsNl.getLength();i++)
         	{
         		Element el = (Element)flagsNl.item(i);
-        		tempModule.addFlag(new Flag(this.getIntValue(el, "points"))); //this might throw an exception
+        		tempModule.addFlag(new Flag(this.getIntValue(el, "points"),
+        				this.getIntValue(el, "points"))); //this might throw an exception
         	}        	
         }
         

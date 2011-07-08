@@ -18,7 +18,7 @@ public class TabItemTest extends TabItem implements Drawable
 	}
 
 	@Override
-	public int internal_new_GC(GCData arg0)
+	public long internal_new_GC(GCData arg0)
 	{
 		return 0;
 	}

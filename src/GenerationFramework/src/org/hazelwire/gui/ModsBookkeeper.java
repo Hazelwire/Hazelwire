@@ -126,6 +126,22 @@ public class ModsBookkeeper extends Observable
 			notifyObservers("DESELECTED");
 		}
 	}
+	
+	public Mod getModuleByName(String modName)
+	{
+		Mod tempMod = null;
+		
+		int index = mods.indexOf(new Mod(modName));
+		if (index != -1)
+		{
+			if (selectedMods.indexOf(new Mod(modName)) == -1)
+			{
+				tempMod = mods.get(index);
+			}
+		}
+		
+		return tempMod;
+	}
 
 	public int getTotalPoints()
 	{

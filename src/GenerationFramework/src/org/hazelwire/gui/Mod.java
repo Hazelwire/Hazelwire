@@ -1,6 +1,7 @@
 package org.hazelwire.gui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.hazelwire.modules.Option;
@@ -88,6 +89,21 @@ public class Mod
 			result = challenges.get(index);
 		}
 		return result;
+	}
+	
+	public void setChallenges(Collection<Challenge> challenges)
+	{
+		this.challenges = new ArrayList<Challenge>(challenges);
+	}
+	
+	public void setOptions(Collection<Option> options)
+	{
+		HashMap<String, Option> tempOptions = new HashMap<String, Option>();
+		
+		for(Option option : options)
+		{
+			tempOptions.put(option.getName(), option);
+		}
 	}
 
 	public HashMap<String, Option> getOptions()

@@ -42,7 +42,7 @@ public class ConfigImportMouseListener implements MouseListener
 
 	@Override
 	/**
-	 * When the 'import from XML' buttton is clicked, this method
+	 * When the 'import from XML' button is clicked, this method
 	 * is called. It creates a new {@link FileDialog}, in which the
 	 * user can select the XML file to be used. If this is completed
 	 * correctly, the method will parse the XML and set all configurations
@@ -59,8 +59,8 @@ public class ConfigImportMouseListener implements MouseListener
         if(selected!=null){
         	try
 			{
-        		VMGenerationThread.synchronizeModules();
-				new ImportModuleConfiguration(selected);
+				new ImportModuleConfiguration(selected).parseDocument();
+				GUIBridge.synchronizeModulesBackToFront();
 			}
 			catch (Exception e)
 			{
