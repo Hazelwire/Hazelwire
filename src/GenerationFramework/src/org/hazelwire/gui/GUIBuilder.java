@@ -54,7 +54,6 @@ public class GUIBuilder implements Observer, ControlListener {
 	private Text text_1;
 	private Text text_filepath;
 	private Text txtHazelwireVm;
-	private Text text_3;
 	private Text text_output;
 	private Canvas canvas, tags, canvas_1;
 	private static GUIBuilder instance;
@@ -145,6 +144,7 @@ public class GUIBuilder implements Observer, ControlListener {
 		display.dispose();
 		try
 		{
+			Generator.getInstance().setKeepGenerating(false);
 			Generator.getInstance().shutDown(false,false);
 			System.exit(0);
 		}
@@ -1090,24 +1090,11 @@ public class GUIBuilder implements Observer, ControlListener {
 
 		txtHazelwireVm = new Text(composite_5, SWT.BORDER);
 		txtHazelwireVm.setEnabled(false);
-		txtHazelwireVm.setText("Hazelwire VM");
+		txtHazelwireVm.setText("HazelwireTest");
 		GridData gd_txtHazelwireVm = new GridData(SWT.RIGHT, SWT.CENTER, true,
 				false, 1, 1);
 		gd_txtHazelwireVm.widthHint = 100;
 		txtHazelwireVm.setLayoutData(gd_txtHazelwireVm);
-
-		Label lblNewLabel_2 = new Label(composite_5, SWT.NONE);
-		lblNewLabel_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
-				false, 1, 1));
-		lblNewLabel_2.setText("Main Server IP");
-
-		text_3 = new Text(composite_5, SWT.BORDER);
-		text_3.setEditable(false);
-		text_3.setToolTipText("Not implemented yet, I guess... ");
-		GridData gd_text_3 = new GridData(SWT.RIGHT, SWT.CENTER, true, false,
-				1, 1);
-		gd_text_3.widthHint = 100;
-		text_3.setLayoutData(gd_text_3);
 
 		text_output = new Text(composite_5, SWT.BORDER | SWT.READ_ONLY
 				| SWT.WRAP | SWT.MULTI);

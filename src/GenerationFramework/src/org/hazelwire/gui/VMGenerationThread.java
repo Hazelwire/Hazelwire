@@ -41,6 +41,7 @@ public class VMGenerationThread extends Thread
 			GUIBridge.synchronizeModulesFrontToBack();
 			Generator.getInstance().setTui(new GUIOutput(GUIBuilder.getInstance().getDisplay(),GUIBuilder.getInstance().getTextOutput(),this.progressDialog));
 			((GUIOutput) Generator.getInstance().getTui()).clear(); //clear the text area before starting the generation process
+			Generator.getInstance().setKeepGenerating(true);
 			Generator.getInstance().generateVM();
 		}
 		catch (Exception e)

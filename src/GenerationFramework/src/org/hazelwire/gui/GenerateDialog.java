@@ -115,13 +115,18 @@ public class GenerateDialog extends Dialog {
 				input = null;
 				try
 				{
-					if(controlButton.getText().equals("Cancel")) Generator.getInstance().shutDown(true,false);
+					if(controlButton.getText().equals("Cancel"))
+					{
+						Generator.getInstance().setKeepGenerating(false);
+						controlButton.setText("Keep on waiting");
+						controlButton.setEnabled(false);
+						lblProgress.setText("Cleaning up");
+					}
 				}
 				catch (Exception e)
 				{
 					e.printStackTrace();
 				}
-				shell.close();
 			}
 		});
 

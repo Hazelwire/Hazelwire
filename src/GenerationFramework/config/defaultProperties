@@ -13,7 +13,6 @@ virtualBoxPath=/usr/bin/vboxmanage
 sshGuestPort=22
 externalScriptDirectory=/home/hazelwire/
 sshPassword=hazelwire
-callbackPort=31337
 externalDeployDirectory=/home/hazelwire/deploy/
 knownHostsFile=config/known_hosts
 modulePath=modules/
