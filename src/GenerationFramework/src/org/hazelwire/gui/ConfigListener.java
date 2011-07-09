@@ -70,13 +70,27 @@ public class ConfigListener implements MouseListener, FocusListener {
 		if(m.getSource() instanceof Button){
 			Button b = (Button)m.getSource();
 			if(b.getData().equals("Defaults")){
-				ModsBookkeeper.getInstance().getConfigFile().resetActuals();
+				try
+				{
+					ModsBookkeeper.getInstance().getConfigFile().resetActuals();
+				}
+				catch(IOException e)
+				{
+					e.printStackTrace();
+				}
 				for(String key : ModsBookkeeper.getInstance().getConfigFile().getDefaults().keySet()){
 					gUIBuilder.updateConfig(key);
 				}
 			}
 			else{
-				ModsBookkeeper.getInstance().getConfigFile().resetActual((String)b.getData());
+				try
+				{
+					ModsBookkeeper.getInstance().getConfigFile().resetActual((String)b.getData());
+				}
+				catch(IOException e)
+				{
+					e.printStackTrace();
+				}
 				gUIBuilder.updateConfig((String)b.getData());
 			}
 			

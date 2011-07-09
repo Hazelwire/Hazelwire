@@ -3,16 +3,11 @@ package org.hazelwire.main;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.hazelwire.gui.Mod;
-import org.hazelwire.gui.Tag;
-import org.hazelwire.modules.Flag;
 import org.hazelwire.modules.Module;
 import org.hazelwire.modules.ModuleSelector;
-import org.hazelwire.modules.Option;
 import org.hazelwire.virtualmachine.InstallScriptGenerator;
 import org.hazelwire.virtualmachine.SSHConnection;
 import org.hazelwire.virtualmachine.VMHandler;

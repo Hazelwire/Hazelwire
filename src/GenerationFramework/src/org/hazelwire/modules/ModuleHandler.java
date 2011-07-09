@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
 import org.hazelwire.main.Configuration;
 import org.hazelwire.main.Generator;
 import org.hazelwire.xml.ParserModuleConfig;

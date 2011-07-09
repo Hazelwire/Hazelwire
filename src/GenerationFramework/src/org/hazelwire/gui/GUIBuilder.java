@@ -6,13 +6,14 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Properties;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -42,6 +43,7 @@ import org.hazelwire.modules.Option;
  */
 public class GUIBuilder implements Observer, ControlListener {
 
+	private static int CONFIGTEXTWIDTH = 10;
 	private Display display;
 	private Label label, modName, lblTotalAmountOf;
 	private Composite composite_7;
@@ -574,7 +576,6 @@ public class GUIBuilder implements Observer, ControlListener {
 			while(propertyEnum.hasMoreElements())
 			{
 				String key = (String) propertyEnum.nextElement();
-				String value = (String) Configuration.getInstance().getMagic(key);
 				
 				Label lblNewLabel_3 = new Label(composite_8, SWT.NONE);
 				lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
@@ -582,12 +583,19 @@ public class GUIBuilder implements Observer, ControlListener {
 				lblNewLabel_3.setText(key);
 				
 				Text tempText = new Text(composite_8, SWT.BORDER);
-				tempText.setText("5");
+				//Set the fixed maximum width so longer values don't screw up the interface
+				GC gc = new GC(tempText);
+			    FontMetrics fm = gc.getFontMetrics();
+			    int width = CONFIGTEXTWIDTH * fm.getAverageCharWidth();
+			    int height = fm.getHeight();
+			    gc.dispose();
+			    tempText.setSize(tempText.computeSize(width, height));
+			    
 				tempText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
 						1));
 				tempText.setData(key);
 				tempText.addFocusListener(cl);
-				textMap.put((String) tempText.getData(), tempText);
+				textMap.put((String) tempText.getData(), tempText);		    
 
 				Button tempBtnDefault = new Button(composite_8, SWT.NONE);
 				tempBtnDefault.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
@@ -1279,14 +1287,17 @@ public class GUIBuilder implements Observer, ControlListener {
 	 */
 	public void updateConfig(String key) {
 		if (textMap.get(key) != null) {
-			
-			String value = ModsBookkeeper.getInstance().getConfigFile()
-			.getActual(key);
-			
-			textMap.get(key)
-					.setText(
-							ModsBookkeeper.getInstance().getConfigFile()
-									.getActual(key));
+			try
+			{				
+				textMap.get(key)
+						.setText(
+								ModsBookkeeper.getInstance().getConfigFile()
+										.getActual(key));
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 

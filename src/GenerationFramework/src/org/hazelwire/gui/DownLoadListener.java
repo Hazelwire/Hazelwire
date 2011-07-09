@@ -1,7 +1,5 @@
 package org.hazelwire.gui;
 
-import java.io.IOException;
-
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.hazelwire.virtualmachine.VMDownloader;
