@@ -55,8 +55,8 @@ function centerPopup(duration) {
 	var popupWidth = $("#popup").width();
 	//centering
 	$("#popup").animate({
-		"top": windowHeight/2-popupHeight/2,
-		"left": windowWidth/2-popupWidth/2
+                "top": (($(window).height() - $("#popup").outerHeight()) / 2) + $(window).scrollTop() + "px",
+                "left":(($(window).width() - $("#popup").outerWidth()) / 2) + $(window).scrollLeft() + "px"
 	}, duration);
 	//only need force for IE6
 
