@@ -3,6 +3,7 @@ package org.hazelwire.main;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Properties;
 
 
@@ -90,6 +91,26 @@ public class Configuration
 	public void saveUserProperties() throws IOException
 	{
 		saveUserProperties(defaultProps.getProperty("propertyPath"));
+	}
+	
+	public void setMagic(String key, String value)
+	{
+		applicationProps.setProperty(key, value);
+	}
+	
+	public String getMagic(String key)
+	{
+		return applicationProps.getProperty(key);
+	}
+	
+	public Properties getRawProperties()
+	{
+		return this.applicationProps;
+	}
+	
+	public void setRawProperties(Properties newProperties)
+	{
+		this.applicationProps = newProperties;
 	}
 	
 	public String getModulePath()

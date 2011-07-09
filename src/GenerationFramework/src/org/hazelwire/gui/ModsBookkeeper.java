@@ -1,5 +1,6 @@
 package org.hazelwire.gui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Observable;
@@ -55,7 +56,7 @@ public class ModsBookkeeper extends Observable
 	 * new {@link ConfigFile}.
 	 * @param mods list of {@link Mod}s that are already imported into the system.
 	 */
-	public void initMods(ArrayList<Mod> mods)
+	public void initMods(ArrayList<Mod> mods) throws IOException
 	{
 		//@todo TODO Properly reimplement this with a TreeMap instead of a HashMap due to the tags being objects.
 		//Either that or also keeping track of all the tag objects so the same objects can be used.
@@ -63,7 +64,7 @@ public class ModsBookkeeper extends Observable
 		this.selected = -1;
 		this.selectedMods = new ArrayList<Mod>();
 		this.mods = mods;
-		this.configFile = new ConfigFile(ConfigFile.dummyDefaults());
+		this.configFile = new ConfigFile();
 		HashMap<String,Tag> tagList = new HashMap<String,Tag>(); //this is so ugly i want to cry
 																 //want a tissue?
 		this.modsPerTag = new HashMap<Tag, ArrayList<Mod>>();

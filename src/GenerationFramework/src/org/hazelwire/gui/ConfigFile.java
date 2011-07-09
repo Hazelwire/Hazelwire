@@ -1,6 +1,10 @@
 package org.hazelwire.gui;
 
+import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
+
+import org.hazelwire.main.Configuration;
 
 /**
  * This class keeps track of both the configurations the user specifies
@@ -22,6 +26,12 @@ public class ConfigFile {
 	public ConfigFile(HashMap<String, String> defaults){
 		this.defaults = defaults;
 		actuals = new HashMap<String, String>(defaults);
+	}
+	
+	public ConfigFile() throws IOException
+	{
+		this.defaults = defaultsFromBackend();
+		this.actuals = new HashMap<String,String>(this.defaults);
 	}
 	
 	/**
@@ -49,6 +59,21 @@ public class ConfigFile {
 		result.put("Output directory", "output/");
 		result.put("Temp directory", "tmp/");
 		result.put("Known hosts file", "config/known_hosts");
+		return result;
+	}
+	
+	public HashMap<String,String> defaultsFromBackend() throws IOException
+	{
+		HashMap<String, String> result = new HashMap<String, String>();
+		
+		Enumeration<?> config = Configuration.getInstance().getRawProperties().propertyNames();
+		
+		while(config.hasMoreElements())
+		{
+			String key = (String) config.nextElement();
+			result.put(key, Configuration.getInstance().getMagic(key));
+		}
+		
 		return result;
 	}
 	
@@ -91,12 +116,14 @@ public class ConfigFile {
 	 * @param key {@link String} consisting of the name of the configurable
 	 * option whose value will be changed.
 	 * @param value {@link String} consisting of the new value for option key.
+	 * @throws IOException 
 	 * @requires this.actuals != null
 	 * @requires this.actuals.get(key) != null
 	 */
-	public void setActual(String key, String value){
+	public void setActual(String key, String value) throws IOException{
 		if(actuals.get(key)!=null){
 			actuals.put(key, value);
+			this.saveToBackend(key, value);
 		}
 	}
 	
@@ -138,4 +165,19 @@ public class ConfigFile {
 		}
 	}
 	
+	public void saveToBackend(String key, String value) throws IOException
+	{
+		Configuration.getInstance().setMagic(key, value);
+		Configuration.getInstance().saveUserProperties();
+	}
+	
+	public void synchronizeWithBackend() throws IOException
+	{
+		Configuration config = Configuration.getInstance();
+		
+		for(String key : actuals.keySet())
+		{
+			config.setMagic(key, actuals.get(key));
+		}
+	}
 }

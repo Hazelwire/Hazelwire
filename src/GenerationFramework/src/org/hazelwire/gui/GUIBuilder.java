@@ -1,9 +1,12 @@
 package org.hazelwire.gui;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Properties;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -27,6 +30,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.hazelwire.main.Configuration;
 import org.hazelwire.main.Generator;
 import org.hazelwire.modules.Option;
 
@@ -54,7 +58,7 @@ public class GUIBuilder implements Observer, ControlListener {
 	private static GUIBuilder instance;
 	private Shell shell;
 	private GridData gd_8;
-	private Text text_4;
+	/*private Text text_4;
 	private Text text_5;
 	private Text text_6;
 	private Text text_7;
@@ -70,7 +74,7 @@ public class GUIBuilder implements Observer, ControlListener {
 	private Text text_17;
 	private Text text_18;
 	private Text text_19;
-	private Text text_20;
+	private Text text_20;*/
 	private HashMap<String, Text> textMap = new HashMap<String, Text>();
 	private ProgressBar progressBar;
 
@@ -115,8 +119,16 @@ public class GUIBuilder implements Observer, ControlListener {
 	 */
 	public void init() {
 		Generator.getInstance();
-		ModsBookkeeper.getInstance().initMods(GUIBridge.getModulesForGUI());
-		ModsBookkeeper.getInstance().addObserver(this);
+		
+		try
+		{
+			ModsBookkeeper.getInstance().initMods(GUIBridge.getModulesForGUI());
+			ModsBookkeeper.getInstance().addObserver(this);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 		display = new Display();
 		shell = new Shell(display, SWT.SHELL_TRIM);
 		this.addGUIElements(shell);
@@ -554,7 +566,44 @@ public class GUIBuilder implements Observer, ControlListener {
 		composite_8.setLayout(new GridLayout(3, true));
 
 		ConfigListener cl = new ConfigListener(this);
+		
+		try
+		{
+			Enumeration<?> propertyEnum = Configuration.getInstance().getRawProperties().propertyNames();
+			
+			while(propertyEnum.hasMoreElements())
+			{
+				String key = (String) propertyEnum.nextElement();
+				String value = (String) Configuration.getInstance().getMagic(key);
+				
+				Label lblNewLabel_3 = new Label(composite_8, SWT.NONE);
+				lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
+						false, 1, 1));
+				lblNewLabel_3.setText(key);
+				
+				Text tempText = new Text(composite_8, SWT.BORDER);
+				tempText.setText("5");
+				tempText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+						1));
+				tempText.setData(key);
+				tempText.addFocusListener(cl);
+				textMap.put((String) tempText.getData(), tempText);
 
+				Button tempBtnDefault = new Button(composite_8, SWT.NONE);
+				tempBtnDefault.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+						false, 1, 1));
+				tempBtnDefault.setText("Default");
+				tempBtnDefault.setData(key);
+				tempBtnDefault.addMouseListener(cl);
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		/*
+		
 		Label lblNewLabel_3 = new Label(composite_8, SWT.NONE);
 		lblNewLabel_3.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true,
 				false, 1, 1));
@@ -894,6 +943,7 @@ public class GUIBuilder implements Observer, ControlListener {
 		btnDefault_16.setText("Default");
 		btnDefault_16.setData("Known hosts file");
 		btnDefault_16.addMouseListener(cl);
+		*/
 
 		Button btnDefaults_1 = new Button(composite_8, SWT.NONE);
 		btnDefaults_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
@@ -1229,6 +1279,10 @@ public class GUIBuilder implements Observer, ControlListener {
 	 */
 	public void updateConfig(String key) {
 		if (textMap.get(key) != null) {
+			
+			String value = ModsBookkeeper.getInstance().getConfigFile()
+			.getActual(key);
+			
 			textMap.get(key)
 					.setText(
 							ModsBookkeeper.getInstance().getConfigFile()

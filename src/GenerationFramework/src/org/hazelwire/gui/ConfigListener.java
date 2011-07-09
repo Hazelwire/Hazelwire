@@ -1,5 +1,7 @@
 package org.hazelwire.gui;
 
+import java.io.IOException;
+
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -40,9 +42,15 @@ public class ConfigListener implements MouseListener, FocusListener {
 	public void focusLost(FocusEvent f) {
 		if(f.getSource() instanceof Text){
 			Text t = (Text)f.getSource();
-			ModsBookkeeper.getInstance().getConfigFile().setActual((String)t.getData(), t.getText());
+			try
+			{
+				ModsBookkeeper.getInstance().getConfigFile().setActual((String)t.getData(), t.getText());
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
-
 	}
 
 	@Override
