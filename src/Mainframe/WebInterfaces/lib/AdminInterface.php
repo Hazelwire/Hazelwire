@@ -129,6 +129,37 @@ class AdminInterface extends WebInterface {
                 $smarty->assign("announcements",$announcements);
 
                 return $smarty->fetch("admin.tpl");
+            } else if(startsWith ($_GET['aaction'],"getsanity")){
+                /*
+                 * Ajax request for sanity list
+                 */
+                $csq = $db->query("select id from teams");
+                $q = $db->prepare("SELECT et.port as port, et.timestamp as timestamp, ifnull(m.name,'ClientBot') as modulename, ifnull(t.name,'System') as reporter
+                                        FROM evil_teams et
+                                        INNER JOIN modules m ON et.port = m.serviceport
+                                        LEFT OUTER JOIN teams t ON et.reporter = t.VMip
+                                        WHERE et.ip = ?
+                                        ORDER BY et.timestamp DESC");
+                $retval = array();
+                foreach($csq as $cdata){
+                    $c = Contestant::getById($cdata['id'], $db);
+                    $q->execute(array($c->getVm_ip()));
+
+                    while($res = $q->fetch()){
+                        $sanres = array();
+                        array_push($sanres, $c->getTeamname());
+                        array_push($sanres, date("d/m/Y H:i:s",$res['timestamp']));
+                        array_push($sanres, $c->getVm_ip());
+                        array_push($sanres, $res['port']);
+                        array_push($sanres, $res['modulename']);
+                        array_push($sanres, $res['reporter']);
+
+                        array_push($retval, $sanres);
+                    }
+                }
+
+                return json_encode($retval);
+
             } else if(startsWith ($_GET['aaction'],"getcs")){
                 /*
                  * Ajax request for update of contestant list
@@ -151,7 +182,9 @@ class AdminInterface extends WebInterface {
                 $retval->action="getcs";
                 $retval->reply = $smarty->fetch("admin_ajax_clist.tpl");
 
-                return json_encode($retval);
+                $trueretval = new stdClass();
+                $trueretval->aaData = $retval;
+                return json_encode($trueretval);
 
             } else if(startsWith ($_GET['aaction'],"getas")){
                 /*
@@ -1345,7 +1378,7 @@ class AdminInterface extends WebInterface {
         // evil_teams ( ip TEXT, port INTEGER, timestamp INTEGER, reporter TEXT, seen INTEGER);
         // modules (id INTEGER PRIMARY KEY, name TEXT, numFlags INTEGER, deployscript TEXT, serviceport INTEGER);
         // teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
-        $q = $db->prepare("SELECT et.port as port, et.timestamp as timestamp, m.name as modulename, ifnull(t.name,'System') as reporter
+        $q = $db->prepare("SELECT et.port as port, et.timestamp as timestamp, iffnull(m.name,'ClientBot') as modulename, ifnull(t.name,'System') as reporter
                             FROM evil_teams et
                             INNER JOIN modules m ON et.port = m.serviceport
                             LEFT OUTER JOIN teams t ON et.reporter = t.VMip

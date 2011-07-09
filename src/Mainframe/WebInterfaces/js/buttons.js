@@ -314,7 +314,9 @@ $(document).ready(function(){
 		centerPopup(0);
 	});
 
-
+        $('#csanity').click(function(){
+                 buildSanityTable();
+        });
         // background: none repeat scroll 0pt 0pt rgb(170, 255, 170); padding: 3px; border: 1px solid rgb(0, 255, 0); text-align: center; position: relative; margin-left: auto; margin-right: auto; min-width: 30em; margin-bottom: 3px;
         $("#vpnstart").click(function(){
             $("#vpnstart").attr("disabled", true);
@@ -410,6 +412,10 @@ $(document).ready(function(){
                 });
 	});
 	$("#cedit").click(function(){
+                if($('#cform input:radio[name="contestant"]:checked').length == 0){
+                    addNotification("Please select the contestant you wish to edit.", "notifyneutral");
+                    return;
+                }
 		ajaxReq("index.php?aaction=cedit","contestant="+$('#cform input:radio[name="contestant"]:checked').val(),"cedit",function(data){$("#popup").html(data.reply);}).complete(function(){
 			$("#popupcontent").css({
 				"width": "300px",
@@ -420,6 +426,10 @@ $(document).ready(function(){
 		});
 	});
 	$("#cban").click(function(){
+                if($('#cform input:radio[name="contestant"]:checked').length == 0){
+                    addNotification("Please select the contestant you wish to ban.", "notifyneutral");
+                    return;
+                }
                 ajaxReq("index.php?aaction=cban","contestant="+$('#cform input:radio[name="contestant"]:checked').val(),"cban",function(data){$("#popup").html(data.reply);}).complete(function(){
                     $("#popupcontent").css({
 			"width": "135px",
@@ -431,6 +441,10 @@ $(document).ready(function(){
 
 	});
 	$("#cdelete").click(function(){
+                if($('#cform input:radio[name="contestant"]:checked').length == 0){
+                    addNotification("Please select the contestant you wish to delete.", "notifyneutral");
+                    return;
+                }
                 ajaxReq("index.php?aaction=cdel","contestant="+$('#cform input:radio[name="contestant"]:checked').val(),"cdel",function(data){$("#popup").html(data.reply);}).complete(function(){
                     $("#popupcontent").css({
                             "width": "125px",
@@ -457,6 +471,10 @@ $(document).ready(function(){
 
 	});
 	$("#aedit").click(function(){
+                if($('#aform input:radio[name="announcement"]:checked').length == 0){
+                    addNotification("Please select the announcement you wish to edit.", "notifyneutral");
+                    return;
+                }
                 ajaxReq("index.php?aaction=aedit","announcement="+$('#aform input:radio[name="announcement"]:checked').val(),"aedit",function(data){$("#popup").html(data.reply);}).complete(function(){
                     $("#popupcontent").css({
                             "width": "600px",
@@ -467,6 +485,10 @@ $(document).ready(function(){
                 });
 	});
 	$("#adelete").click(function(){
+                if($('#aform input:radio[name="announcement"]:checked').length == 0){
+                    addNotification("Please select the announcement you wish to delete.", "notifyneutral");
+                    return;
+                }
                 ajaxReq("index.php?aaction=adel","announcement="+$('#aform input:radio[name="announcement"]:checked').val(),"adel",function(data){$("#popup").html(data.reply);}).complete(function(){
                     $("#popupcontent").css({
                             "width": "125px",

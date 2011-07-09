@@ -3,10 +3,12 @@
 	<head>
 		<title>{$title} - powered by Hazelwire</title>
 		<link rel="stylesheet" type="text/css" href="css/admin.css"></link>
+                <link rel="stylesheet" type="text/css" href="css/sanityTable.css"></link>
 		<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
 		<script type="text/javascript" src="js/buttons.js"></script>
 		<script type="text/javascript" src="js/collapse.js"></script>
                 <script type="text/javascript" src="js/textfield.js"></script>
+                <script type="text/javascript" src="js/admin.js"></script>
 	</head>
 	<body>
                 <div id="popup">
