@@ -50,7 +50,7 @@ function disablePopup(){
 function centerPopup(duration) {
 	//request data for centering
 	//var windowWidth = document.documentElement.clientWidth;
-	//var windowHeight = document.documentElement.clientHeight;
+	var windowHeight = document.documentElement.clientHeight;
 	//var popupHeight = $("#popup").height();
 	//var popupWidth = $("#popup").width();
 	//centering
