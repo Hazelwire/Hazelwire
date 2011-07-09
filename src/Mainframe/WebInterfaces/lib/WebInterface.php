@@ -86,7 +86,13 @@ class WebInterface {
             }
             fwrite($handle, $config_file_data);
             fclose($handle);
-            OpenVPNManager::diconnectVPN($c);
+            
+            if(OpenVPNManager::getVPNStatus($c)){
+                OpenVPNManager::diconnectVPN($c);
+                OpenVPNManager::stopVPN($c);
+                sleep(5);
+            }
+            OpenVPNManager::startVPN($c);
 
             $q = $this->database->prepare("DELETE FROM bans WHERE team_id = ?");
             $q->execute(array(intval($res['team_id'])));
