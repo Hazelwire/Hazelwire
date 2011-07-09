@@ -52,7 +52,7 @@
 								<div class="cname">Team</div>
 							</li>
 						</ul>
-						<form id="cform" method="GET" style="top:2em;">
+						<form id="cform" method="GET">
 							<ul class="centries">
 		    {foreach from=$contestants item=contestant}<li class="{if $contestant->getSane() == false}insane{/if}{if $contestant->getOffline()} offline{/if}">
 									<input type="radio" name="contestant" id="teamid_{$contestant->getId()}" value="{$contestant->getId()}" />
@@ -95,7 +95,7 @@
 					<div class="header">
 						<h1>Announcements</h1>
 					</div>
-					<form id="aform" method="GET">
+					<form id="aform" method="GET" style="top:2em;">
 						<div id="announcementdisplay">
 							<ul class="collapsible">
 		 {foreach from=$announcements item=announcement}<li>
@@ -121,28 +121,3 @@
                 <div id="notifybox"></div>
 	</body>
 </html>
-
-<!--
-<div style="display: block;" class="cextrainfo"> <-- float left, 100% width, no padding
-<div style="float: left; width: 100%; position: relative; margin-right: 0pt; ">
-<table style="width: 100%; float: left; position: relative;">
-	<tbody><tr>
-		<td style="width:10em;">Virtual Machine IP:</td> <-- +2.5em en die dan padden.BAM
-		<td>10.1.1.1</td>
-	</tr>
-	<tr>
-		<td style="width:10em">VPN Status:</td>
-		<td>Online</td>
-	</tr>
-	<tr>
-		<td style="width:10em;"># VPN Conn:</td>
-		<td>0
-	</td></tr>
-	<tr>
-		<td style="width: 10em;">Last 10 Sanity:</td>
-		<td></td>
-	</tr>
-</tbody></table>
-</div>
-</div>
--->
