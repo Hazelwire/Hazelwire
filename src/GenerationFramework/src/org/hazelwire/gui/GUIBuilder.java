@@ -43,7 +43,8 @@ import org.hazelwire.modules.Option;
  */
 public class GUIBuilder implements Observer, ControlListener {
 
-	private static int CONFIGTEXTWIDTH = 10;
+	//Heb CONFIGTEXTWIDTH 20 gemaakt, omdat 10 een beetje klein was.
+	private static int CONFIGTEXTWIDTH = 20;
 	private Display display;
 	private Label label, modName, lblTotalAmountOf;
 	private Composite composite_7;
@@ -591,8 +592,15 @@ public class GUIBuilder implements Observer, ControlListener {
 			    gc.dispose();
 			    tempText.setSize(tempText.computeSize(width, height));
 			    
-				tempText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
-						1));
+			    //FIXME: Niks, maar hier staat de oplossing: Ik heb de layoutdata van de Text aangepast
+			    //en de breedte op je ding gezet.
+			    gd = new GridData();
+			    gd.widthHint = width;
+			    tempText.setLayoutData(gd);
+			    
+			    
+				//tempText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1,
+				//		1));
 				tempText.setData(key);
 				tempText.addFocusListener(cl);
 				textMap.put((String) tempText.getData(), tempText);		    
