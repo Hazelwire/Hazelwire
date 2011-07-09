@@ -49,10 +49,10 @@ function disablePopup(){
 //centering popup
 function centerPopup(duration) {
 	//request data for centering
-	var windowWidth = document.documentElement.clientWidth;
-	var windowHeight = document.documentElement.clientHeight;
-	var popupHeight = $("#popup").height();
-	var popupWidth = $("#popup").width();
+	//var windowWidth = document.documentElement.clientWidth;
+	//var windowHeight = document.documentElement.clientHeight;
+	//var popupHeight = $("#popup").height();
+	//var popupWidth = $("#popup").width();
 	//centering
 	$("#popup").animate({
                 "top": (($(window).height() - $("#popup").outerHeight()) / 2) + $(window).scrollTop() + "px",
@@ -265,9 +265,23 @@ function loadFormButtons(){
             window.location = "download.php?team="+$('#acform input[name="cid"]').val();
     });
     $("#sanity").click(function(){
-            $('form').attr({action: "index.php?aaction=cedit"});
-            $('input[name="cedit"]').val("forcesancheck");
-            $('form').submit();
+            var data = "cid=" + $('#acform [name="cid"]').val() +"&cedit=forcesancheck";
+            ajaxReq("index.php?aaction=cedit", data, "ceditReply",
+                function(data){
+                        if(data.success == true && data.errorcount == 0)
+                            addNotification("Sanity check requested.", "notifygood");
+                        else if(data.success == true)
+                            addNotification("Sanity check requested, but with errors.", "notifyneutral");
+
+                        for ( var i=0, len=data.errors.length; i<len; ++i ){
+                          addNotification(data.errors[i], "notifybad");
+                        }
+
+                        if(data.success == true)
+                            disablePopup();
+                        updateClist();
+
+            });
     });
 }
 

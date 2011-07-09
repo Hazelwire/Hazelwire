@@ -265,7 +265,7 @@ class AdminInterface extends WebInterface {
                     $retval->errors = $errorArray;
                     $retval->success = $this->cedit_success || $this->sancheckSuccess;
                     $retval->action = "ceditReply";
-                    $retval->reply = "Contestand edited.";
+                    $retval->reply = "Contestant edited.";
                     return json_encode($retval);
 
                 } else if(isset($_POST['contestant'])){
