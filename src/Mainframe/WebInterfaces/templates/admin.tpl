@@ -52,7 +52,7 @@
 								<div class="cname">Team</div>
 							</li>
 						</ul>
-						<form id="cform" method="GET">
+						<form id="cform" method="GET" style="top:2em;">
 							<ul class="centries">
 		    {foreach from=$contestants item=contestant}<li class="{if $contestant->getSane() == false}insane{/if}{if $contestant->getOffline()} offline{/if}">
 									<input type="radio" name="contestant" id="teamid_{$contestant->getId()}" value="{$contestant->getId()}" />
