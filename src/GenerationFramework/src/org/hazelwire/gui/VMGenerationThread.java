@@ -1,13 +1,6 @@
 package org.hazelwire.gui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.hazelwire.main.Generator;
-import org.hazelwire.modules.Flag;
-import org.hazelwire.modules.Module;
-import org.hazelwire.modules.ModuleSelector;
-import org.hazelwire.modules.Option;
 
 /**
  * @todo find a way to stop the generation process from another thread when pushed cancel

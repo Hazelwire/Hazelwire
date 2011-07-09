@@ -1,11 +1,12 @@
 package org.hazelwire.gui;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Observable;
 import java.util.Observer;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -15,26 +16,47 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 
-public class TagListPainter implements PaintListener, Observer
+/**
+ * This class is responsible for painting the list of {@link Tag}s on 
+ * the 'VM Generation' tab. It must also pay attention to which {@link Mod} is
+ * currently selected. Thus, this class is a subclass of {@link PaintListener}
+ * and of {@link Observer}. For scrolling purposes it also implements 
+ * {@link MouseListener}.
+ */
+public class TagListPainter implements PaintListener, Observer, MouseListener
 {
 
 	private Canvas canvas;
-	private GUIBuilder gUIBuilder;
-	private boolean sameSize = false;
-
-	public TagListPainter(GUIBuilder gUIBuilder)
+	
+	/**
+	 * Creates an instance of TagListPainter and adds itself as an {@link Observer}
+	 * to the instance of {@link ModsBookkeeper}.
+	 */
+	public TagListPainter()
 	{
-		this.gUIBuilder = gUIBuilder;
 		ModsBookkeeper.getInstance().addObserver(this);
 	}
-
+	
+	/**
+	 * Updates the size of the {@link Canvas} that is being painted on, so that the 
+	 * {@link Canvas} grows bigger when the {@link Tag}s do not fit on it.
+	 * @requires canvas != null
+	 */
 	public void updateSize()
 	{
 		if (canvas == null)
 			return;
 		int curSize = canvas.getParent().getSize().y;
-		int modsSize = (1 + ModsBookkeeper.getInstance().getSelectedMods()
-				.size()) * 15;
+		
+		Mod selected = ModsBookkeeper.getInstance().getSelectedMod();
+		int modsSize;
+		if(selected != null){
+			modsSize = (selected.getTags().size()) * 15;
+		}
+		else{
+			modsSize = curSize;
+		}
+		
 		if (curSize > modsSize)
 		{
 			canvas.setSize(canvas.getSize().x, curSize);
@@ -44,18 +66,34 @@ public class TagListPainter implements PaintListener, Observer
 			canvas.setSize(canvas.getSize().x, modsSize);
 		}
 	}
-
+	
+	/**
+	 * This method updates the size of the {@link Canvas} that is being painted on, so
+	 * that the {@link Canvas} shrinks whenever it takes up excess space when a {@link Mod}
+	 * is deselected or a {@link Mod} with less {@link Tag}s is selected. This is the case 
+	 * when the list of {@link Mod}s is too long and the {@link Canvas} is scrollable. Now 
+	 * when the user deselects a {@link Mod}, there will be empty lines, whilst the {@link Canvas}
+	 * is still scrollable. This is undesired, so the excess empty lines are removed, using this method.
+	 * @requires canvas != null
+	 */
 	public void shrink()
 	{
 		if (canvas == null)
 		{
 			return;
 		}
-		int modsSize = (1 + ModsBookkeeper.getInstance().getSelectedMods()
-				.size()) * 15;
-		if (ModsBookkeeper.getInstance().getSelectedMods().size() < 19)
+		Mod selected = ModsBookkeeper.getInstance().getSelectedMod();
+		int modsSize;
+		if(selected != null){
+			modsSize = (selected.getTags().size()) * 15;
+		}
+		else{
+			modsSize = canvas.getParent().getSize().y;
+		}
+		
+		if (modsSize < canvas.getParent().getSize().y)
 		{
-			canvas.setBounds(0, 0, 125, 150);
+			canvas.setBounds(0, 0, canvas.getSize().x, canvas.getParent().getSize().y - 4);
 		}
 		else
 		{
@@ -63,26 +101,15 @@ public class TagListPainter implements PaintListener, Observer
 		}
 	}
 
-	public void fillHeight()
-	{
-		sameSize = canvas.getBounds().height == canvas.getParent().getBounds().height - 4;
-		int diff = canvas.getParent().getBounds().height - canvas.getBounds().height;
-		sameSize = diff < 15 && diff > -15;
-		int modsHeight = (1 + ModsBookkeeper.getInstance().getSelectedMods()
-				.size()) * 15;
-		if (!sameSize && modsHeight < canvas.getParent().getSize().y)
-		{
-			canvas.setSize(canvas.getBounds().width, canvas.getParent()
-					.getBounds().height - 4);
-		}
-	}
-	//@TODO Fix resizen on change contents, telkens iets te groot ofzo daardoor krijg je scrolls 
 	@Override
+	/**
+	 * This method paints the {@link Canvas}. It paints the background and prints 
+	 * all the {@link Tag}s associated with the currently selected {@link Mod}. Finally,
+	 * it calls updateSize, to ensure a perfect fit without excess empty lines.
+	 */
 	public void paintControl(PaintEvent p)
 	{
 		canvas = ((Canvas) p.getSource());
-		fillHeight();
-		// System.out.println(canvas.getBounds());
 		Display display = canvas.getDisplay();
 		Device device = display.getCurrent();
 		GC g = p.gc;
@@ -100,19 +127,16 @@ public class TagListPainter implements PaintListener, Observer
 					selected - 1);
 			tags = mod.getTags();
 		}
-		// ArrayList<Mod> mods = ModsBookkeeper.getInstance().getSelectedMods();
 		
 		int i;
 		for (i = 15; i <= height; i = i + 15)
 		{
 			if (i % 2 == 0)
 			{
-				// col = new Color(device, 133, 133, 133);
 				col = display.getSystemColor(SWT.COLOR_WHITE);
 			}
 			else
 			{
-				// col = new Color(device, 255, 255, 255);
 				col = display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW);
 			}
 			g.setBackground(col);
@@ -120,26 +144,13 @@ public class TagListPainter implements PaintListener, Observer
 			g.drawRectangle(x, y + i - 15, x + width, y + i);
 			g.fillRectangle(x, y + i - 15, x + width, y + i);
 			g.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
-
-			// if(i == 15){
-			// Font oldFont = g.getFont();
-			// Font boldFont = new Font(oldFont.getName(), Font.BOLD,
-			// oldFont.getSize());
-			// g.setFont(boldFont);
-			// g.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
-			// g.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-			// g.drawText("Tags", x + 20, y+i-15);
-			// g.drawText("Points", x + (3*width/4)+15, y+i-15);
-			// g.setFont(oldFont);
-			// }
+			
 			if ((i / 15) - 1 < tags.size() && i >= 15)
 			{
 				g.setBackground(col);
 				g.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
 				g.drawText(tags.get((i / 15) - 1).getName(), x + 20, y + i
 						- 15);
-				// g.drawText(""+mods.get((i/15)-2).getPoints(), x +
-				// (3*width/4)+20, y+i-15);
 			}
 		}
 		if (i % 2 == 0)
@@ -156,7 +167,6 @@ public class TagListPainter implements PaintListener, Observer
 
 		g.setForeground(device.getSystemColor(SWT.COLOR_BLACK));
 		g.setLineWidth(2);
-		// g.drawLine(x+ (3*width/4), y, x+ (3*width/4), y+height);
 
 		g.drawLine(x + 1, y + 1, x + width - 1, y + 1);
 		g.drawLine(x + 1, y + height - 1, x + width - 1, y + height - 1);
@@ -165,8 +175,15 @@ public class TagListPainter implements PaintListener, Observer
 		
 		this.updateSize();
 	}
-
-	@Override
+	
+	//@Override
+	/**
+	 * This method is called by the {@link Observable} {@link ModsBookkeeper}, whenever
+	 * the selected {@link Mod} changes. It checks whether the cause of 
+	 * the call is a {@link Mod} selection or a {@link Mod} deselection and calls the 
+	 * updateSize and shrink functions respectively. After that, if the canvas has already
+	 * been instantiated, it calls redraw, to show the changes in the GUI.
+	 */
 	public void update(Observable arg0, Object arg)
 	{
 		String s = (String) arg;
@@ -174,15 +191,33 @@ public class TagListPainter implements PaintListener, Observer
 		{
 			if (canvas != null)
 			{
+				this.updateSize();
 				canvas.redraw();
-				//this.updateSize();
 			}
 		}
 		else if (s.equals("DESELECTED"))
 		{
-			this.shrink();
+			if(canvas != null){
+				this.shrink();
+				canvas.redraw();
+			}
 		}
 
+	}
+	
+	@Override
+	public void mouseDoubleClick(MouseEvent arg0) {}
+
+	@Override
+	public void mouseDown(MouseEvent arg0) {}
+
+	@Override
+	/**
+	 * This method makes sure the focus is on the {@link Canvas}. This is
+	 * necessary because it allows the user to scroll using the scroll wheel.
+	 */
+	public void mouseUp(MouseEvent arg0) {
+		canvas.setFocus();
 	}
 
 }

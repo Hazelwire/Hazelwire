@@ -7,7 +7,7 @@
  */
 class WebInterface {
     
-    /* @var $this->database PDO */
+    /* @var $this->database PDO */ 
     public      $database = null;
     protected   $db_ready = true;
     protected   $smarty;
@@ -81,7 +81,6 @@ class WebInterface {
             }
             fwrite($handle, $config_file_data);
             fclose($handle);
-		echo "derp";
             OpenVPNManager::diconnectVPN($c);
 
             $q = $this->database->prepare("DELETE FROM bans WHERE team_id = ?");

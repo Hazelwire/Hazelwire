@@ -6,15 +6,10 @@ import java.util.Observable;
 import java.util.Observer;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.DragDetectEvent;
-import org.eclipse.swt.events.DragDetectListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -23,21 +18,24 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.hazelwire.main.Generator;
 import org.hazelwire.modules.Option;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 
+/**
+ * This class is responsible for drawing the VM generation GUI. It
+ * consists of a large method to draw the entire GUI and a collection of
+ * smaller methods to update parts of it. In order to be able to do this,
+ * it is a subclass of both {@link Observer} and {@link ControlListener}.
+ */
 public class GUIBuilder implements Observer, ControlListener {
 
 	private Display display;
@@ -75,29 +73,47 @@ public class GUIBuilder implements Observer, ControlListener {
 	private Text text_20;
 	private HashMap<String, Text> textMap = new HashMap<String, Text>();
 	private ProgressBar progressBar;
-	
+
+	/**
+	 * The main method that starts the VM generation system by getting the
+	 * GUIBuilder instance and calling the init method to add all {@link Widget}s
+	 * to it.
+	 * @param args Standard array of {@link String}s parameter. This array is not 
+	 * used in our system.
+	 */
 	public static void main(String[] args) {
 		GUIBuilder builder = GUIBuilder.getInstance();
 		builder.init();
 	}
-
+	
+	/**
+	 * This method checks whether an instance of GUIBuilder exists. Be that the case,
+	 * it returns this instance. Otherwise, it calls the private constructor method,
+	 * saves the newly created GUIBuilder and returns it.
+	 * @return the instance of GUIBuilder.
+	 */
 	public synchronized static GUIBuilder getInstance() {
 		if (!(instance instanceof GUIBuilder)) {
 			instance = new GUIBuilder();
 		}
-
 		return instance;
 	}
+	
+	/**
+	 * Private GUIBuilder constructor that instantiates GUIBuilder. The constructor is
+	 * private because the Singleton pattern is being used so as to make sure that only 
+	 * one instance of the GUI is created and used.
+	 */
+	private GUIBuilder() {}
 
-	private GUIBuilder() {
-
-	}
-
+	/**
+	 * The init method first gets the {@link ModsBookkeeper} instance and adds itself
+	 * as an {@link Observer}. Next, it creates a {@link Shell}, adds itself as a 
+	 * {@link ControlListener}, calls addGUIElements to add all necessary {@link Widget}s 
+	 * and displays the shell until the user closes it, or until the generation process
+	 * is completed.
+	 */
 	public void init() {
-		/*
-		 * Maak ModsBookkeeper aan en voegt zichzelf toe als observer.
-		 */
-
 		Generator.getInstance();
 		ModsBookkeeper.getInstance().initMods(GUIBridge.getModulesForGUI());
 		ModsBookkeeper.getInstance().addObserver(this);
@@ -126,6 +142,12 @@ public class GUIBuilder implements Observer, ControlListener {
 		}
 	}
 
+	/**
+	 * This method adds all GUI {@link Widget}s to the provided {@link Shell} and,
+	 * where necessary, adds Listeners to elements.
+	 * @param shell the {@link Shell} that the elements will be added to.
+	 * @requires shell != null
+	 */
 	private void addGUIElements(Shell shell) {
 		GridLayout gl_shell = new GridLayout(1, false);
 		gl_shell.horizontalSpacing = 0;
@@ -134,7 +156,6 @@ public class GUIBuilder implements Observer, ControlListener {
 		gl_shell.marginWidth = 0;
 		shell.setLayout(gl_shell);
 
-		// FIXME: resizen gaat scheel en de titel valt weg :(
 		Composite all = new Composite(shell, SWT.NONE);
 		all.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
 		GridLayout gl_all = new GridLayout(1, false);
@@ -340,7 +361,7 @@ public class GUIBuilder implements Observer, ControlListener {
 
 		tags = new Canvas(tagswrap, SWT.NONE);
 		tags.setSize(tags.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		TagListPainter tlp = new TagListPainter(this);
+		TagListPainter tlp = new TagListPainter();
 
 		tags.addPaintListener(tlp);
 		tagswrap.setContent(tags);
@@ -393,7 +414,6 @@ public class GUIBuilder implements Observer, ControlListener {
 		packages.setText("Select a module and the packages associated with it will be displayed here");
 		sashForm_1.setWeights(new int[] { 147, 264, 275 });
 
-		// packages.setText("Koetje boe");
 		gd = new GridData();
 
 		TabItem tbtmSettings = new TabItem(moddetails, SWT.NONE);
@@ -440,8 +460,7 @@ public class GUIBuilder implements Observer, ControlListener {
 		if (selectedMod != null) {
 			HashMap<String, Option> options = selectedMod.getOptions();
 			for (Option s : options.values()) {
-				new OptionsComposite(composite_7, SWT.NONE, s, selectedMod,
-						this);
+				new OptionsComposite(composite_7, SWT.NONE, s, selectedMod);
 			}
 		}
 
@@ -517,7 +536,7 @@ public class GUIBuilder implements Observer, ControlListener {
 				false, 1, 1));
 		btnDefaults.setText("Defaults");
 		btnDefaults
-				.addMouseListener(new DefaultMouseListener(this, composite_7));
+				.addMouseListener(new DefaultMouseListener(composite_7));
 		sash.setWeights(new int[] { 1, 1 });
 
 		TabItem tbtmConfiguration_1 = new TabItem(tabFolder, SWT.NONE);
@@ -932,7 +951,7 @@ public class GUIBuilder implements Observer, ControlListener {
 
 		Button btnDownload = new Button(composite_1, SWT.NONE);
 		btnDownload.setText("Download");
-		btnDownload.addMouseListener(new DownLoadListener(this));
+		btnDownload.addMouseListener(new DownLoadListener());
 
 		progressBar = new ProgressBar(composite_1, SWT.SMOOTH);
 		GridData gd_progressBar = new GridData(SWT.LEFT, SWT.CENTER, true,
@@ -1034,7 +1053,6 @@ public class GUIBuilder implements Observer, ControlListener {
 
 		text_output = new Text(composite_5, SWT.BORDER | SWT.READ_ONLY
 				| SWT.WRAP | SWT.MULTI);
-		// text_4.setEnabled(true);
 		GridData gd_text_4 = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 		gd_text_4.widthHint = 300;
 		gd_text_4.heightHint = 266;
@@ -1054,7 +1072,7 @@ public class GUIBuilder implements Observer, ControlListener {
 
 		canvas_1 = new Canvas(scrolledComposite, SWT.NONE);
 		canvas_1.setSize(canvas_1.computeSize(200, 300));
-		OverviewPainter op = new OverviewPainter(this);
+		OverviewPainter op = new OverviewPainter();
 		canvas_1.addPaintListener(op);
 		canvas_1.addMouseListener(op);
 		scrolledComposite.setContent(canvas_1);
@@ -1086,7 +1104,7 @@ public class GUIBuilder implements Observer, ControlListener {
 		Button btnImport = new Button(composite_6, SWT.NONE);
 		btnImport.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnImport.setText("Import from XML");
-		btnImport.addMouseListener(new ConfigImportMouseListener(this));
+		btnImport.addMouseListener(new ConfigImportMouseListener());
 
 		Button btnGenerate = new Button(composite_6, SWT.NONE);
 		GridData gd_btnGenerate = new GridData(SWT.FILL, SWT.CENTER, true,
@@ -1099,21 +1117,31 @@ public class GUIBuilder implements Observer, ControlListener {
 		Button btnExport = new Button(composite_6, SWT.NONE);
 		btnExport.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		btnExport.setText("Export to XML");
-		btnExport.addMouseListener(new ConfigExportListener(this));
+		btnExport.addMouseListener(new ConfigExportListener());
 		sashForm_2.setWeights(new int[] { 150, 200 });
 		
 		composite_6.layout();
 	}
 
-	/*
-	 * Deze methode update de Tree met daarin alle modules geselecteerd op tag
+	/**
+	 * This method takes a search phrase and updates the {@link Tree} of
+	 * {@link Tag}s, leaving only those {@link Tag}s and {@link Mod}s that
+	 * contain the search phrase in their name or description. Entering an
+	 * empty {@link String} as a search phrase, restores the tree to its
+	 * original settings.
+	 * @param search the {@link String} search phrase.
+	 * @requires search != null
 	 */
 	public void updateTagtree(String search) {
 		TagTree.updateTagtree(tree, search);
 	}
 
-	/*
-	 * Deze methode update de combobox waar alle challenges instaan
+	/**
+	 * This method updates the {@link Combo} containing all {@link Challenge}s in
+	 * {@link Mod} selected. It shows an option for each of the {@link Challenge}s 
+	 * in selected and by default selects the first one in the list.
+	 * @param selected the currently selected {@link Mod}, or null, if no {@link Mod}
+	 * is selected.
 	 */
 	public void updateCombo(Mod selected) {
 		combo.removeAll();
@@ -1132,8 +1160,12 @@ public class GUIBuilder implements Observer, ControlListener {
 
 	}
 
-	/*
-	 * Deze methode update het vlak waarin alle packages staan
+	/**
+	 * This method updates the {@link Text} that shows all packages belonging
+	 * to the {@link Mod} selected. It shows a new package on each line and if
+	 * no {@link Mod} is selected, it shows a default informational text.
+	 * @param selected the currently selected {@link Mod}, or null, if no {@link Mod}
+	 * is selected.
 	 */
 	public void updatePackages(Mod selected) {
 		if (selected != null) {
@@ -1148,16 +1180,21 @@ public class GUIBuilder implements Observer, ControlListener {
 		}
 	}
 
-	/*
-	 * Deze methode update de lijst met geselecteerde modules
+	/**
+	 * This method invokes the redraw method on the list of selected {@link Mod}s.
+	 * @requires canvas != null
 	 */
 	public void updateModList() {
 		canvas.redraw();
 	}
 
-	/*
-	 * Deze methode update de labels die de totale score bijhouden (op allebei
-	 * de tabs)
+	/**
+	 * This method updates both the labels that display the total amount of points
+	 * that can be scored per Virtual Machine, with the current configurations.
+	 * The total amount of points is the value of all challenges of all selected
+	 * {@link Mod}s.
+	 * @requires label != null
+	 * @requires lblTotalAmountOf != null
 	 */
 	public void updateScoreLabels() {
 		if (label != null) {
@@ -1172,14 +1209,24 @@ public class GUIBuilder implements Observer, ControlListener {
 		}
 	}
 
-	/*
-	 * Deze methode is om de Challenges boom bij te werken.
+	/**
+	 * This method makes sure that the {@link Tree} of {@link Challenge}s is updated
+	 * according to the currently selected {@link Mod}. It will show all 
+	 * {@link ChallengesTree} if a {@link Mod} is selected and it will show an
+	 * empty {@link Tree} if no {@link Mod} is selected.
 	 */
 	public void updateChallengesTree() {
 		ChallengesTree.populateTree(challenges);
-		// Doet populate nog iets anders dan update?
 	}
 
+	/**
+	 * This method updates the {@link Text} to contain the current value of the 
+	 * specified configuration option.
+	 * @param key {@link String} consisting of the name of the configuration option
+	 * that needs to be updated.
+	 * @requires key != null
+	 * @requires textMap != null
+	 */
 	public void updateConfig(String key) {
 		if (textMap.get(key) != null) {
 			textMap.get(key)
@@ -1189,8 +1236,12 @@ public class GUIBuilder implements Observer, ControlListener {
 		}
 	}
 
-	/*
-	 * Deze methode update het options veld.
+	/**
+	 * This method is used for drawing {@link OptionsComposite}s for each of the
+	 * {@link Option}s the selected {@link Mod} has. No {@link OptionsComposite}s
+	 * are drawn when no {@link Mod} is currently selected. Finally, the GUI is 
+	 * redrawn to display the changes.
+	 * @requires composite_7 != null
 	 */
 	public void updateOptions() {
 		Control[] kids = composite_7.getChildren();
@@ -1201,16 +1252,18 @@ public class GUIBuilder implements Observer, ControlListener {
 		if (selectedMod != null) {
 			HashMap<String, Option> options = selectedMod.getOptions();
 			for (Option o : options.values()) {
-				new OptionsComposite(composite_7, SWT.NONE, o, selectedMod,
-						this);
+				new OptionsComposite(composite_7, SWT.NONE, o, selectedMod);
 			}
 		}
 		composite_7.redraw();
 		((ScrolledComposite) composite_7.getParent()).setContent(composite_7);
 	}
 
-	/*
-	 * De update die luistert naar ModsBookkeeper.
+	/**
+	 * This method is called by the {@link Observable} {@link ModsBookkeeper}, whenever
+	 * the collection of selected {@link Mod} or the selected {@link Mod} itself changes.
+	 * This method calls updateScoreLabels, sets the name of the selected module, calls
+	 * updateCombo, updateChallengesTree, updatePackages and updateOptions.
 	 */
 	public void update(Observable obs, Object obj) {
 		updateScoreLabels();
@@ -1236,6 +1289,9 @@ public class GUIBuilder implements Observer, ControlListener {
 		updateOptions();
 	}
 
+	/**
+	 * @return the large {@link Text} on the VM Generation tab 
+	 */
 	public Text getTextOutput() {
 		return text_output;
 	}
@@ -1245,19 +1301,26 @@ public class GUIBuilder implements Observer, ControlListener {
 		return text_filepath;
 	}
 
+	/**
+	 * @return the {@link Display}
+	 */
 	public Display getDisplay() {
 		return display;
 	}
 
 	@Override
-	public void controlMoved(ControlEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
+	public void controlMoved(ControlEvent arg0) {}
 
 	@Override
+	/**
+	 * This method is called whenever the {@link Shell}, the ModList, 
+	 * the TagList or the Overview is resized. It redraws the {@link Composite} 
+	 * that was resized to make it match the new size.
+	 * @requires canvas != null
+	 * @requires tags != null
+	 * @requires canvas_1 != null
+	 */
 	public void controlResized(ControlEvent c) {
-		// TODO Auto-generated method stub
 		if (c.getSource() instanceof Shell) {
 			((Shell) c.getSource()).layout();
 			((Shell) c.getSource()).redraw();

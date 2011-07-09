@@ -1,37 +1,44 @@
 package org.hazelwire.gui;
 
-import java.util.ArrayList;
-
+/**
+ * This class represents a tag: an indication of what a {@link Mod} or 
+ * Challenge entails.
+ */
 public class Tag
 {
-
 	private String tagName;
 
+	/**
+	 * Constructs an instance of Tag with the given argument.
+	 * @param tagName {@link String} consisting of the Tag's name.
+	 */
 	public Tag(String tagName)
 	{
 		this.tagName = tagName;
 	}
 
+	/**
+	 * @return the {@link String} consisting of the Tag's name.
+	 */
 	public String getName()
 	{
 		return tagName;
 	}
 
+	/**
+	 * Sets the name of the Tag to the given {@link String}.
+	 * @param tagName the new Tag name.
+	 */
 	public void setTagName(String tagName)
 	{
 		this.tagName = tagName;
 	}
 
-	public static ArrayList<Tag> dummyData()
-	{
-		ArrayList<Tag> result = new ArrayList<Tag>();
-		for (int i = 0; i < 6; i++)
-		{
-			result.add(new Tag("Tag " + (i + 1)));
-		}
-		return result;
-	}
-
+	/**
+	 * This method overrides the {@link Object}'s toString method, in
+	 * order to just return the Tag name, since this is useful in using
+	 * it throughout the system.
+	 */
 	public String toString()
 	{
 		return tagName;

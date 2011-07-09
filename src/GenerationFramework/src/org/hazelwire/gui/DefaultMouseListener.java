@@ -5,28 +5,39 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.hazelwire.modules.Option;
 
+/**
+ * This class is responsible for restoring the default values
+ * for all the options of a {@link Mod}. Because restoring 
+ * the values is done by clicking a {@link Button}, this class
+ * is a subclass of {@link MouseListener}.
+ */
 public class DefaultMouseListener implements MouseListener
 {
-
-	private GUIBuilder gUIBuilder;
 	private Composite allOptions;
 
-	public DefaultMouseListener(GUIBuilder gUIBuilder, Composite allOptions)
+	/**
+	 * Creates an instance of DefaultMouseListener.
+	 * @param allOptions this {@link Composite} is necessary in order
+	 * to update the GUI to show the newly reset values and in order
+	 * to find all the values that need to be reset in the first place.
+	 */
+	public DefaultMouseListener(Composite allOptions)
 	{
-		this.gUIBuilder = gUIBuilder;
 		this.allOptions = allOptions;
 	}
 
 	@Override
 	public void mouseDoubleClick(MouseEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
+	/**
+	 * When the 'defaults' {@link Button} is clicked and this method
+	 * is called, it finds all options that the {@link Mod} has and
+	 * resets their values to their default values, after which it 
+	 * updates the GUI.
+	 */
 	public void mouseDown(MouseEvent m)
 	{
 		Control[] kids = allOptions.getChildren();
@@ -49,9 +60,6 @@ public class DefaultMouseListener implements MouseListener
 
 	@Override
 	public void mouseUp(MouseEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 }

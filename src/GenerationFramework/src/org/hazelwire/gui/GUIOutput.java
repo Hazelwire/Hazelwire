@@ -4,6 +4,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
 import org.hazelwire.main.InterfaceOutput;
 
+/**
+ * 
+ * @author Joost
+ *
+ */
 public class GUIOutput implements InterfaceOutput
 {
 	Text output;

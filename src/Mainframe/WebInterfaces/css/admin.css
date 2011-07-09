@@ -23,9 +23,14 @@ div.content
 }
 h1
 {
+        color: #444;
 	margin: 0;
 	padding: 0;
 	font-size: 1em;
+}
+a
+{
+    cursor: pointer;
 }
 div#container
 {
@@ -276,7 +281,7 @@ input[type="radio"]:checked + label
 }
 #contestantinfo li.insane input[type="radio"]:checked + label
 {
-	background-color: #459;
+	background-color: #459 !important;
 	border-color: #345;
 }
 #contestantinfo label:hover
@@ -300,10 +305,10 @@ div#announcementdisplay
 	right: 0;
 	bottom: 2em;
 }
-div#announcements form, div#acform form, div#acform form
+div#announcements form, div#acform form
 {
 	position: absolute;
-	top: 2em;
+	top: 0em;
 	bottom: 0;
 	left: 0;
 	right: 0;
@@ -320,8 +325,9 @@ div.cforminput div
 {
 	position: relative;
 }
-div#acform, div#acform
+div#acform
 {
+        position: absolute;
 	top: 0;
 	bottom: 0;
 	left: 0;
@@ -397,4 +403,81 @@ input[type="button"]
 input[type="button"]:disabled
 {
 	color: #aaa;
+}
+#backgroundPopup
+{
+	display: none;
+	position: absolute;
+	_position: absolute; /* hack for internet explorer 6*/
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+	background: #000;
+	z-index: 1;
+	opacity: .7;
+}
+#popup
+{
+	display: none;
+	position: absolute;
+	float: left;
+	background: #aaa;
+	border: 2px solid #666;
+	z-index: 2;
+	padding: 1em;
+	font-size: 1em;
+}
+#popupcontent
+{
+	position: relative;
+	margin: auto;
+}
+#popup h1
+{
+	padding-right: 2em;
+	margin-bottom: 20px;
+}
+#popupClose
+{
+	font-size: 1em;
+	line-height: 1em;
+	right: .5em;
+	top: .5em;
+	position: absolute;
+	color: #333;
+	font-weight: 700;
+	display: block;
+}
+#notifybox
+{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 0;
+}
+.notification
+{
+	position: relative;
+	margin: auto;
+	padding: .5em;
+	text-align: center;
+	border: 1px solid black;
+        z-index: 2;
+}
+.notifybad
+{
+	background-color: red;
+	border-color: DarkRed;
+}
+.notifyneutral
+{
+	background-color: yellow;
+	border-color: GoldenRod;
+}
+.notifygood
+{
+	background-color: lawngreen;
+	border-color: green;
 }

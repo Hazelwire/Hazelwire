@@ -3,19 +3,14 @@ package org.hazelwire.gui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.hazelwire.modules.Module;
+
 
 /**
  * This class is necessary to update the tree of {@link Challenge}s that
- * is displayed in the GUI. Whenever a {@link Module} is selected or deselected,
+ * is displayed in the GUI. Whenever a {@link Mod} is selected or deselected,
  * its {@link Challenge}s must be added to or removed from the tree. That is 
  * what ChallengesTree is responsible for.
  */
@@ -24,7 +19,7 @@ public class ChallengesTree implements MouseListener
 
 	/**
 	 * A helper method that calls updateTree after retrieving the index of the 
-	 * currently selected {@link Module}, using that index and the {@link Tree}
+	 * currently selected {@link Mod}, using that index and the {@link Tree}
 	 * parameter.
 	 * @param tree {@link Tree} that will be updated by the method
 	 */
@@ -35,12 +30,12 @@ public class ChallengesTree implements MouseListener
 
 	/**
 	 * Method that updates the given {@link Tree} based on the index of the 
-	 * given {@link Module}. It first removes all previous entries in the
+	 * given {@link Mod}. It first removes all previous entries in the
 	 * {@link Tree}. Next, it adds the id, number of points and the description
-	 * of each {@link Challenge} that is associated with the selected {@link Module}.
+	 * of each {@link Challenge} that is associated with the selected {@link Mod}.
 	 * Finally, it calls redraw(), so that all changes will be displayed in the GUI.
 	 * @param challenges {@link Tree} that will be updated
-	 * @param selected int that represents the index of the selected {@link Module}.
+	 * @param selected int that represents the index of the selected {@link Mod}.
 	 * @requires challenges != null
 	 * @requires selected == -1 || (selected >= 1 && selected =< 
 	 * ModsBookkeeper.getInstance().getSelectedModules().size())
