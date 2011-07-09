@@ -23,6 +23,11 @@ if(strcmp($_SERVER['REMOTE_ADDR'], '127.0.0.1') === 0 || ip_in_range($_SERVER['R
     exit;
 }
 
+/**
+ * Outputs a file
+ * @param string $file The file to output, including the path to it.
+ * @param string $name The name of the file, i.e. the basename exluding the extension
+ */
 function loadFile($file,$name){
     header('Content-Description: File Transfer');
     header('Content-Type: application/zip');

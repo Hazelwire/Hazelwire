@@ -1,8 +1,19 @@
 <?php
+/**
+ * Pings a host to test if it is online
+ * @param string $host The host to ping
+ * @return boolean true if 1 or more pings returned successfuly
+ */
 function ping($host) {
     exec(sprintf('ping -c 1 -W 1 %s', escapeshellarg($host)), $res, $rval);
     return $rval === 0;
   }
+
+  /**
+   * Converts a given dotted notated IP address to it long form
+   * @param string $ip The ip to convert
+   * @return string the long notation for the given IP address
+   */
 function myip2long($ip) {
    if (is_numeric($ip)) {
        return sprintf("%u", floatval($ip));
@@ -11,8 +22,13 @@ function myip2long($ip) {
    }
 }
 
-########### function to chek ip if it in one of denyied/allowed networks
 
+/**
+ * Tests whether the given IP falls within the given network range
+ * @param string $ip The dotted notated IP to check
+ * @param string $range The CIDR notated IP range
+ * @return boolean true if it falls within the range, false otherwise
+ */
 function ip_in_range($ip,$range) {
    $match = false;
    
@@ -28,13 +44,24 @@ function ip_in_range($ip,$range) {
    return $match;
 }
 
+/**
+ * Tests if a given string starts with a certain other string
+ * @param string $haystack The string to test the start of
+ * @param string $needle The possible start of the haystack
+ * @return boolean true if $haystack starts with $needle
+ */
 function startsWith($haystack, $needle)
 {
     $length = strlen($needle);
     return (substr($haystack, 0, $length) === $needle);
 }
 
-
+/**
+ * Runs a program or script in the background, in order to let PHP continue its business
+ * @param string $Command The command to execute in the background
+ * @param int $Priority The priority (i.e. nice value) of the to be made process
+ * @return <type>
+ */
    function run_in_background($Command, $Priority = 0)
    {
        if($Priority)
@@ -50,6 +77,12 @@ function startsWith($haystack, $needle)
        return(count($ProcessState) >= 2);
    }
 
+   /**
+    * Checks the given string to check if it is a valid IP address or CIDR address range
+    * @param string $cidr The IP address (range) which needs to be checked
+    * @param boolean $range whether or not the given IP is a CIDR range
+    * @return boolean true if the address is valid, false otherwise
+    */
 function checkValidIp($cidr,$range = false) {
 
     // Checks for a valid IP address or optionally a cidr notation range
@@ -85,6 +118,13 @@ function checkValidIp($cidr,$range = false) {
 
 }
 
+/**
+ * Deletes (or empties) a directory recursively, removing everything thats inside
+ * 
+ * @param <type> $directory the path to the directory that needs to be deleted or emptied
+ * @param <type> $empty Whether to empty the given directory or delete it
+ * @return boolean true if the deletion was successful, false if it ran into a problem
+ */
 function deleteAll($directory, $empty = false) {
     if(substr($directory,-1) == "/") {
         $directory = substr($directory,0,-1);
@@ -122,16 +162,27 @@ function deleteAll($directory, $empty = false) {
 }
 
 
-// Unify line breaks of different operating systems
+/**
+ * Converts linebreaks to work on most platforms
+ * @param string $text Text to convert linebreaks in
+ * @return string Text with converted linebreaks
+ */
 function convertlinebreaks ($text) {
     return preg_replace ("/\015\012|\015|\012/", "\n", $text);
 }
 
-// Remove everything but the newline charachter
+/**
+ * Strips all the non-newline characters from the string
+ * @param string $text Text which needs stripping
+ * @return string Only the newline characters
+ */
 function bbcode_stripcontents ($text) {
     return preg_replace ("/[^\n]/", '', $text);
 }
 
+/**
+ * Function for BB parser, handles [size]
+ */
 function do_bbcode_size ($action, $attributes, $content, $params, $node_object) {
     if ($action == 'validate') {
         return isset($attributes['default']) && preg_match('/(^xx-small|x-small|small|medium|large|x-large|xx-large$)|^([0-9]*\.)?[0-9]+(px|em|pt|%)$/', $attributes['default']);
@@ -140,6 +191,9 @@ function do_bbcode_size ($action, $attributes, $content, $params, $node_object) 
     return '<span style="font-size:'.$attributes['default'].';">'.$content.'</span>';
 }
 
+/**
+ * Function for BB parser, handles [color]
+ */
 function do_bbcode_color ($action, $attributes, $content, $params, $node_object) {
     if (!isset ($attributes['default'])) {
         $color = "#000000";
@@ -152,6 +206,9 @@ function do_bbcode_color ($action, $attributes, $content, $params, $node_object)
     return '<span style="color:'.$color.';">'.$content.'</span>';
 }
 
+/**
+ * Function for BB parser, handles [url]
+ */
 function do_bbcode_url ($action, $attributes, $content, $params, $node_object) {
     if (!isset ($attributes['default'])) {
         $url = $content;
@@ -173,7 +230,9 @@ function do_bbcode_url ($action, $attributes, $content, $params, $node_object) {
     return '<a href="'.htmlspecialchars ($url).'">'.$text.'</a>';
 }
 
-// Function to include images
+/**
+ * Function for BB parser, handles [img]
+ */
 function do_bbcode_img ($action, $attributes, $content, $params, $node_object) {
     if ($action == 'validate') {
         if (substr ($content, 0, 5) == 'data:' || substr ($content, 0, 5) == 'file:'
@@ -189,6 +248,10 @@ function do_bbcode_img ($action, $attributes, $content, $params, $node_object) {
     }
     return '<img src="'.$src.'" '.$height. $width . $alt. ' />';
 }
+
+/**
+ * Function for BB parser, creates links from given text
+ */
 function parse_links  ( $m )
 {
     $href = $name = html_entity_decode($m[0]);
@@ -205,6 +268,9 @@ function parse_links  ( $m )
     return sprintf( '<a href="%s">%s</a>', htmlentities($href), htmlentities($name) );
 }
 
+/**
+ * Function for BB parser, gets all non-[url]'d links from the text to link them
+ */
 function autoParseLinks($text){
     $regex = '/(((https?):\/\/|www\d?\.)((([a-z0-9][a-z0-9-]*[a-z0-9]\.)*[a-z][a-z0-9-]*[a-z0-9]|((\d|[1-9]\d|1\d{2}|2[0-4][0-9]|25[0-5])\.){3}(\d|[1-9]\d|1\d{2}|2[0-4][0-9]|25[0-5]))(:\d+)?)(((\/+([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)*(\?([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)?)?)?(#([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)?)/i';
     $text = preg_replace_callback( $regex, 'parse_links', $text );

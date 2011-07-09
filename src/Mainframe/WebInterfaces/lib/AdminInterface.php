@@ -660,7 +660,7 @@ class AdminInterface extends WebInterface {
         $decay_mod = floatval($_POST['points_decay_mod']);
         $points_min = intval($_POST['points_min']);
         $point_penalty_mod = floatval($_POST['point_penalty_mod']);
-        $penalty_offline = intval($_POST['penalty_offline']);
+        $penalty_offline = 0;//intval($_POST['penalty_offline']);
 
         $manifest = $_FILES['manifest'];
         $temp = explode(".", $manifest['name']);

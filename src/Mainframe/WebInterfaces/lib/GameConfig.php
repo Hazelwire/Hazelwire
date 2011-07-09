@@ -1,6 +1,6 @@
 <?php
 /**
- * Description of GameConfig
+ * This class holds the config wich was entered in the Config phase of the wargame
  *
  * @author Daniel
  */
@@ -62,7 +62,10 @@ class GameConfig {
             }
         }
     }
-    
+
+    /**
+     * Saves the config data into the database
+     */
     public function save(){
         $db = &$this->db; /* @var $db PDO */
         
