@@ -990,6 +990,7 @@ class AdminInterface extends WebInterface {
                 $q->execute(array(intval($id)));
                 if(OpenVPNManager::getVPNStatus($c))
                     OpenVPNManager::diconnectVPN($c);
+                $this->cban_success =  true;
                 return;
             }
 
