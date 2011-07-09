@@ -101,14 +101,21 @@ function ajaxReq(location,payload, expectedAnswer,callback){
         });});
 }
 
-
+var selectedContestant = -1;
 function updateClist(){
+    if($('#cform input:radio[name="contestant"]:checked').length != 0){
+        selectedContestant = $('#cform input:radio[name="contestant"]:checked').attr('id').split("_")[1];
+    }
+    else
+        selectedContestant = -1;
+    
     ajaxReq("index.php?aaction=getcs", "", "getcs", function(data){
 	$('#cform').html(data.reply);
 	setCCollapseHandlers();
         for ( var i=0, len=openContestants.length; i<len; ++i ){
           $('label[for="teamid_'+openContestants[i]+ '"]').find('.cextrainfo').show();
         }
+        $('#cform input:radio[name="contestant"]#teamid_'+selectedContestant).prop("checked",true);
     });
 }
 
