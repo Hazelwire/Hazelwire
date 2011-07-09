@@ -293,7 +293,7 @@ function bindDefaultText() {
 }
 
 $(document).ready(function(){
-        setTimeout("updateClistAuto()", 30000);
+        
         //CLOSING POPUP
 	//Click the x event!
 	$("#popupClose").click(function(){

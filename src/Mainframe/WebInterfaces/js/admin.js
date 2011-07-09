@@ -60,6 +60,9 @@ function buildSanityTable(){
                                 "bProcessing": true,
                                 "sAjaxSource": "index.php?aaction=getsanity",
                                 "bDeferRender": true,
+                                "aLengthMenu": [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
+                                "iDisplayLength": 25,
+                                "sScrollY": "480px",
                                 "aoColumns": [
                                         null,
                                         { "sType": "date-euro" },
@@ -69,13 +72,16 @@ function buildSanityTable(){
                                         null
                                 ]
                         } );
-    centerPopup(0);
-    loadPopup();
-    
     $("#popupcontent").css({
         "width": "800px",
         "height": "600px",
         "overflow":"auto"
     });
+    $('#sanityOverview_next').html('>');
+    $('#sanityOverview_previous').html('<');
+    centerPopup(0);
+    loadPopup();
+
+
 }
 
