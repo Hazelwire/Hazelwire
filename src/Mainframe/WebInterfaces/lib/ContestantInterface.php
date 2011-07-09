@@ -172,17 +172,17 @@ class ContestantInterface extends WebInterface{
                     $serie->id   = "line".$contest['id'];
                     $series->seriesString .= $serie->id.",";
                     $serie->name = $contest['name'];
-                    $string = "[";
+                    $serie->string = "[";
 
-                    $string .= "[".($start_time).",0],";
+                    $serie->string .= "[".($start_time).",0],";
                     $total = 0;
 
                     $point_fetch->execute(array($contest['id']));
                     foreach($point_fetch as $points){
                         $total += intval($points['points']);
-                        $string .= "[".($points['timestamp']*1000).",".$total."],";
+                        $serie->string .= "[".($points['timestamp']*1000).",".$total."],";
                     }
-                    $string .= "[".($now*1000).",".$total."]]";
+                    $serie->string .= "[".($now*1000).",".$total."]]";
                     
                     array_push($series->series, $serie);
                 }
