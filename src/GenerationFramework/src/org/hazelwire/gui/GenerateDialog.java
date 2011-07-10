@@ -115,13 +115,18 @@ public class GenerateDialog extends Dialog {
 				input = null;
 				try
 				{
-					if(controlButton.getText().equals("Cancel")) Generator.getInstance().shutDown(true,false);
+					if(controlButton.getText().equals("Cancel"))
+					{
+						Generator.getInstance().setKeepGenerating(false);
+						controlButton.setText("Wait");
+						controlButton.setEnabled(false);
+						lblProgress.setText("Cleaning up");
+					}
 				}
 				catch (Exception e)
 				{
 					e.printStackTrace();
 				}
-				shell.close();
 			}
 		});
 
@@ -140,7 +145,12 @@ public class GenerateDialog extends Dialog {
 
 		if(progress == 100)
 		{
-			controlButton.setText("Ok");
+			shlGeneratingVm.dispose();
 		}
+	}
+	
+	public void setProgressText(String text)
+	{
+		this.lblProgress.setText(text);
 	}
 }

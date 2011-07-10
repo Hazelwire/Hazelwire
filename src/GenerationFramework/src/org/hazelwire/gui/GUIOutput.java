@@ -30,6 +30,7 @@ public class GUIOutput implements InterfaceOutput
 			public void run()
 			{
 				output.append(message);
+				progressDialog.setProgressText(message);
 			}
 		});
 	}
@@ -42,7 +43,7 @@ public class GUIOutput implements InterfaceOutput
 			public void run()
 			{
 				output.append(message+"\n");
-				progressDialog.setText(message);
+				progressDialog.setProgressText(message);
 			}
 		});
 	}
@@ -54,7 +55,7 @@ public class GUIOutput implements InterfaceOutput
 			public void run()
 			{
 				output.setText("");
-				progressDialog.setText("");
+				progressDialog.setProgressText("");
 			}
 		});
 	}

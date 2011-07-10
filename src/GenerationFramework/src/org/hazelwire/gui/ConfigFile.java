@@ -23,7 +23,7 @@ public class ConfigFile {
 	{
 		HashMap<String, String> result = new HashMap<String, String>();
 		
-		Enumeration<?> config = Configuration.getInstance().getRawProperties().propertyNames();
+		Enumeration<?> config = Configuration.getInstance().getRawDefaultProperties().propertyNames();
 		
 		while(config.hasMoreElements())
 		{

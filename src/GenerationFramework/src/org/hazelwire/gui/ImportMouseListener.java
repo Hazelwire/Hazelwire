@@ -6,6 +6,8 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.TabItem;
+import org.hazelwire.main.Generator;
+import org.hazelwire.modules.ModuleHandler;
 
 /**
  * This class is used to import {@link Mod}s into the system and to display
@@ -43,24 +45,18 @@ public class ImportMouseListener implements MouseListener
 		String selected = fd.open();
 		if(selected != null)
 		{
-			/*
-			 * 
+			 
 			try
 			{
 				Generator.getInstance().getModuleSelector().addModule(ModuleHandler.importModule(selected));
-				
-				ArrayList<String> availableModules = Generator.getInstance().getAvailableModules();
-				
-				for(String module : availableModules)
-				{
-					System.out.println(module);
-				}
+				GUIBridge.synchronizeModulesBackToFront();
+				GUIBuilder.getInstance().updateModList();
 			}
 			catch (Exception e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}*/
+			}
 		}
 	}
 

@@ -112,6 +112,16 @@ public class Configuration
 		this.applicationProps = newProperties;
 	}
 	
+	public Properties getRawDefaultProperties()
+	{
+		return this.defaultProps;
+	}
+	
+	public void setRawDefaultProperties(Properties newProperties)
+	{
+		this.defaultProps = newProperties;
+	}
+	
 	public String getModulePath()
 	{
 		return applicationProps.getProperty("modulePath");
@@ -164,6 +174,16 @@ public class Configuration
 	public void setVMExportPath(String path)
 	{
 		applicationProps.setProperty("vmExportPath", path);
+	}
+	
+	public String getVMName()
+	{
+		return applicationProps.getProperty("vmName");
+	}
+	
+	public void setVMName(String name)
+	{
+		applicationProps.setProperty("vmName", name);
 	}
 	
 	public String getSSHUsername()

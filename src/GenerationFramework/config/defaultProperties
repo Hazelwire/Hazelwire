@@ -1,6 +1,7 @@
 #
 #Sun Jun 19 23:22:39 CEST 2011
 vmPath=/home/shokora/Code/Java/hazelwire/hazelwire/src/GenerationFramework/dist/HazelwireTest.ova
+vmName=HazelwireTest
 tempDirectory=tmp/
 sshHostPort=2222
 vmLogPath=/dev/null
@@ -13,7 +14,6 @@ virtualBoxPath=/usr/bin/vboxmanage
 sshGuestPort=22
 externalScriptDirectory=/home/hazelwire/
 sshPassword=hazelwire
-callbackPort=31337
 externalDeployDirectory=/home/hazelwire/deploy/
 knownHostsFile=config/known_hosts
 modulePath=modules/
