@@ -1,0 +1,7 @@
+org.eclipse.wb.swt
+org.hazelwire.gui
+org.hazelwire.main
+org.hazelwire.modules
+org.hazelwire.test
+org.hazelwire.virtualmachine
+org.hazelwire.xml
