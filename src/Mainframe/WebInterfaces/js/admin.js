@@ -60,8 +60,8 @@ function buildSanityTable(){
                                 "bProcessing": true,
                                 "sAjaxSource": "index.php?aaction=getsanity",
                                 "bDeferRender": true,
-                                "aLengthMenu": [[10, 25, 50, 100, 250, -1], [10, 25, 50, 100, 250, "All"]],
-                                "iDisplayLength": 25,
+                                "aLengthMenu": [[50, 100, 250, 500, -1], [50, 100, 250, 500, "All"]],
+                                "iDisplayLength": 50,
                                 "sScrollY": "480px",
                                 "aoColumns": [
                                         null,
