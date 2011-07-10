@@ -216,12 +216,9 @@ public class Generator
 			    	{
 				    	tui.setProgress(85);
 				    	shutDown(true,true);
-				    	tui.setProgress(100);
 				    	tui.println("Succesfully created VM");
 				    	tui.setProgress(100);
 			    	}
-			    	
-			    	keepGenerating = false;
 		    	}
 		    	else
 		    	{
@@ -232,6 +229,7 @@ public class Generator
 		    	{
 		    		shutDown(true,false);
 		    		tui.println("Generation process canceled");
+		    		tui.setProgress(100);
 		    	}
 	    	}
     	}
@@ -240,6 +238,8 @@ public class Generator
     		tui.println(e.getMessage());
     		this.shutDown(true, false);
     	}
+    	
+    	keepGenerating = false;
 	}
 	
 	public void uploadModules(SSHConnection ssh) throws Exception
@@ -264,6 +264,7 @@ public class Generator
 			catch(Exception e)
 			{
 				tui.println("ERROR: something went wrong while transferring the modules to the VM");
+				e.printStackTrace();
 			}
 		}
 		
