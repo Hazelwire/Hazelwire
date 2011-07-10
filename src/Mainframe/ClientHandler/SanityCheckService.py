@@ -47,6 +47,7 @@ class SanityChecker:
         self.normal_interval, self.p2p_interval = self.db.getIntervals()
         self.contestants = self.db.getClientIPs()
         self.ports = self.db.getModulePorts()
+        self.normal_dbWriteLock = threading.Lock()
         logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', level=logging.INFO, filename='sanitycheck.log')
         
     def controlListener(self):
@@ -104,7 +105,6 @@ class SanityChecker:
         Normal sanity checking involves the Mainframe to check every port used by the modules on all the team's VMs.
         When it can't connect to a specific port it adds an entry to the suspicious IP table.
         """
-        self.normal_dbWriteLock = threading.Lock()
         self.normal_threads = []
         logging.info("[NORMALCHECK] Running check...")
         for contestant in self.contestants:

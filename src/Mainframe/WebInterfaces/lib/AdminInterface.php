@@ -672,7 +672,10 @@ class AdminInterface extends WebInterface {
         } elseif (  $auto_p2p_interval > 0 &&
                     $auto_s2p_interval > 0 &&
                     $manifest['error'] === 0 &&
-                    checkValidIp($server_ip)) {
+                    checkValidIp($server_ip) &&
+                    preg_match("/[-]?([0-9]*\.)?[0-9]+/", $_POST['points_decay_mod']) &&
+                    preg_match("/[-]?([0-9]*\.)?[0-9]+/", $_POST['point_penalty_mod']) &&
+                    preg_match("/[-]?[0-9]+/", $_POST['points_min'])) {
 
             /*
              * Assume the input is correct. Only a few things are checked, mainly because we should assume the administrator is not
@@ -1255,7 +1258,7 @@ class AdminInterface extends WebInterface {
             fwrite($fp, "CHECK TYPE NORMAL ".$c->getVm_ip()."\n");
             fclose($fp);
         }
-        
+        sleep(3);
         $fp = @fsockopen("127.0.0.1", 9997, $errno, $errstr, 5);
         if(!$fp){
             $this->handleError(new Error("vpn_error", "Error #42+1: Cannot connect to Sanity Check Service! (".$errno.")", false));

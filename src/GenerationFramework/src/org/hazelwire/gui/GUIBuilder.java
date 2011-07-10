@@ -120,7 +120,7 @@ public class GUIBuilder implements Observer, ControlListener {
 		shell.addControlListener(this);
 		shell.pack();
 		shell.open();
-		shell.setText("Hazelwire Alpha v0.1");
+		shell.setText("Hazelwire Beta v1.0");
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
@@ -734,7 +734,7 @@ public class GUIBuilder implements Observer, ControlListener {
 		Label lblNewLabel_1 = new Label(composite_5, SWT.NONE);
 		lblNewLabel_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
 				false, 1, 1));
-		lblNewLabel_1.setText("VM Base");
+		lblNewLabel_1.setText("VM Base Name");
 
 		txtHazelwireVm = new Text(composite_5, SWT.BORDER);
 		txtHazelwireVm.setEnabled(true);
