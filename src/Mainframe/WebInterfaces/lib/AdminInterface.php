@@ -1182,7 +1182,7 @@ class AdminInterface extends WebInterface {
             $this->handleError(new Error("illegal_action", "You can't start the VPNs in this stage.", false));
             return;
         }
-        $q = $this->db->query("select count(*) as count from teams");
+        $q = $this->database->query("select count(*) as count from teams");
         $qre = $q->fetch();
         if($qre['count'] < 1){
             $this->handleError(new Error("start_vpn_error", "You need at least one contestant to do this.", false));

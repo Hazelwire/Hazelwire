@@ -54,7 +54,7 @@ jQuery.fn.dataTableExt.oSort['date-euro-desc'] = function(a, b) {
         return z;
 };
 function buildSanityTable(){
-    $('#popup > h1').html("Sanity Check Results");
+    $('#popup > h1').html("Sanity Check Failure Overview");
     $("#popupcontent").html('<table id="sanityOverview" class="display" style="border:0px;border-spacing:1px;"><thead><tr><th>Name</th><th>Timestamp</th><th>IP</th><th>Port</th><th>Service</th><th>Reporter</th></tr></thead><tbody></tbody><tfoot><tr><th>Name</th><th>Timestamp</th><th>IP</th><th>Port</th><th>Service</th><th>Reporter</th></tr></thead></table>');
     oTable = $('#sanityOverview').dataTable( {
                                 "bProcessing": true,
