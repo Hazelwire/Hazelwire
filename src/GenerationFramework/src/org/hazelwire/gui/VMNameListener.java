@@ -10,11 +10,10 @@ import org.eclipse.swt.widgets.Text;
 
 /**
  * This class is responsible for taking the user input with regard
- * to the configuration settings and storing them in the system. In 
- * order to fulfill this task, it implements {@link MouseListener}
- * and {@link FocusListener}.
+ * to the VM name and storing them in the system. In order to fulfill 
+ * this task, it implements {@link FocusListener}.
  */
-public class VMNameListener implements MouseListener, FocusListener {
+public class VMNameListener implements FocusListener {
 
 	
 	@Override
@@ -38,16 +37,7 @@ public class VMNameListener implements MouseListener, FocusListener {
 			{
 				e.printStackTrace();
 			}
+			
 		}
 	}
-
-	@Override
-	public void mouseDoubleClick(MouseEvent arg0) {}
-
-	@Override
-	public void mouseDown(MouseEvent arg0) {}
-
-	@Override
-	public void mouseUp(MouseEvent m) {}
-
 }

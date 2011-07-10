@@ -743,7 +743,7 @@ public class GUIBuilder implements Observer, ControlListener {
 				false, 1, 1);
 		gd_txtHazelwireVm.widthHint = 100;
 		txtHazelwireVm.setLayoutData(gd_txtHazelwireVm);
-		txtHazelwireVm.addMouseListener(new VMNameListener());
+		txtHazelwireVm.addFocusListener(new VMNameListener());
 
 		text_output = new Text(composite_5, SWT.BORDER | SWT.READ_ONLY
 				| SWT.WRAP | SWT.MULTI);
