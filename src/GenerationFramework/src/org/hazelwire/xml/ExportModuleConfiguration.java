@@ -19,6 +19,12 @@ import org.hazelwire.modules.Option;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * This class allows the exportation of the current module set configuration. This configuration includes the currently selected modules and it's settings
+ * like flag and option information.
+ * @author Tim Strijdhorst
+ *
+ */
 public class ExportModuleConfiguration
 {
 	public String exportModuleConfiguration(String filePath) throws ParserConfigurationException, TransformerException

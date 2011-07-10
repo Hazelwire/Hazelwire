@@ -8,6 +8,12 @@ import org.hazelwire.modules.Module;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+/**
+ * This class allows the system to synchronize the configuration of the selected module set with a previously exported one by reading
+ * the exported XML file and changing the system likewise.
+ * @author Tim Strijdhorst
+ *
+ */
 public class ImportModuleConfiguration extends XMLParser
 {
 

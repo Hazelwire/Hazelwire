@@ -7,7 +7,8 @@ import java.util.Iterator;
 import org.hazelwire.main.Configuration;
 
 /**
- * 
+ * This class is responsible for managing everything that has to do with the set of modules in the backend. It will import, select, deselect both
+ * normal and hidden (system) modules.
  * @author Tim Strijdhorst
  *
  */

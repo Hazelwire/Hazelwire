@@ -11,6 +11,14 @@ import org.hazelwire.modules.Option;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+
+/**
+ * This class parses the configuration files that accompany the modules. All the information is extracted from the XML configuration file and
+ * with that information a module object is created that is linked to the original module files.
+ * 
+ * @author Tim Strijdhorst
+ *
+ */
 public class ParserModuleConfig extends XMLParser
 {
 	Module tempModule;

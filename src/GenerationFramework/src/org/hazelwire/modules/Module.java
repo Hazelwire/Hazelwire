@@ -9,9 +9,11 @@ import org.hazelwire.main.FileName;
 import org.hazelwire.main.Generator;
 
 /**
+ * This class represents a module in the system and is 'linked' with the actual module on the filesystem.
+ * This is actually one of the core functionalities of the system and it manages everything that has to do with
+ * a particular module.
  * 
  * @author Tim Strijdhorst
- * This class represents a module in the system and is 'linked' with the actual module on the filesystem
  */
 public class Module
 {

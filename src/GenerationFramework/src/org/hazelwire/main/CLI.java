@@ -5,7 +5,10 @@ import java.util.Iterator;
 import java.util.Scanner;
 
 /**
- * This is just for the first prototype, later on a more proper CLI will be build (and a GUI).
+ * This is a very basic and no longer used command line interface for the system. Can still be used for testing purposes but other than that
+ * it's pretty useless right now.
+ * 
+ * @deprecated
  * @author Tim Strijdhorst
  *
  */

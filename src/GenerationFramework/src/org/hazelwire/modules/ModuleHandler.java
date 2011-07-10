@@ -15,7 +15,9 @@ import org.hazelwire.main.Generator;
 import org.hazelwire.xml.ParserModuleConfig;
 
 /**
- * 
+ * This class has a series of static functions that allows the system to import modules in different ways.
+ * It can both import invidual modules into the systems that are packaged in zip format. It can also scan the
+ * module directory for modules and use those in the system.
  * @author Tim Strijdhorst
  *
  */

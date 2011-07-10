@@ -1,5 +1,11 @@
 package org.hazelwire.modules;
 
+/**
+ * This class represents a certain option for a module. This can be anything that the creator would like it to be and the system will not do
+ * anything with it except for allowing the user to set the value and then passing it on to the deployscript when it's installed on the virtualmachine.
+ * @author Tim Strijdhorst
+ *
+ */
 public class Option
 {
 	private int id;

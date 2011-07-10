@@ -7,11 +7,11 @@ import java.util.Properties;
 
 
 /**
- * 
- * @author Tim Strijdhorst
  * This class manages all the configuration, first a default configuration is loaded then the values are overwritten with user-set values if set.
  * In order to ensure synchronisity of configuration-values among all classes it is implemented with the singleton pattern.
  * It is synchronized to ensure it's also thread-safe
+ * 
+ * @author Tim Strijdhorst
  *
  */
 public class Configuration

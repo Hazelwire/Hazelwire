@@ -20,6 +20,12 @@ import org.hazelwire.modules.Module;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * This class will generate the manifest file that is needed to be able to use the virtualmachine with the game backend.
+ * Basicly it just collects the flag information and the location of the deployscript so the server can give the flags to the clients.
+ * @author Tim Strijdhorst
+ *
+ */
 public class ManifestGenerator
 {		
 	public static String saveManifestToDisk(String filePath) throws IOException, ParserConfigurationException, TransformerException

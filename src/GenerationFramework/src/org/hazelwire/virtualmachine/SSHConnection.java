@@ -11,6 +11,11 @@ import net.schmizz.sshj.connection.channel.direct.Session.Command;
 
 import org.hazelwire.main.Configuration;
 
+/**
+ * This class manages all the SSH communication with the virtualmachine in the generation process. It is implemented using the SSHJ library.
+ * @author Tim Strijdhorst
+ *
+ */
 public class SSHConnection
 {
 	String hostname, username, password;

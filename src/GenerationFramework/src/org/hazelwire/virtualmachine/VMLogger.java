@@ -10,6 +10,7 @@ import org.hazelwire.main.Configuration;
 
 
 /**
+ * Crappy logger class will be deprecated very soon.
  * @author Tim Strijdhorst
  * @todo maybe this needs to be implemented as a Thread but that's always a pain in the ass with synchronizing the locks for writing.
  * So lets just see if this effects the performance all too much (which it probably doesn't).

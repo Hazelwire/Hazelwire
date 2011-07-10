@@ -9,6 +9,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * This class manages all the communication with the VirtualBox application. It can be used both in a static way and in
+ * an OOP way by initiating the class as an object.
  * @author Tim Strijdhorst
  * @todo write proper error handling
  *

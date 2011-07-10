@@ -1,5 +1,10 @@
 package org.hazelwire.modules;
 
+/**
+ * This represents a flag in the vulnerability. A flag is triggered by some action that will lead the contestant to gaining points.
+ * @author Tim Strijdhorst
+ *
+ */
 public class Flag
 {
 	private int id, points, defaultPoints;

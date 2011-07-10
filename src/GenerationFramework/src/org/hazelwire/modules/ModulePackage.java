@@ -2,6 +2,12 @@ package org.hazelwire.modules;
 
 import java.util.ArrayList;
 
+/**
+ * This class represents the module package i.e. a set of modules that belong together.
+ * This can be used for packaging modules from the same wargame for instance.
+ * @author Tim Strijdhorst
+ *
+ */
 public class ModulePackage
 {
 	private String name;

@@ -14,6 +14,11 @@ import java.net.URLConnection;
 import org.hazelwire.main.Configuration;
 import org.hazelwire.main.Generator;
 
+/**
+ * This class will download the virtualmachine (and basicly anything else) over HTTP.
+ * @author shokora
+ *
+ */
 public class VMDownloader extends Thread
 {
 	private ProgressInterface progressInterface;

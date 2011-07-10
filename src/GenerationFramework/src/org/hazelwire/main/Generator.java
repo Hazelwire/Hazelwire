@@ -15,6 +15,10 @@ import org.hazelwire.xml.ConfigGenerator;
 import org.hazelwire.xml.ManifestGenerator;
 
 /**
+ * This class manages the main purpose of the software, which is generating the virtualmachine, it doesn't actually implement the low-level
+ * functionality itself but manages everything that is required to generate vm's on a high level. Therefore it also manages the ModuleSelector.
+ * 
+ * Because this is such an important class that has high level responsibility over everything that goes on in the backend it's implemented as singleton.
  * @author Tim Strijdhorst
  * 
  * It is absolutely vital that you initiate this class first because it will setup all the configuration

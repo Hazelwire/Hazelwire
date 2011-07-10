@@ -10,6 +10,12 @@ import org.hazelwire.main.Configuration;
 import org.hazelwire.main.Generator;
 import org.hazelwire.modules.Module;
 
+/**
+ * This class will generate an install script that is to be executed inside of the virtualmachine. After all the modules are uploaded the execution
+ * of the script will result in an automatic installation of all the modules.
+ * @author Tim Strijdhorst
+ *
+ */
 public class InstallScriptGenerator
 {	
 	/**

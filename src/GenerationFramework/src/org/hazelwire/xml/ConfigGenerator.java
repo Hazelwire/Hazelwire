@@ -19,6 +19,14 @@ import org.hazelwire.modules.Option;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * This class generates the configfiles that will be used by the deployscripts in the virtualmachines.
+ * This is where the options come into play since the system itself doesn't use the options except for allowing the user to set them.
+ * After they are set and the virtualmachine is generating they are placed on the server in a location where the module deployscript can reach them.
+ * After that it's the responsibility of the deployscript to handle the options.
+ * @author Tim Strijdhorst
+ *
+ */
 public class ConfigGenerator
 {
 	public static String saveConfigToDisk(Module module,String filePath) throws IOException, ParserConfigurationException, TransformerException

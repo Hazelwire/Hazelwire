@@ -16,7 +16,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- *
+ * Abstract XML parser that implements some basic functionality for use in children.
  * @author Tim Strijdhorst
  */
 public abstract class XMLParser
