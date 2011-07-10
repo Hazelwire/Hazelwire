@@ -224,19 +224,19 @@ public class Generator
 		    	{
 		    		throw new Exception("Could not connect to the virtualmachine");
 		    	}
-		    	
-		    	if(!keepGenerating)
-		    	{
-		    		shutDown(true,false);
-		    		tui.println("Generation process canceled");
-		    		tui.setProgress(100);
-		    	}
 	    	}
     	}
     	catch(Exception e)
     	{
     		tui.println(e.getMessage());
     		this.shutDown(true, false);
+    	}
+    	
+    	if(!keepGenerating)
+    	{
+    		shutDown(true,false);
+    		tui.println("Generation process canceled");
+    		tui.setProgress(100);
     	}
     	
     	keepGenerating = false;
