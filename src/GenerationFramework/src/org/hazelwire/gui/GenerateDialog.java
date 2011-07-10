@@ -118,7 +118,7 @@ public class GenerateDialog extends Dialog {
 					if(controlButton.getText().equals("Cancel"))
 					{
 						Generator.getInstance().setKeepGenerating(false);
-						controlButton.setText("Keep on waiting");
+						controlButton.setText("Wait");
 						controlButton.setEnabled(false);
 						lblProgress.setText("Cleaning up");
 					}
@@ -145,7 +145,7 @@ public class GenerateDialog extends Dialog {
 
 		if(progress == 100)
 		{
-			controlButton.setText("Ok");
+			shlGeneratingVm.dispose();
 		}
 	}
 }

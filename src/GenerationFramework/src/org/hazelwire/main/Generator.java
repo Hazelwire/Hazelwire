@@ -142,7 +142,7 @@ public class Generator
 	{
     	try
     	{
-			vmHandler = new VMHandler(config.getVirtualBoxPath(),"HazelwireTest", config.getVMPath(), true);
+			vmHandler = new VMHandler(config.getVirtualBoxPath(),config.getVMName(), config.getVMPath(), true);
 	    	if(keepGenerating && !vmHandler.checkIfImported())
 	    	{
 	    		tui.println("Importing VM");
@@ -172,7 +172,6 @@ public class Generator
 		    		
 		    		if(keepGenerating)
 			    	{
-			    		
 				    	tui.setProgress(20);
 				    	tui.println("Creating directories");
 				    	prepareVM(ssh);
@@ -232,6 +231,7 @@ public class Generator
 		    	if(!keepGenerating)
 		    	{
 		    		shutDown(true,false);
+		    		tui.println("Generation process canceled");
 		    	}
 	    	}
     	}
