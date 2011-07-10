@@ -49,14 +49,14 @@ function disablePopup(){
 //centering popup
 function centerPopup(duration) {
 	//request data for centering
-	var windowWidth = document.documentElement.clientWidth;
+	//var windowWidth = document.documentElement.clientWidth;
 	var windowHeight = document.documentElement.clientHeight;
-	var popupHeight = $("#popup").height();
-	var popupWidth = $("#popup").width();
+	//var popupHeight = $("#popup").height();
+	//var popupWidth = $("#popup").width();
 	//centering
 	$("#popup").animate({
-		"top": windowHeight/2-popupHeight/2,
-		"left": windowWidth/2-popupWidth/2
+                "top": (($(window).height() - $("#popup").outerHeight()) / 2) + $(window).scrollTop() + "px",
+                "left":(($(window).width() - $("#popup").outerWidth()) / 2) + $(window).scrollLeft() + "px"
 	}, duration);
 	//only need force for IE6
 
@@ -101,14 +101,21 @@ function ajaxReq(location,payload, expectedAnswer,callback){
         });});
 }
 
-
+var selectedContestant = -1;
 function updateClist(){
+    if($('#cform input:radio[name="contestant"]:checked').length != 0){
+        selectedContestant = $('#cform input:radio[name="contestant"]:checked').attr('id').split("_")[1];
+    }
+    else
+        selectedContestant = -1;
+    
     ajaxReq("index.php?aaction=getcs", "", "getcs", function(data){
 	$('#cform').html(data.reply);
 	setCCollapseHandlers();
         for ( var i=0, len=openContestants.length; i<len; ++i ){
           $('label[for="teamid_'+openContestants[i]+ '"]').find('.cextrainfo').show();
         }
+        $('#cform input:radio[name="contestant"]#teamid_'+selectedContestant).prop("checked",true);
     });
 }
 
@@ -265,9 +272,23 @@ function loadFormButtons(){
             window.location = "download.php?team="+$('#acform input[name="cid"]').val();
     });
     $("#sanity").click(function(){
-            $('form').attr({action: "index.php?aaction=cedit"});
-            $('input[name="cedit"]').val("forcesancheck");
-            $('form').submit();
+            var data = "cid=" + $('#acform [name="cid"]').val() +"&cedit=forcesancheck";
+            ajaxReq("index.php?aaction=cedit", data, "ceditReply",
+                function(data){
+                        if(data.success == true && data.errorcount == 0)
+                            addNotification("Sanity check requested.", "notifygood");
+                        else if(data.success == true)
+                            addNotification("Sanity check requested, but with errors.", "notifyneutral");
+
+                        for ( var i=0, len=data.errors.length; i<len; ++i ){
+                          addNotification(data.errors[i], "notifybad");
+                        }
+
+                        if(data.success == true)
+                            disablePopup();
+                        updateClist();
+
+            });
     });
 }
 
@@ -293,7 +314,7 @@ function bindDefaultText() {
 }
 
 $(document).ready(function(){
-        setTimeout("updateClistAuto()", 30000);
+        
         //CLOSING POPUP
 	//Click the x event!
 	$("#popupClose").click(function(){
@@ -316,6 +337,9 @@ $(document).ready(function(){
 
         $('#csanity').click(function(){
                  buildSanityTable();
+        });
+        $('#confok').click(function(){
+                 $('form').submit();
         });
         // background: none repeat scroll 0pt 0pt rgb(170, 255, 170); padding: 3px; border: 1px solid rgb(0, 255, 0); text-align: center; position: relative; margin-left: auto; margin-right: auto; min-width: 30em; margin-bottom: 3px;
         $("#vpnstart").click(function(){

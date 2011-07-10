@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Description of WebInterface
+ * WebInterface contains the data and logic which is used for both the ContestantInterface and the AdminInterface.
+ * It manages the database, the configs, Smarty, gamestate and BB parsing and is used to handle (i.e. collect) the Error which have occurred.
  *
  * @author Daniel
  */
@@ -56,6 +57,10 @@ class WebInterface {
         }
     }
 
+    /**
+     * Unbans all the contestants which bantime is over
+     * @return void Nada, nothing ...
+     */
     public function unban(){
         $q = $this->database->prepare("SELECT * FROM bans WHERE end_timestamp < ? AND end_timestamp!=-1");
         $q->execute(array(time()));
@@ -81,13 +86,23 @@ class WebInterface {
             }
             fwrite($handle, $config_file_data);
             fclose($handle);
-            OpenVPNManager::diconnectVPN($c);
+            
+            if(OpenVPNManager::getVPNStatus($c)){
+                OpenVPNManager::diconnectVPN($c);
+                OpenVPNManager::stopVPN($c);
+                sleep(5);
+            }
+            OpenVPNManager::startVPN($c);
 
             $q = $this->database->prepare("DELETE FROM bans WHERE team_id = ?");
             $q->execute(array(intval($res['team_id'])));
         }
     }
-    
+
+    /**
+     * Tries to connect to the database and returns if this was successful or not
+     * @return boolean true if it succeeded, false otherwise
+     */
     public function connectDB() {
         if($this->database == null){
             return $this->database = new PDO ("sqlite:" . $this->config['database_file_name']);
@@ -137,11 +152,20 @@ class WebInterface {
             array_push($this->errors,$error);
         }
     }
-    
+
+    /**
+     * Gets the config array for this WebInterface
+     * @return mixed Returns the config arrayfor this Webinterface
+     */
     public function getConfig(){
         return $this->config;
     }
 
+    /**
+     * Parses the BB code in the given text
+     * @param string $text The text to parse the BB codes from
+     * @return string The input text with the BB codes parsed
+     */
     public static function parseBB($text){
         $bbcode = new StringParser_BBCode ();
         $bbcode->addFilter (STRINGPARSER_FILTER_PRE, 'convertlinebreaks');

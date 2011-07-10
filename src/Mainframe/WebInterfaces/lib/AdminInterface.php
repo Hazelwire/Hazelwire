@@ -136,7 +136,7 @@ class AdminInterface extends WebInterface {
                 $csq = $db->query("select id from teams");
                 $q = $db->prepare("SELECT et.port as port, et.timestamp as timestamp, ifnull(m.name,'ClientBot') as modulename, ifnull(t.name,'System') as reporter
                                         FROM evil_teams et
-                                        INNER JOIN modules m ON et.port = m.serviceport
+                                        LEFT OUTER JOIN modules m ON et.port = m.serviceport
                                         LEFT OUTER JOIN teams t ON et.reporter = t.VMip
                                         WHERE et.ip = ?
                                         ORDER BY et.timestamp DESC");
@@ -158,7 +158,9 @@ class AdminInterface extends WebInterface {
                     }
                 }
 
-                return json_encode($retval);
+                $trueretval = new stdClass();
+                $trueretval->aaData = $retval;
+                return json_encode($trueretval);
 
             } else if(startsWith ($_GET['aaction'],"getcs")){
                 /*
@@ -181,11 +183,8 @@ class AdminInterface extends WebInterface {
                 $retval = new stdClass();
                 $retval->action="getcs";
                 $retval->reply = $smarty->fetch("admin_ajax_clist.tpl");
-
-                $trueretval = new stdClass();
-                $trueretval->aaData = $retval;
-                return json_encode($trueretval);
-
+                
+                return json_encode($retval);
             } else if(startsWith ($_GET['aaction'],"getas")){
                 /*
                  * Ajax request for update of announcement list
@@ -266,7 +265,7 @@ class AdminInterface extends WebInterface {
                     $retval->errors = $errorArray;
                     $retval->success = $this->cedit_success || $this->sancheckSuccess;
                     $retval->action = "ceditReply";
-                    $retval->reply = "Contestand edited.";
+                    $retval->reply = "Contestant edited.";
                     return json_encode($retval);
 
                 } else if(isset($_POST['contestant'])){
@@ -661,7 +660,7 @@ class AdminInterface extends WebInterface {
         $decay_mod = floatval($_POST['points_decay_mod']);
         $points_min = intval($_POST['points_min']);
         $point_penalty_mod = floatval($_POST['point_penalty_mod']);
-        $penalty_offline = intval($_POST['penalty_offline']);
+        $penalty_offline = 0;//intval($_POST['penalty_offline']);
 
         $manifest = $_FILES['manifest'];
         $temp = explode(".", $manifest['name']);
@@ -991,6 +990,7 @@ class AdminInterface extends WebInterface {
                 $q->execute(array(intval($id)));
                 if(OpenVPNManager::getVPNStatus($c))
                     OpenVPNManager::diconnectVPN($c);
+                $this->cban_success =  true;
                 return;
             }
 
@@ -1182,6 +1182,13 @@ class AdminInterface extends WebInterface {
             $this->handleError(new Error("illegal_action", "You can't start the VPNs in this stage.", false));
             return;
         }
+        $q = $this->database->query("select count(*) as count from teams");
+        $qre = $q->fetch();
+        if($qre['count'] < 1){
+            $this->handleError(new Error("start_vpn_error", "You need at least one contestant to do this.", false));
+            return;
+        }
+        
         $this->startvpn_success = false;
 
         foreach ($this->contestant_list as $c){
@@ -1378,7 +1385,7 @@ class AdminInterface extends WebInterface {
         // evil_teams ( ip TEXT, port INTEGER, timestamp INTEGER, reporter TEXT, seen INTEGER);
         // modules (id INTEGER PRIMARY KEY, name TEXT, numFlags INTEGER, deployscript TEXT, serviceport INTEGER);
         // teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
-        $q = $db->prepare("SELECT et.port as port, et.timestamp as timestamp, iffnull(m.name,'ClientBot') as modulename, ifnull(t.name,'System') as reporter
+        $q = $db->prepare("SELECT et.port as port, et.timestamp as timestamp, ifnull(m.name,'ClientBot') as modulename, ifnull(t.name,'System') as reporter
                             FROM evil_teams et
                             INNER JOIN modules m ON et.port = m.serviceport
                             LEFT OUTER JOIN teams t ON et.reporter = t.VMip

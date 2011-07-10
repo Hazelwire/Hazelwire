@@ -5,10 +5,16 @@
 		<link rel="stylesheet" type="text/css" href="css/admin.css"></link>
                 <link rel="stylesheet" type="text/css" href="css/sanityTable.css"></link>
 		<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+                <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="js/buttons.js"></script>
 		<script type="text/javascript" src="js/collapse.js"></script>
                 <script type="text/javascript" src="js/textfield.js"></script>
                 <script type="text/javascript" src="js/admin.js"></script>
+                <script type="text/javascript">
+            {literal}$(document).ready(function(){
+                        setTimeout("updateClistAuto()", 30000);
+                     });{/literal}
+                </script>
 	</head>
 	<body>
                 <div id="popup">
@@ -89,7 +95,7 @@
 					<div class="header">
 						<h1>Announcements</h1>
 					</div>
-					<form id="aform" method="GET">
+					<form id="aform" method="GET" style="top:2em;">
 						<div id="announcementdisplay">
 							<ul class="collapsible">
 		 {foreach from=$announcements item=announcement}<li>
@@ -115,28 +121,3 @@
                 <div id="notifybox"></div>
 	</body>
 </html>
-
-<!--
-<div style="display: block;" class="cextrainfo"> <-- float left, 100% width, no padding
-<div style="float: left; width: 100%; position: relative; margin-right: 0pt; ">
-<table style="width: 100%; float: left; position: relative;">
-	<tbody><tr>
-		<td style="width:10em;">Virtual Machine IP:</td> <-- +2.5em en die dan padden.BAM
-		<td>10.1.1.1</td>
-	</tr>
-	<tr>
-		<td style="width:10em">VPN Status:</td>
-		<td>Online</td>
-	</tr>
-	<tr>
-		<td style="width:10em;"># VPN Conn:</td>
-		<td>0
-	</td></tr>
-	<tr>
-		<td style="width: 10em;">Last 10 Sanity:</td>
-		<td></td>
-	</tr>
-</tbody></table>
-</div>
-</div>
--->

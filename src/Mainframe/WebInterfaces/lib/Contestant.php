@@ -196,7 +196,11 @@ class Contestant {
     public function isFlagSubmissionBlocked(){
         return $this->is_flag_blocked;
     }
-    
+
+    /**
+     * Returns the time this Contestant is still blocked from submitting a flag, due to spamming behaviour
+     * @return integer The time this Contestant is still blocked from flag submissions
+     */
     public function getBlockTime(){
         return $this->block_time;
     }
@@ -209,14 +213,26 @@ class Contestant {
         return $this->bantime;
     }
 
+    /**
+     * Returns whether this Contestant is offline or not.
+     * @return boolean True if this Contestants's VM is offline, false otherwise.
+     */
     public function getOffline() {
         return !ping($this->getVm_ip());
     }
 
+    /**
+     * Returns whether this Contestant is sane or not
+     * @return boolean true if sane, otherwise false
+     */
     public function getSane() {
         return $this->sane;
     }
 
+    /**
+     * Returns the number of connections to the VPN server for this Contestant
+     * @return integer The number of connections to the VPN server
+     */
     public function getNumVPNConn(){
         return OpenVPNManager::getNumConnForContestant($this);
     }

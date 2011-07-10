@@ -1,11 +1,15 @@
 <?php
 /**
- * Description of OpenVPNManager
+ * OpenVPNManager manages the the VPN servers and their keys. It can build keys, start and stop servers etc.
  * 
  * @author sjikke
  */
 class OpenVPNManager {
 
+    /**
+     * Build the initial keys for the VPN, i.e. the CA keys and the DH keys
+     * @global WebInterface $interface The WebInterface to work with (i.e. get data from)
+     */
     public static function buildInitKeys() {
         global $interface;
         $config =$interface->getConfig();
@@ -16,7 +20,12 @@ class OpenVPNManager {
         
         chdir($pwd);
     }
-    
+
+    /**
+     * Build VPNserver keys with the given common name.
+     * @global WebInterface $interface The WebInterface to work with (i.e. get data from)
+     * @param string $cname The common name to create the keys with
+     */
     public static function buildServerKeys($cname) {
         global $interface;
         $config =$interface->getConfig();
@@ -28,7 +37,13 @@ class OpenVPNManager {
         
         chdir($pwd);
     }
-    
+
+    /**
+     * Creates VPN client keys with a certain Common Name. Note that the original common name is used for 1 key pair, and
+     * the Common Name with '_vm' appended for a second pair.
+     * @global WebInterface $interface The WebInterface to work with (i.e. get data from)
+     * @param string $cname The Common Name to use for the keys
+     */
     public static function buildClientKeys($cname){
         global $interface;
         $config =$interface->getConfig();
@@ -41,7 +56,16 @@ class OpenVPNManager {
         
         chdir($pwd);
     }
-    
+
+    /**
+     * Generates Client Config Files for a team (keys) with the given Common name. Again
+     * both 'cn' and 'cn_vm', where cn is the common name, is used. These files are needed for
+     * Authenthication with the VPN server
+     * @global WebInterface $interface The WebInterface to work with (i.e. get data from)
+     * @param string $cname The Common Name for the key for which the CCF should be created
+     * @param string $vmip The IP of the Client side
+     * @param string $vmip_endpoint The IP of the tunnel endpoint on the server side
+     */
     public static function createClientConfigFile($cname, $vmip, $vmip_endpoint){
         global $interface;
         $config =$interface->getConfig();
@@ -71,7 +95,12 @@ class OpenVPNManager {
             // @todo test if start failed
         }
     }
-    
+
+    /**
+     * Starts the VPN server for the given contestant
+     * @global WebInterface $interface The WebInterface to work with (i.e. get data from)
+     * @param Contestant $contestant The contestant whose VPN needs starting
+     */
     public static function stopVPN(&$contestant){
         global $interface; /* @var $interface WebInterface */
         $config =$interface->getConfig();
@@ -85,9 +114,9 @@ class OpenVPNManager {
     }
 
     /**
-     *
-     * @global WebInterface $interface
-     * @param Contestant $contestant
+     * Disconnects the clients from the VPN server for the given Contestant
+     * @global WebInterface $interface The WebInterface to work with (i.e. get data from)
+     * @param Contestant $contestant The Contestant which needs the clients disconnected
      */
     public static function diconnectVPN(&$contestant){
         global $interface; /* @var $interface WebInterface */
@@ -102,10 +131,13 @@ class OpenVPNManager {
         }
     }
     
-    /** 
-     * @todo Test this
-     * @param Contestant $contestant 
-     */
+   /**
+    * Gets the VPN server status for the given Contestant.
+    * <br> It should be noted that this only checks if the process is running, nothing more, nothing less.
+    * @global WebInterface $interface The WebInterface to work with (i.e. get data from)
+    * @param <type> $contestant The contestant to check the VPN server status for
+    * @return boolean true if the server is running, false otherwise
+    */
     public static function getVPNStatus(&$contestant){
         global $interface; /* @var $interface WebInterface */
         $config =$interface->getConfig();
@@ -114,6 +146,12 @@ class OpenVPNManager {
         return ($result != "");
     }
 
+    /**
+     * Gets the status of the base VPN server
+     * <br> It should be noted that this only checks if the process is running, nothing more, nothing less.
+     * @global WebInterface $interface The WebInterface to work with (i.e. get data from)
+     * @return boolean true if the base VPN server is running, false otherwise
+     */
     public static function getBaseVPNStatus(){
         global $interface; /* @var $interface WebInterface */
         $config =$interface->getConfig();
@@ -123,8 +161,8 @@ class OpenVPNManager {
     }
     
     /** 
-     *
-     * @global WebInterface $interface
+     * Starts or stops kernel routing on the machine, usgin OpenVPNService.py
+     * @global WebInterface $interface The WebInterface to use for errorhandling and such
      * @param boolean $value true if kernel routing should be enabled, false otherwise.
      */
     public static function setKernelRouting($value){
@@ -143,6 +181,13 @@ class OpenVPNManager {
         
     }
 
+    /**
+     * Creates the files necessary for the base VPN server <br.
+     * This server is used for makeing it easier for the VPN clients to connect to the mainframe.
+     * Especially the ClientBot needs this in order to request flags. Not using this causes everyone to need a different IP address
+     * for the Mainframe, while it is now reachable through 10.0.0.1
+     * @global WebInterface $interface The WebInterface to use for errorhandling and such
+     */
     public static function createBaseVPNServer(){
         global $interface;
         $config =$interface->getConfig();
@@ -155,6 +200,10 @@ class OpenVPNManager {
         chdir($pwd);
     }
 
+    /**
+     * Starts the base VPN server
+     * @global WebInterface $interface The WebInterface to use for errorhandling and such
+     */
     public static function startBaseVPN(){
         global $interface; /* @var $interface WebInterface */
         $config = $interface->getConfig();
@@ -169,6 +218,10 @@ class OpenVPNManager {
         }
     }
 
+    /**
+     * Stops the base VPN server
+     * @global WebInterface $interface The WebInterface to use for errorhandling and such
+     */
     public static function stopBaseVPN(){
         global $interface; /* @var $interface WebInterface */
         $config =$interface->getConfig();
@@ -182,9 +235,10 @@ class OpenVPNManager {
     }
 
     /**
-     *
-     * @global WebInterface $interface
-     * @param Contestant $contestant
+     * Looks up the number of connections to the VPN server through the VPN management interface
+     * @global WebInterface $interface The WebInterface to use for errorhandling and such
+     * @param Contestant $contestant The Contestants whose number of connections to find
+     * @return int The number of connections the VPN server for the given Contestant lists
      */
     public static function getNumConnForContestant(&$contestant){
         global $interface; /* @var $interface WebInterface */
