@@ -272,6 +272,7 @@ function loadFormButtons(){
             window.location = "download.php?team="+$('#acform input[name="cid"]').val();
     });
     $("#sanity").click(function(){
+            $("#sanity").prop("disabled",true);
             var data = "cid=" + $('#acform [name="cid"]').val() +"&cedit=forcesancheck";
             ajaxReq("index.php?aaction=cedit", data, "ceditReply",
                 function(data){
@@ -288,7 +289,7 @@ function loadFormButtons(){
                             disablePopup();
                         updateClist();
 
-            });
+            }).complete(function(){ $("#sanity").prop("disabled",false);});
     });
 }
 
@@ -442,7 +443,7 @@ $(document).ready(function(){
                 }
 		ajaxReq("index.php?aaction=cedit","contestant="+$('#cform input:radio[name="contestant"]:checked').val(),"cedit",function(data){$("#popup").html(data.reply);}).complete(function(){
 			$("#popupcontent").css({
-				"width": "300px",
+				"width": "330px",
 				"height": "100px"
 				});
 				centerPopup(0);
