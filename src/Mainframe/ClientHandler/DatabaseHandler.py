@@ -48,7 +48,7 @@ class DatabaseHandler:
             if len(c.fetchall()) != 0:
                 return False
         for flag in flags: #actually add the flags
-            c.execute("INSERT INTO flags VALUES (?, (SELECT id FROM modules WHERE name=?), (SELECT id FROM teams WHERE VMip=?), ?);", [flags.index(flag)+1,modulename, clientIP, flag])
+            c.execute("INSERT INTO flags VALUES (?, (SELECT id FROM modules WHERE name=?), (SELECT id FROM teams WHERE VMip=?), ?);", [flags.index(flag)+1,modulename, IP, flag])
         c.close()
         self.disconnect()
         return True
