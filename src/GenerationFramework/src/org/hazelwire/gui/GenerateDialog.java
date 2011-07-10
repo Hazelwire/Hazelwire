@@ -97,7 +97,7 @@ public class GenerateDialog extends Dialog {
 		gd_lblProgress.widthHint = 266;
 		lblProgress.setLayoutData(gd_lblProgress);
 		lblProgress.setSize(400, 13);
-		lblProgress.setText("Progress.... Very very very very very very very very very very very very very very very very very long text");
+		lblProgress.setText("Progress....");
 
 		progressBar = new ProgressBar(composite, SWT.NONE);
 		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
