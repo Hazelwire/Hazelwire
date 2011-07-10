@@ -100,7 +100,7 @@ public class ModuleHandler
 			BufferedOutputStream dest = null;
 	        BufferedInputStream in = null;
 			boolean first = true;
-	        String directoryName = "";
+	        String dirPath = "";
 	        
 			while(e.hasMoreElements())
 			{
@@ -112,27 +112,29 @@ public class ModuleHandler
 					module = (Module) xmlParser.parseDocument();
 				}*/
 				
-				if(first)
+				if(entry.isDirectory())
 				{
-					directoryName = entry.getName();
-					first = false;
+					dirPath = Configuration.getInstance().getModulePath()+entry.getName();
+					new File(dirPath).mkdir();
 				}
-				
-				in = new BufferedInputStream(zipFile.getInputStream(entry));
-				int count;
-				byte data[] = new byte[2048];
-				dest = new BufferedOutputStream(new FileOutputStream(entry.getName()));
-				
-				while((count = in.read(data,0,2048)) != -1)
+				else
 				{
-					dest.write(data);
+					in = new BufferedInputStream(zipFile.getInputStream(entry));
+					int count;
+					byte data[] = new byte[2048];
+					dest = new BufferedOutputStream(new FileOutputStream(Configuration.getInstance().getModulePath()+entry.getName()));
+					
+					while((count = in.read(data,0,2048)) != -1)
+					{
+						dest.write(data);
+					}
+					dest.flush();
+					dest.close();
+					in.close();
 				}
-				dest.flush();
-				dest.close();
-				in.close();
 			}
 			
-			tempModule = importModuleFromDirectory(Configuration.getInstance().getModulePath()+directoryName);
+			tempModule = importModuleFromDirectory(dirPath);
 			
 		}
 		catch(IOException e)
