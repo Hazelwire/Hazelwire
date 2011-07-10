@@ -148,4 +148,9 @@ public class GenerateDialog extends Dialog {
 			shlGeneratingVm.dispose();
 		}
 	}
+	
+	public void setProgressText(String text)
+	{
+		this.lblProgress.setText(text);
+	}
 }

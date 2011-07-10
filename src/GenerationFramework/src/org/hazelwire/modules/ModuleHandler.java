@@ -44,38 +44,42 @@ public class ModuleHandler
 			
 			for(int i=0;i<fileList.length;i++)
 			{
-				File subdir = new File(filePath+fileSeperator+fileList[i]);
-				
-				if(subdir.isDirectory()) //There shouldn't be any files but for now we will keep it easy
-				{
-					String[] fileList2 = subdir.list();
-					String fileName = null;
-					Module module = null;
-					
-					for(int a=0;a<fileList2.length;a++)
-					{
-						if(fileList2[a].endsWith(".deb"))
-						{
-							fileName = fileList2[a];
-						}
-						else if(fileList2[a].equals("config.xml"))
-						{						
-							ParserModuleConfig xmlParser = new ParserModuleConfig(subdir.getPath()+fileSeperator+fileList2[a]);
-							module = (Module) xmlParser.parseDocument();
-						}
-					}
-					
-					if(fileName == null) throw new Exception("Cannot find module");
-					else
-					{
-						module.setFilePath(subdir.getPath()+fileSeperator+fileName);
-						moduleList.add(module);
-					}
-				}
+				moduleList.add(importModuleFromDirectory(Configuration.getInstance().getModulePath()+fileList[i]));
 			}
 		}
 		
 		return moduleList;
+	}
+	
+	public static Module importModuleFromDirectory(String path) throws Exception
+	{
+		File dir = new File(path);
+		char fileSeperator = Generator.getInstance().getFileSeperator();
+		Module tempModule = null;
+		
+		if(dir.isDirectory()) //There shouldn't be any files but for now we will keep it easy
+		{
+			String[] fileList = dir.list();
+			String fileName = null;
+			
+			for(int a=0;a<fileList.length;a++)
+			{
+				if(fileList[a].endsWith(".deb"))
+				{
+					fileName = fileList[a];
+				}
+				else if(fileList[a].equals("config.xml"))
+				{						
+					ParserModuleConfig xmlParser = new ParserModuleConfig(dir.getPath()+fileSeperator+fileList[a]);
+					tempModule = (Module) xmlParser.parseDocument();
+				}
+			}
+			
+			if(fileName == null) throw new Exception("Cannot find module");
+			tempModule.setFilePath(dir.getPath()+fileSeperator+fileName);
+		}
+		
+		return tempModule;
 	}
 	
 	/**
@@ -86,7 +90,8 @@ public class ModuleHandler
 	 */
 	public static Module importModule(String packageFilePath) throws Exception
 	{
-		Module module = null;
+		Module tempModule = null;
+		
 		try
 		{
 			File packageFile = new File(packageFilePath);
@@ -94,24 +99,29 @@ public class ModuleHandler
 			Enumeration<? extends ZipEntry> e = zipFile.entries();
 			BufferedOutputStream dest = null;
 	        BufferedInputStream in = null;
-			
+			boolean first = true;
+	        String directoryName = "";
+	        
 			while(e.hasMoreElements())
 			{
 				ZipEntry entry = (ZipEntry) e.nextElement();
+				/*
 				if(entry.equals("config.xml"))
 				{
 					ParserModuleConfig xmlParser = new ParserModuleConfig(zipFile.getInputStream(entry));
 					module = (Module) xmlParser.parseDocument();
+				}*/
+				
+				if(first)
+				{
+					directoryName = entry.getName();
+					first = false;
 				}
 				
-				//extract the rest of the files to the harddisk (which should actually just be another .deb)
 				in = new BufferedInputStream(zipFile.getInputStream(entry));
 				int count;
 				byte data[] = new byte[2048];
-				dest = new BufferedOutputStream(
-						new FileOutputStream(
-								Configuration.getInstance().getModulePath()+module.getName()+
-								Generator.getInstance().getFileSeperator()+entry.getName()),2048);
+				dest = new BufferedOutputStream(new FileOutputStream(entry.getName()));
 				
 				while((count = in.read(data,0,2048)) != -1)
 				{
@@ -121,12 +131,15 @@ public class ModuleHandler
 				dest.close();
 				in.close();
 			}
+			
+			tempModule = importModuleFromDirectory(Configuration.getInstance().getModulePath()+directoryName);
+			
 		}
 		catch(IOException e)
 		{
 			
 		}
 		
-		return module;
+		return tempModule;
 	}
 }
