@@ -122,6 +122,10 @@ public class GenerateDialog extends Dialog {
 						controlButton.setEnabled(false);
 						lblProgress.setText("Cleaning up");
 					}
+					else if(controlButton.getText().equals("Done"))
+					{
+						shell.close();
+					}
 				}
 				catch (Exception e)
 				{
@@ -145,7 +149,8 @@ public class GenerateDialog extends Dialog {
 
 		if(progress == 100)
 		{
-			shlGeneratingVm.dispose();
+			controlButton.setText("Done");
+			controlButton.setEnabled(true);
 		}
 	}
 	

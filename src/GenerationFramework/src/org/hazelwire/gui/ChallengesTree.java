@@ -56,14 +56,20 @@ public class ChallengesTree implements MouseListener
 			{
 				TreeItem item = new TreeItem(challenges, SWT.NONE);
 				item.setText("Challenge " + c.getIdString());
+				
+				/*
 				TreeItem subItem1 = new TreeItem(item, SWT.CHECK);
 				subItem1.setText(selectedMod.getTags().toString()); // Apparently
 																	// not
+																	 NO TAGS FOR YOUUUU
+																	 *
+																	 */
 
 				TreeItem pointsSub = new TreeItem(item, SWT.NONE);
 				pointsSub.setText("Nr. of points: " + c.getPoints());
 
-				String d = c.getDescription();
+				/*
+				 Challenges don't have descriptions for now
 				int width = challenges.getBounds().width;
 				int length = width / 6;
 				String[] split = d.split(" ");
@@ -80,7 +86,7 @@ public class ChallengesTree implements MouseListener
 					TreeItem subItem2 = new TreeItem(item, SWT.WRAP);
 					subItem2.setText(zin);
 					k = j - 1;
-				}
+				}*/
 			}
 		}
 		challenges.getShell().redraw();
