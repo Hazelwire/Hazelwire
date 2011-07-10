@@ -1,5 +1,5 @@
 import sqlite3, time
-""" Handler for communication with the Database."""
+""" Handler for communication with the SQLiteDatabase."""
 
 class DatabaseHandler:
         
@@ -7,22 +7,40 @@ class DatabaseHandler:
         self.db = db
 
     def connect(self):
+        """Creates a connection to the database."""
         self.conn = sqlite3.connect(self.db)
 
     def disconnect(self):
+        """Safely disconnect from the database, commiting changes first"""
         self.conn.commit()
         self.conn.close()
 
-    def checkClientIP(self,clientIP):
+    def checkClientIP(self,IP):
+        """
+        Checks if a IP already requested and received flag
+        @type IP: string
+        @param IP: the IP to check
+        """
         self.connect()
         c = self.conn.cursor()
-        c.execute("SELECT * FROM flags WHERE team_id = (SELECT id FROM teams WHERE VMip=?);", [clientIP])
+        c.execute("SELECT * FROM flags WHERE team_id = (SELECT id FROM teams WHERE VMip=?);", [IP])
         res = c.fetchall()
         c.close()
         self.disconnect()
         return len(res) != 0
 
-    def addFlags(self, modulename, flags, clientIP): 
+    def addFlags(self, modulename, flags, IP): 
+        """
+        Adds a flag to the database.
+        First checks if any of the given `flags` are already present, if so return False.
+        
+        @type modulename: string
+        @param modulename: The name of the module the flags are for
+        @type flags: list
+        @param flags: a list of the flags for the module
+        @type IP: string
+        @param IP: the IP of the team's VM
+        """
         self.connect()
         c = self.conn.cursor()
         for flag in flags: # check if a flag already is in the database 
@@ -36,6 +54,12 @@ class DatabaseHandler:
         return True
 
     def addModuleInfo(self,modules):
+        """
+        Adds the module info to the database. See the L{ManifestParser} documentation on the format of the L{modules} dictionary.
+        
+        @type modules: list
+        @param modules: the module info of all modules
+        """
         self.connect()
         c = self.conn.cursor()
         for module in modules:
@@ -51,6 +75,7 @@ class DatabaseHandler:
         self.disconnect()
 
     def getModuleInfo(self):
+        """Returns info for all modules in the format {'name':"",'numFlags':"",'deployscript':""}"""
         res = []
         self.connect()
         c = self.conn.cursor()
@@ -61,6 +86,16 @@ class DatabaseHandler:
         return res
 
     def addSuspiciousContestant(self, IP, port, reporterIP):
+        """
+        Adds an IP to the suspicious contestant table.
+        
+        @type IP: string
+        @param IP: the IP of the offending team VM.
+        @type port: integer
+        @param port: the port that is not open
+        @type reporterIP: string
+        @param reporterIP: the IP of the reporting VM, if P2P sanity checking was used. Otherwise blank.
+        """
         self.connect()
         c = self.conn.cursor()
         c.execute("INSERT INTO evil_teams VALUES(?,?,?,?,1);", [IP, port, int(time.time()), reporterIP])
@@ -68,6 +103,11 @@ class DatabaseHandler:
         self.disconnect()
 
     def getIntervals(self):
+        """
+        Returns the intervals for the automatic sanity checking
+        @rtype: tuple
+        @return: (normal_interval, p2p_interval)
+        """
         self.connect()
         c = self.conn.cursor()
         c.execute("SELECT value FROM config WHERE config_name = 'normal_interval';")
@@ -78,6 +118,7 @@ class DatabaseHandler:
         return (int(normal_interval), int(p2p_interval))
 
     def getClientIPs(self):
+        """Returns a list of all the VM IPs of the teams"""
         res = []
         self.connect()
         c = self.conn.cursor()
@@ -89,6 +130,7 @@ class DatabaseHandler:
         return res
 
     def getModulePorts(self):
+        """Returns a list of all the used ports by the modules"""
         res = []
         self.connect()
         c = self.conn.cursor()

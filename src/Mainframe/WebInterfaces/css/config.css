@@ -1,0 +1,43 @@
+#configentries
+{
+	top: 2em;
+	bottom: 2em;
+	left: 0;
+	right: 0;
+	background-color: #aaa;
+	overflow: auto;
+}
+#configentries li
+{
+	font-family: Verdana, Geneva, sans-serif;
+	font-size: small;
+	height: 2.2em;
+	border-width: 1px 0;
+	border-style: solid;
+}
+#configentries li:nth-child(odd)
+{
+	background-color: #bbb;
+	border-color: #bbb;
+}
+#configentries li:nth-child(even)
+{
+	background-color: #ccc;
+	border-color: #ccc;
+}
+#configentries label
+{
+	height: 1.2em;
+	position: absolute;
+	padding: .5em;
+	left: 0;
+	right: 0;
+}
+#configentries input
+{
+	position: absolute;
+	right: 0;
+	margin: .5em;
+	border: 1px solid #aaa;
+	height: 1.2em;
+}

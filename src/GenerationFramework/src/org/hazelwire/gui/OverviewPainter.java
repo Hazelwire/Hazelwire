@@ -16,21 +16,33 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 
+/**
+ * This class is responsible for painting the list of selected {@link Mod}s on 
+ * the 'VM Generation' tab. It must pay attention to {@link Mod} selections 
+ * that occur in the {@link Tag} {@link Tree} and {@link Mod} adaptations that 
+ * occur in the 'Settings' tab. Thus, this class is a subclass of {@link PaintListener}
+ * and of {@link Observer}. For scrolling purposes it also implements {@link MouseListener}.
+ */
 public class OverviewPainter implements PaintListener, Observer, MouseListener
 {
 
-	private GUIBuilder gUIBuilder;
 	private Canvas canvas;
-	private boolean sameSize = false;
-	private boolean tooLarge = false;
 	private ArrayList<Object> printThis = new ArrayList<Object>();
-
-	public OverviewPainter(GUIBuilder parent)
+	
+	/**
+	 * Creates an instance of OverviewPainter and adds itself as an {@link Observer}
+	 * to the instance of {@link ModsBookkeeper}.
+	 */
+	public OverviewPainter()
 	{
-		this.gUIBuilder = parent;
 		ModsBookkeeper.getInstance().addObserver(this);
 	}
 
+	/**
+	 * Updates the size of the {@link Canvas} that is being painted on, so that the 
+	 * {@link Canvas} grows bigger when the selected {@link Mod}s no longer fit on it.
+	 * @requires canvas != null
+	 */
 	public void updateSize()
 	{
 		if (canvas == null)
@@ -39,19 +51,23 @@ public class OverviewPainter implements PaintListener, Observer, MouseListener
 		int modsSize = (1 + printThis.size()) * 15;
 		if (curSize > modsSize)
 		{
-			canvas.setBounds(0, 0, canvas.getSize().x, curSize);
-			// canvas.setSize(canvas.computeSize(canvas.getSize().x, curSize));
-			System.out.println("Stick to current size: " + curSize);
+			canvas.setSize(canvas.getSize().x, curSize);
 		}
 		else
 		{
-			canvas.setBounds(0, 0, canvas.getSize().x, modsSize);
-			// canvas.setSize(canvas.computeSize(canvas.getSize().x, modsSize));
-			System.out.println("Increase size to :" + modsSize);
+			canvas.setSize(canvas.getSize().x, modsSize);
 		}
-		System.out.println("canvas size: " + canvas.getBounds());
 	}
-
+	
+	/**
+	 * This method updates the size of the {@link Canvas} that is being painted on, so
+	 * that the {@link Canvas} shrinks whenever it takes up excess space when a {@link Mod}
+	 * is deleted. This is the case when the list of {@link Mod}s is too long and the 
+	 * {@link Canvas} is scrollable. Now when the user deletes a {@link Mod}, there will be
+	 * empty lines, whilst the {@link Canvas} is still scrollable. This is undesired, so the 
+	 * empty lines are removed, using this method.
+	 * @requires canvas != null
+	 */
 	public void shrink()
 	{
 		if (canvas == null)
@@ -59,32 +75,24 @@ public class OverviewPainter implements PaintListener, Observer, MouseListener
 			return;
 		}
 		int modsSize = (1 + printThis.size()) * 15;
-		if (ModsBookkeeper.getInstance().getSelectedMods().size() < 19)
+		if (modsSize < canvas.getParent().getSize().y)
 		{
-			canvas.setBounds(0, 0, 200, 300);
+			canvas.setBounds(0, 0, canvas.getSize().x, canvas.getParent().getSize().y -4);
 		}
 		else
 		{
 			canvas.setBounds(0, 0, canvas.getSize().x, modsSize);
 		}
-		System.out.println("canvas size: " + canvas.getBounds());
-	}
-
-	public void fillHeight()
-	{
-		sameSize = canvas.getBounds().height == canvas.getParent().getBounds().height - 4;
-		int diff = canvas.getParent().getBounds().height - canvas.getBounds().height;
-		sameSize = diff < 15 && diff > -15;
-		int modsHeight = (1 + ModsBookkeeper.getInstance().getSelectedMods()
-				.size()) * 15;
-		if (!sameSize && modsHeight < canvas.getParent().getSize().y)
-		{
-			canvas.setSize(canvas.getBounds().width, canvas.getParent()
-					.getBounds().height - 4);
-		}
 	}
 
 	@Override
+	/**
+	 * This method paints the {@link Canvas}. It paints the background and prints 
+	 * the names and values of the selected {@link Mod}s. Moreover, it prints the
+	 * names and values of each of the {@link Challenge}s associated with each 
+	 * selected {@link Mod}. Finally, it calls updateSize, to ensure a perfect fit 
+	 * without excess empty lines.
+	 */
 	public void paintControl(PaintEvent p)
 	{
 		canvas = ((Canvas) p.getSource());
@@ -98,7 +106,6 @@ public class OverviewPainter implements PaintListener, Observer, MouseListener
 		int y = 0;
 		Color col;
 		ArrayList<Mod> mods = ModsBookkeeper.getInstance().getSelectedMods();
-		fillHeight();
 
 		printThis = new ArrayList<Object>();
 		for (Mod m : mods)
@@ -115,17 +122,14 @@ public class OverviewPainter implements PaintListener, Observer, MouseListener
 		{
 			if (i == 15)
 			{
-				// col = new Color(device, 255, 0, 0);
 				col = display.getSystemColor(SWT.COLOR_BLACK);
 			}
 			else if (i % 2 == 0)
 			{
-				// col = new Color(device, 133, 133, 133);
 				col = display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW);
 			}
 			else
 			{
-				// col = new Color(device, 255, 255, 255);
 				col = display.getSystemColor(SWT.COLOR_WHITE);
 			}
 			g.setBackground(col);
@@ -195,8 +199,17 @@ public class OverviewPainter implements PaintListener, Observer, MouseListener
 		g.drawLine(x + 1, y + height - 1, x + width - 1, y + height - 1);
 		g.drawLine(x + 1, y + 1, x + 1, y + height - 1);
 		g.drawLine(x + width - 1, y + 1, x + width - 1, y + height - 1);
+		
+		
+		this.updateSize();
 	}
-
+	
+	/**
+	 * This method is a helper method for paintControl. It creates a new {@link ArrayList}
+	 * of {@link Object}s and stores it as a global variable. Next, it fills this list with
+	 * each {@link Mod} on the list of selected {@link Mod}s, followed by all {@link Challenge}s
+	 * associated with that {@link Mod}.
+	 */
 	private void updatePrintList()
 	{
 		printThis = new ArrayList<Object>();
@@ -211,12 +224,19 @@ public class OverviewPainter implements PaintListener, Observer, MouseListener
 		}
 	}
 
+	@Override
+	/**
+	 * This method is called by the {@link Observable} {@link ModsBookkeeper}, whenever
+	 * the collection of selected {@link Mod}s changes. It checks whether the cause of 
+	 * the call is a {@link Mod} selection or a {@link Mod} deletion and calls the 
+	 * updateSize and shrink functions respectively. After that, if the canvas has already
+	 * been instantiated it calls redraw, to show the changes in the GUI.
+	 */
 	public void update(Observable o, Object arg)
 	{
 		String s = (String) arg;
 		if (s.equals("SELECTED"))
 		{
-			// this.fillHeight();
 			updatePrintList();
 			this.updateSize();
 		}
@@ -225,32 +245,27 @@ public class OverviewPainter implements PaintListener, Observer, MouseListener
 			updatePrintList();
 			this.shrink();
 		}
-		else
-		{
+		
+		if(canvas != null){
 			canvas.redraw();
 		}
-
 	}
 
 	@Override
 	public void mouseDoubleClick(MouseEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
 	public void mouseDown(MouseEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
+	/**
+	 * This method makes sure the focus is on the {@link Canvas}. This is
+	 * necessary because it allows the user to scroll using the scroll wheel.
+	 */
 	public void mouseUp(MouseEvent arg0)
 	{
 		canvas.setFocus();
-
 	}
-
 }

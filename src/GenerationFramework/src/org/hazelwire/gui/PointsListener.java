@@ -10,6 +10,14 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Text;
 
+/**
+ * This class is responsible for changing the value of a certain {@link Challenge}. 
+ * It is bound to several {@link Button}s to increment or decrement the value of a 
+ * {@link Challenge} or to reset its value to the default and it is bound to a {@link Text} 
+ * where a user can manually set the amount of points. For this reason, it is a subclass of
+ * {@link MouseListener} and {@link KeyListener}. It is also a subclass of 
+ * {@link SelectionListener}, because it needs to detect which {@link Challenge} is selected.
+ */
 public class PointsListener implements MouseListener, KeyListener,
 		SelectionListener
 {
@@ -18,6 +26,15 @@ public class PointsListener implements MouseListener, KeyListener,
 	private Combo challenges;
 	private GUIBuilder gUIBuilder;
 
+	/**
+	 * Constructs an instance of PointsListener with the given arguments.
+	 * @param points the {@link Text} containing the current amount of points. This
+	 * {@link Text} may also be used to set a new value for the current {@link Challenge}.
+	 * @param challenges {@link Combo} containing all {@link Challenge}s associated with
+	 * the currently selected {@link Mod}.
+	 * @param gUIBuilder the {@link GUIBuilder} is necessary to update the GUI after values
+	 * have been changed.
+	 */
 	public PointsListener(Text points, Combo challenges, GUIBuilder gUIBuilder)
 	{
 		this.points = points;
@@ -27,19 +44,22 @@ public class PointsListener implements MouseListener, KeyListener,
 
 	@Override
 	public void mouseDoubleClick(MouseEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
 	public void mouseDown(MouseEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
+	/**
+	 * This method is called when one of the {@link Button}s is clicked. It checks
+	 * whether the source is an up or down arrow or the default {@link Button}. If the down
+	 * {@link Button} was pressed, the current value of the current {@link Challenge} is 
+	 * decremented by one. If the up {@link Button} was pressed, this value is incremented
+	 * by one. If it was the default {@link Button}, the value of the current {@link Challenge}
+	 * is reset to its default value.
+	 * Finally, the GUI is updated to show the new values.
+	 */
 	public void mouseUp(MouseEvent m)
 	{
 		Mod selected = ModsBookkeeper.getInstance().getSelectedMod();
@@ -76,11 +96,18 @@ public class PointsListener implements MouseListener, KeyListener,
 				gUIBuilder.updateScoreLabels();
 				gUIBuilder.updateChallengesTree();
 			}
-
 		}
 	}
-
+	
 	@Override
+	/**
+	 * This method is called whenever the user hits a key. It checks whether the key
+	 * hit was a return ('\n') and if this is the case, it tries to convert the contents
+	 * of the {@link Text} to an int. If this is successfull, the method saves this int 
+	 * value as the new value for the currently selected {@link Challenge} and updates the
+	 * GUI. Is this not the case, it sets the text in the {@link Text} to 'NaN' and leaves 
+	 * the value as it was.
+	 */
 	public void keyPressed(KeyEvent k)
 	{
 		if (k.character == '\r')
@@ -95,9 +122,8 @@ public class PointsListener implements MouseListener, KeyListener,
 					{
 						int newPoints = Integer.parseInt(points.getText());
 						challenge.setPoints(newPoints);
-						points.setText(newPoints + ""); // Yes, I know dat is
-														// niet nodig
-						gUIBuilder.updateModList(); // duh Sukkel
+						points.setText(newPoints + "");
+						gUIBuilder.updateModList();
 						gUIBuilder.updateScoreLabels();
 						gUIBuilder.updateChallengesTree();
 					}
@@ -113,19 +139,20 @@ public class PointsListener implements MouseListener, KeyListener,
 
 	@Override
 	public void keyReleased(KeyEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
 	public void widgetDefaultSelected(SelectionEvent arg0)
-	{
-		// TODO Auto-generated method stub
-
-	}
+	{}
 
 	@Override
+	/**
+	 * This method is called when the user makes a selection in the {@link Combo}.
+	 * It first retrieves the current {@link Mod} and from this {@link Mod} and the
+	 * value in the {@link Combo}, it retrieves the current {@link Challenge}. It then sets 
+	 * the text in the {@link Text} to be the value of the current {@link Challenge}.
+	 * If no {@link Mod} is selected, it sets the text in the {@link Text} to an empty {@link String}.
+	 */
 	public void widgetSelected(SelectionEvent s)
 	{
 		Mod m = ModsBookkeeper.getInstance().getSelectedMod();
@@ -143,5 +170,4 @@ public class PointsListener implements MouseListener, KeyListener,
 		}
 
 	}
-
 }

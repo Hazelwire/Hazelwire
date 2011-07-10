@@ -1,67 +1,121 @@
 package org.hazelwire.gui;
 
+import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 
+import org.hazelwire.main.Configuration;
+
+/**
+ * This class keeps track of both the configurations the user specifies
+ * and the default configurations that Hazelwire provides. 
+ */
 public class ConfigFile {
 	
 	private HashMap<String, String> defaults;
-	private HashMap<String, String> actuals;
 	
-	public ConfigFile(HashMap<String, String> defaults){
-		this.defaults = defaults;
-		actuals = new HashMap<String, String>(defaults);
+	public ConfigFile() throws IOException
+	{
+		this.defaults = defaultsFromBackend();
 	}
 	
-	public static HashMap<String, String> dummyDefaults(){
+	public HashMap<String,String> defaultsFromBackend() throws IOException
+	{
 		HashMap<String, String> result = new HashMap<String, String>();
-		result.put("SSH host port", "2222");
-		result.put("SSH guest port", "22");
-		result.put("VM log path", "/dev/null");
-		result.put("SSH password", "hazelwire");
-		result.put("SSH username", "hazelwire");
-		result.put("VM path", "dist/HazelwireTest.ova");
-		result.put("VM export path", "output/test.ova");
-		result.put("Module path", "modules/");
-		result.put("Virtualbox path", "/usr/bin/vboxmanage");
-		result.put("Property path", "config/userProperties");
-		result.put("External module directory", "/home/hazelwire/modules/");
-		result.put("External script directory", "/home/hazelwire/");
-		result.put("Callback port", "31337");
-		result.put("External deploy directory", "/home/hazelwire/deploy/");
-		result.put("Output directory", "output/");
-		result.put("Temp directory", "tmp/");
-		result.put("Known hosts file", "config/known_hosts");
+		
+		Enumeration<?> config = Configuration.getInstance().getRawDefaultProperties().propertyNames();
+		
+		while(config.hasMoreElements())
+		{
+			String key = (String) config.nextElement();
+			result.put(key, Configuration.getInstance().getMagic(key));
+		}
+		
 		return result;
 	}
 	
+	/**
+	 * @return {@link HashMap<{@link String}, {@link String}>} containing
+	 * all configurable options and their default values. 
+	 */
 	public HashMap<String, String> getDefaults(){
 		return this.defaults;
 	}
 	
+	/**
+	 * This method finds the default value for a specific option.
+	 * @param key {@link String} consisting of the name of the configurable
+	 * option.
+	 * @return the default value associated with this particular option, or
+	 * null, if no such option exists.
+	 * @requires this.defaults != null
+	 */
 	public String getDefault(String key){
 		return defaults.get(key);
 	}
 	
-	public String getActual(String key){
-		return actuals.get(key);
+	/**
+	 * This method finds the current (possibly user adapted) value
+	 * for a specific option.
+	 * @param key {@link String} consisting of the name of the configurable
+	 * option.
+	 * @return the current value this option has, or null, if no such
+	 * option exists.
+	 * @requires this.actuals != null
+	 */
+	public String getActual(String key) throws IOException
+	{
+		return Configuration.getInstance().getMagic(key);
 	}
 	
-	public void setActual(String key, String value){
-		if(actuals.get(key)!=null){
-			actuals.put(key, value);
+	/**
+	 * This method changes the current value of a particular configurable
+	 * option.
+	 * @param key {@link String} consisting of the name of the configurable
+	 * option whose value will be changed.
+	 * @param value {@link String} consisting of the new value for option key.
+	 * @throws IOException 
+	 * @requires this.actuals != null
+	 * @requires this.actuals.get(key) != null
+	 */
+	public void setActual(String key, String value) throws IOException{
+		if(getActual(key)!=null){
+			this.saveToBackend(key, value);
 		}
 	}
 	
-	public void resetActual(String key){
-		if(actuals.get(key)!= null){
-			actuals.put(key, getDefault(key));
+	/**
+	 * This method resets the current value of a particular configurable
+	 * option to its default value.
+	 * @param key {@link String} consisting of the name of the option that
+	 * is to be reset to its default value.
+	 * @throws IOException 
+	 */
+	public void resetActual(String key) throws IOException
+	{
+		if(getActual(key)!= null){
+			this.saveToBackend(key, getDefault(key));
 		}
 	}
 	
-	public void resetActuals(){
-		for(String key : actuals.keySet()){
-			resetActual(key);
+	/**
+	 * This method resets the current values of every configurable option
+	 * in the ConfigFile to their default values.
+	 * @throws IOException 
+	 */
+	public void resetActuals() throws IOException
+	{
+		Enumeration<?> propertyEnum = Configuration.getInstance().getRawProperties().propertyNames();
+		
+		while(propertyEnum.hasMoreElements())
+		{
+			resetActual((String) propertyEnum.nextElement());
 		}
 	}
 	
+	public void saveToBackend(String key, String value) throws IOException
+	{
+		Configuration.getInstance().setMagic(key, value);
+		Configuration.getInstance().saveUserProperties();
+	}
 }

@@ -92,6 +92,36 @@ public class Configuration
 		saveUserProperties(defaultProps.getProperty("propertyPath"));
 	}
 	
+	public void setMagic(String key, String value)
+	{
+		applicationProps.setProperty(key, value);
+	}
+	
+	public String getMagic(String key)
+	{
+		return applicationProps.getProperty(key);
+	}
+	
+	public Properties getRawProperties()
+	{
+		return this.applicationProps;
+	}
+	
+	public void setRawProperties(Properties newProperties)
+	{
+		this.applicationProps = newProperties;
+	}
+	
+	public Properties getRawDefaultProperties()
+	{
+		return this.defaultProps;
+	}
+	
+	public void setRawDefaultProperties(Properties newProperties)
+	{
+		this.defaultProps = newProperties;
+	}
+	
 	public String getModulePath()
 	{
 		return applicationProps.getProperty("modulePath");
@@ -144,6 +174,16 @@ public class Configuration
 	public void setVMExportPath(String path)
 	{
 		applicationProps.setProperty("vmExportPath", path);
+	}
+	
+	public String getVMName()
+	{
+		return applicationProps.getProperty("vmName");
+	}
+	
+	public void setVMName(String name)
+	{
+		applicationProps.setProperty("vmName", name);
 	}
 	
 	public String getSSHUsername()
@@ -239,6 +279,26 @@ public class Configuration
 	public void setKnownHostsPath(String filePath)
 	{
 		applicationProps.setProperty("knownHostsFile", filePath);
+	}
+	
+	public void setBaseVMMirror(String mirror)
+	{
+		applicationProps.setProperty("baseVMMirror", mirror);
+	}
+	
+	public String getBaseVMMirror()
+	{
+		return applicationProps.getProperty("baseVMMirror");
+	}
+	
+	public void setDownloadDirectory(String downloadDir)
+	{
+		applicationProps.setProperty("downloadDirectory", downloadDir);
+	}
+	
+	public String getDownloadDirectory()
+	{
+		return applicationProps.getProperty("downloadDirectory");
 	}
 	
 	public String getOS()

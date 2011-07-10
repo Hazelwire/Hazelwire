@@ -14,6 +14,7 @@ if(strcmp($_SERVER['REMOTE_ADDR'], '127.0.0.1') === 0 || ip_in_range($_SERVER['R
     $zip->addFile($config['RSA_location'] . "keys/Team" . $_GET['team'] . "_vm.key","Team". $_GET['team'] . "_vm.key");
     $zip->addFile($config['RSA_location'] . "keys/Team" . $_GET['team'] . "_vm.crt","Team" . $_GET['team'] . "_vm.crt");
     $zip->addFile($config['openvpn_location'] ."Team". $_GET['team'] . "_client.conf","Team". $_GET['team'] . "_client.conf");
+    $zip->addFile($config['openvpn_location'] ."Team". $_GET['team'] . "_client.conf","Team". $_GET['team'] . "_vm_client.conf");
     $zip->addFile($config['RSA_location'] . "keys/ca.crt","ca.crt");
     $zip->close();
 
@@ -22,6 +23,11 @@ if(strcmp($_SERVER['REMOTE_ADDR'], '127.0.0.1') === 0 || ip_in_range($_SERVER['R
     exit;
 }
 
+/**
+ * Outputs a file
+ * @param string $file The file to output, including the path to it.
+ * @param string $name The name of the file, i.e. the basename exluding the extension
+ */
 function loadFile($file,$name){
     header('Content-Description: File Transfer');
     header('Content-Type: application/zip');

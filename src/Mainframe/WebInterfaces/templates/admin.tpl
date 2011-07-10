@@ -3,11 +3,28 @@
 	<head>
 		<title>{$title} - powered by Hazelwire</title>
 		<link rel="stylesheet" type="text/css" href="css/admin.css"></link>
+                <link rel="stylesheet" type="text/css" href="css/sanityTable.css"></link>
 		<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+                <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="js/buttons.js"></script>
 		<script type="text/javascript" src="js/collapse.js"></script>
+                <script type="text/javascript" src="js/textfield.js"></script>
+                <script type="text/javascript" src="js/admin.js"></script>
+                <script type="text/javascript">
+            {literal}$(document).ready(function(){
+                        setTimeout("updateClistAuto()", 30000);
+                     });{/literal}
+                </script>
 	</head>
 	<body>
+                <div id="popup">
+			<a id="popupClose">x</a>
+			<h1>Insert popup title here.</h1>
+			<div id="popupcontent">Insert popup contents here.<br /><br />
+				Maecenas velit nisi, ornare sed rhoncus ut, suscipit eget velit. Integer a augue nisi. Vestibulum mi elit, gravida in pharetra id, consectetur quis neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum sollicitudin suscipit tellus, vitae cursus ligula pulvinar vitae. Integer pellentesque erat nec massa laoreet quis luctus turpis lacinia. Vivamus quis odio at ligula ornare aliquam. Vivamus nibh erat, suscipit non egestas vel, lacinia ut tortor. Ut mauris elit, mollis sit amet lobortis nec, semper lacinia dui. Aliquam accumsan semper felis sed interdum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nulla facilisi. Fusce dignissim rutrum gravida.
+			</div>
+		</div>
+		<div id="backgroundPopup"></div>
 		<div id="container">
 			<div id="gamebuttons">
 				<div class="content">
@@ -45,26 +62,16 @@
 										<div class="cpoints">{$contestant->getPoints()}</div>
 										<div class="cname">{$contestant->getTeamname()}</div>
                                                                                 <div class="cextrainfo">
-                                                                                    <div style="display: table;">
-                                                                                        <div style="display: table-row;">
-                                                                                            <div class="cextralabel">Virtual Machine IP:</div>
-                                                                                            <div class="cextradata">{$contestant->getVm_ip()}</div>
+                                                                                        <div class="cextralabel">Virtual Machine IP:</div>
+                                                                                        <div class="cextradata">{$contestant->getVm_ip()}</div>
+                                                                                        <div class="cextralabel">VPN Status:</div>
+                                                                                        <div class="cextradata">{if $contestant->getVPNStatus()}Online{else}Offline{/if}</div>
+                                                                                        <div class="cextralabel"># VPN Conn:</div> {assign "num" $contestant->getNumVPNConn()}
+                                                                                        <div class="cextradata">{if $num==false}-{else}{$num}{/if}</div>
+                                                                                        <div class="cextralabel">Last 5 Sanity:</div>
+                                                                                        <div class="cextradata">{foreach $contestant->getSanityResults(5) as $sanres}
+                                                                                        {$sanres->timestamp|date_format:"%H:%M:%S"} &nbsp; Port {$sanres->port} ({$sanres->service|escape:'html'}) reported by {$sanres->reporter}{if not $sanres@last}<br />{/if}{/foreach}
                                                                                         </div>
-                                                                                        <div style="display: table-row;">
-                                                                                            <div class="cextralabel">VPN Status:</div>
-                                                                                            <div class="cextradata">{if $contestant->getVPNStatus()}Online{else}Offline{/if}</div>
-                                                                                        </div>
-                                                                                        <div style="display: table-row;">
-                                                                                            <div class="cextralabel"># VPN Conn:</div>{assign "num" $contestant->getNumVPNConn()}
-                                                                                            <div class="cextradata">{if $num===false}-{else}{$num}{/if}</div>
-                                                                                        </div>
-                                                                                        <div style="display: table-row;">
-                                                                                            <div class="cextralabel">Last 10 Sanity:</div>{assign "num" $contestant->getNumVPNConn()}
-                                                                                            <div class="cextradata">{foreach $contestant->getSanityResults(10) as $sanres}
-                                                                                                {$sanres->timestamp|date_format:"%H:%M:%S"} &nbsp; Port {$sanres->port} ({$sanres->service|escape:'html'}) reported by {$sanres->reporter}{if not $sanres@last}<br />{/if}{/foreach}
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
                                                                                 </div>
 									</label>
 								</li>{/foreach}
@@ -77,7 +84,7 @@
 							<input type="button" id="cedit" value="Edit" />
 							<input type="button" id="cban" value="Ban" />
 							<input type="button" id="cdelete" value="Delete" />
-							<input type="button" id="cpoints" value="Points" disabled="disabled" />
+							{*<input type="button" id="cpoints" value="Points" disabled="disabled" />*}
 							<input type="button" id="csanity" value="Sanity log" />
 						</div>
 					</div>
@@ -88,12 +95,13 @@
 					<div class="header">
 						<h1>Announcements</h1>
 					</div>
-					<form id="aform" method="GET">
+					<form id="aform" method="GET" style="top:2em;">
 						<div id="announcementdisplay">
 							<ul class="collapsible">
 		 {foreach from=$announcements item=announcement}<li>
 									<input type="radio" name="announcement" value="{$announcement->id}" id="announcement{$announcement->id}"/>
 									<label for="announcement{$announcement->id}">{$announcement->title}
+                                                                                <span style="float: right; display: block; font-size: 0.8em; padding-right: 0.3em; padding-top: 2px;">{$announcement->timestamp|date_format:'%b %e, %Y @ %H:%M:%S'}</span>
 										<div>{$announcement->content}</div>
 									</label>
 								</li>{/foreach}
@@ -110,5 +118,6 @@
 				</div>
 			</div>
 		</div>
+                <div id="notifybox"></div>
 	</body>
 </html>

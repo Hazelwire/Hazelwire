@@ -3,16 +3,11 @@ package org.hazelwire.main;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.hazelwire.gui.Mod;
-import org.hazelwire.gui.Tag;
-import org.hazelwire.modules.Flag;
 import org.hazelwire.modules.Module;
 import org.hazelwire.modules.ModuleSelector;
-import org.hazelwire.modules.Option;
 import org.hazelwire.virtualmachine.InstallScriptGenerator;
 import org.hazelwire.virtualmachine.SSHConnection;
 import org.hazelwire.virtualmachine.VMHandler;
@@ -36,6 +31,7 @@ public class Generator
 	Configuration config;
 	private char fileSeperator;
 	VMHandler vmHandler;
+	private boolean keepGenerating;
 	
 	public static synchronized Generator getInstance()
 	{
@@ -60,15 +56,16 @@ public class Generator
 	private Generator()
 	{
 		tui = new CLI();
+		keepGenerating = false;
 		try
-		{
+		{		
+	    	if(System.getProperty("os.name").equals("windows")) setFileSeperator('\\');
+	    	else setFileSeperator('/');
+			
 			//Initialize configuration
 	    	config = Configuration.getInstance();
-	    	config.loadDefaultProperties("config/defaultProperties");
+	    	config.loadDefaultProperties("config"+this.getFileSeperator()+"defaultProperties");
 	    	config.loadUserProperties();
-	    	
-	    	if(config.getOS().equals("windows")) setFileSeperator('\\');
-	    	else setFileSeperator('/');
 		}
 		catch(IOException e)
 		{
@@ -143,54 +140,109 @@ public class Generator
 	 */
 	public void generateVM() throws Exception
 	{
-    	vmHandler = new VMHandler(config.getVirtualBoxPath(), config.getVMPath(), true);
-    	if(!vmHandler.checkIfImported())
+    	try
     	{
-    		tui.println("Importing VM");
-    		vmHandler.importAndDiscover();
+			vmHandler = new VMHandler(config.getVirtualBoxPath(),config.getVMName(), config.getVMPath(), true);
+	    	if(keepGenerating && !vmHandler.checkIfImported())
+	    	{
+	    		tui.println("Importing VM");
+	    		vmHandler.importAndDiscover();
+	    	}
+	    	
+	    	if(keepGenerating)
+	    	{
+		    	tui.setProgress(10);
+		    	tui.println("Adding portforward for ssh: "+config.getSSHHostPort()+" to "+config.getSSHGuestPort()+" in the vm");
+		    	vmHandler.addForward("ssh", config.getSSHHostPort(), config.getSSHGuestPort(), "TCP"); //add forward so we can reach the VM
+	    	}
+	    	
+	    	if(keepGenerating)
+	    	{
+		    	tui.setProgress(15);
+		    	tui.println("Starting VM");
+		    	vmHandler.startVM();
+	    	}
+	    	
+	    	if(keepGenerating)
+	    	{
+		    	if(vmHandler.discoverBootedVM(config.getSSHHostPort())) //wait for it to actually be booted so we can use the SSH service
+		    	{
+		    		SSHConnection ssh = new SSHConnection("localhost",config.getSSHHostPort(),config.getSSHUsername(),config.getSSHPassword());
+		    		String externalPath = config.getExternalScriptDirectory()+INSTALLNAME;
+		    		
+		    		if(keepGenerating)
+			    	{
+				    	tui.setProgress(20);
+				    	tui.println("Creating directories");
+				    	prepareVM(ssh);
+			    	}
+			    	
+			    	if(keepGenerating)
+			    	{
+				    	tui.setProgress(25);
+				    	tui.println("Uploading modules");
+				    	uploadModules(ssh);
+			    	}
+			    	
+			    	if(keepGenerating)
+			    	{
+				    	tui.setProgress(50);
+				    	tui.println("Generating installation script");
+				    	generateInstallScript(config.getOutputDirectory()+INSTALLNAME);
+			    	}
+			    	
+			    	if(keepGenerating)
+			    	{
+				    	tui.setProgress(55);
+				    	tui.println("Generating manifest");
+				    	generateManifest(config.getOutputDirectory()+MANIFESTFILENAME);
+			    	}
+	
+			    	if(keepGenerating)
+			    	{
+				    	tui.setProgress(60);
+				    	tui.println("Uploading installation script");
+				    	uploadInstallScript(ssh, config.getOutputDirectory()+INSTALLNAME,externalPath);
+			    	}
+			    	
+			    	if(keepGenerating)
+			    	{
+				    	tui.setProgress(65);
+				    	tui.println("Executing installation script");
+				    	executeInstallScript(ssh,externalPath);
+			    	}
+			    	
+			    	if(keepGenerating)
+			    	{
+				    	tui.setProgress(85);
+				    	shutDown(true,true);
+				    	tui.setProgress(100);
+				    	tui.println("Succesfully created VM");
+				    	tui.setProgress(100);
+			    	}
+			    	
+			    	keepGenerating = false;
+		    	}
+		    	else
+		    	{
+		    		throw new Exception("Could not connect to the virtualmachine");
+		    	}
+		    	
+		    	if(!keepGenerating)
+		    	{
+		    		shutDown(true,false);
+		    		tui.println("Generation process canceled");
+		    	}
+	    	}
     	}
-    	
-    	tui.setProgress(10);
-    	tui.println("Adding portforward for ssh: "+config.getSSHHostPort()+" to "+config.getSSHGuestPort()+" in the vm");
-    	vmHandler.addForward("ssh", config.getSSHHostPort(), config.getSSHGuestPort(), "TCP"); //add forward so we can reach the VM
-    	tui.setProgress(15);
-    	tui.println("Starting VM");
-    	vmHandler.startVM();
-    	if(vmHandler.discoverBootedVM(config.getSSHHostPort())) //wait for it to actually be booted so we can use the SSH service
+    	catch(Exception e)
     	{
-	    	SSHConnection ssh = new SSHConnection("localhost",config.getSSHHostPort(),config.getSSHUsername(),config.getSSHPassword());
-	    	tui.setProgress(20);
-	    	tui.println("Creating directories");
-	    	prepareVM(ssh);
-	    	tui.setProgress(25);
-	    	tui.println("Uploading modules");
-	    	uploadModules(ssh);
-	    	tui.setProgress(50);
-	    	tui.println("Generating installation script");
-	    	generateInstallScript(config.getOutputDirectory()+INSTALLNAME);
-	    	tui.setProgress(55);
-	    	tui.println("Generating manifest");
-	    	generateManifest(config.getOutputDirectory()+MANIFESTFILENAME);
-	    	tui.setProgress(60);
-	    	tui.println("Uploading installation script");
-	    	String externalPath = config.getExternalScriptDirectory()+INSTALLNAME;
-	    	uploadInstallScript(ssh, config.getOutputDirectory()+INSTALLNAME,externalPath);
-	    	tui.setProgress(65);
-	    	tui.println("Executing installation script");
-	    	executeInstallScript(ssh,externalPath);
-	    	tui.setProgress(85);
-	    	shutDown(true,true);
-	    	tui.setProgress(100);
-	    	tui.println("Succesfully created VM");
-	    	tui.setProgress(100);
-    	}
-    	else
-    	{
-    		throw new Exception("Could not connect to the virtualmachine");
+    		tui.println(e.getMessage());
+    		this.shutDown(true, false);
     	}
 	}
 	
-	public void uploadModules(SSHConnection ssh)
+	public void uploadModules(SSHConnection ssh) throws Exception
 	{
 		ArrayList<Module> modules = moduleSelector.getMarkedModules();
 		Iterator<Module> iterate = modules.iterator();
@@ -222,15 +274,17 @@ public class Generator
 		}
 		catch(Exception e)
 		{
-			tui.println("ERROR: something went wrong while trying to delete the generated configfile"+e.getMessage());
+			e.printStackTrace();
+			throw new Exception("ERROR: something went wrong while trying to delete the generated configfile"+e.getMessage());
 		}
 	}
 	
 	/**
 	 * Makes sure all the directories that are needed are indeed created.
 	 * It doesn't matter whether they already exist or not this is just for safety.
+	 * @throws Exception 
 	 */
-	public void prepareVM(SSHConnection ssh)
+	public void prepareVM(SSHConnection ssh) throws Exception
 	{
 		try
 		{
@@ -240,25 +294,27 @@ public class Generator
 		}
 		catch(Exception e)
 		{
-			tui.println("ERROR: something went wrong while preparing the directory structure on the VM. Message: "+e.getMessage());
+			e.printStackTrace();
+			throw new Exception("ERROR: something went wrong while preparing the directory structure on the VM. Message: "+e.getMessage());
 		}
 	}
 	
-	public void uploadInstallScript(SSHConnection ssh, String scriptPathLocal, String scriptPathExternal)
+	public void uploadInstallScript(SSHConnection ssh, String scriptPathLocal, String scriptPathExternal) throws Exception
 	{
 		try
 		{
 			ssh.scpUpload(scriptPathLocal, scriptPathExternal);
-			String[] arguments = {"rm",scriptPathLocal};
-			Runtime.getRuntime().exec(arguments); //delete the local install.sh file
+			//String[] arguments = {"rm",scriptPathLocal};
+			//Runtime.getRuntime().exec(arguments); //delete the local install.sh file
 		}
 		catch(Exception e)
 		{
-			tui.println("ERROR: something went wrong while transferring the installscript to the VM");
+			e.printStackTrace();
+			throw new Exception("ERROR: something went wrong while transferring the installscript to the VM");
 		}
 	}
 	
-	public void executeInstallScript(SSHConnection ssh, String scriptPathExternal)
+	public void executeInstallScript(SSHConnection ssh, String scriptPathExternal) throws Exception
 	{
 		try
 		{
@@ -267,11 +323,12 @@ public class Generator
 		}
 		catch(Exception e)
 		{
-			tui.println("ERROR: something went wrong while executing the installscript");
+			e.printStackTrace();
+			throw new Exception("ERROR: something went wrong while executing the installscript");
 		}
 	}
 	
-	public void generateInstallScript(String filePath)
+	public void generateInstallScript(String filePath) throws Exception
 	{
 		try
 		{
@@ -279,11 +336,12 @@ public class Generator
 		}
 		catch (Exception e)
 		{
-			tui.println("ERROR: something went wrong while generating the installscript");
+			e.printStackTrace();
+			throw new Exception("ERROR: something went wrong while generating the installscript");
 		}
 	}
 	
-	public void generateManifest(String filePath)
+	public void generateManifest(String filePath) throws Exception
 	{
 		try
 		{
@@ -291,7 +349,8 @@ public class Generator
 		}
 		catch (Exception e)
 		{
-			tui.println("ERROR: something went wrong while generating the manifest file");
+			e.printStackTrace();
+			throw new Exception("ERROR: something went wrong while generating the manifest file");
 		}
 	}
 	
@@ -326,5 +385,13 @@ public class Generator
 	public void setTui(InterfaceOutput tui)
 	{
 		this.tui = tui;
+	}
+
+	public synchronized boolean isKeepGenerating() {
+		return keepGenerating;
+	}
+
+	public synchronized void setKeepGenerating(boolean keepGenerating) {
+		this.keepGenerating = keepGenerating;
 	}
 }

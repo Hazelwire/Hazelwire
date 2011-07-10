@@ -8,6 +8,7 @@ import java.util.Iterator;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.Session.Command;
+
 import org.hazelwire.main.Configuration;
 
 public class SSHConnection

@@ -4,12 +4,12 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 
-import org.hazelwire.main.Generator;
 import org.hazelwire.modules.Flag;
 import org.hazelwire.modules.Module;
 import org.hazelwire.modules.ModulePackage;
 import org.hazelwire.modules.Option;
-import org.w3c.dom.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class ParserModuleConfig extends XMLParser
 {
@@ -78,7 +78,8 @@ public class ParserModuleConfig extends XMLParser
         	for(int i=0;i<flagsNl.getLength();i++)
         	{
         		Element el = (Element)flagsNl.item(i);
-        		tempModule.addFlag(new Flag(this.getIntValue(el, "points"))); //this might throw an exception
+        		tempModule.addFlag(new Flag(this.getIntValue(el, "points"),
+        				this.getIntValue(el, "points"))); //this might throw an exception
         	}        	
         }
         

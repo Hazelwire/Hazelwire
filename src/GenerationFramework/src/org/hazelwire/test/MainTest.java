@@ -1,24 +1,25 @@
 package org.hazelwire.test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.hazelwire.main.Configuration;
-import org.hazelwire.main.FileName;
-import org.hazelwire.main.Generator;
-import org.hazelwire.xml.ImportModuleConfiguration;
 
 
+/*
+ * Text example snippet: resize a text control (show about 10 characters)
+ *
+ * For a list of all SWT example snippets see
+ * http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/platform-swt-home/dev.html#snippets
+ */
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.hazelwire.modules.ModuleHandler;
 
 public class MainTest {
 
-	public static void main(String[] args) throws Exception
-	{
-		FileName bla = new FileName("output/test.ova",Generator.getInstance().getFileSeperator(),'.');
-		bla.setFileName("KANKER");
-	}
+  public static void main(String[] args) throws Exception
+  {
+	  ModuleHandler.importModule("/home/shokora/Desktop/testmodule45.zip");
+  } 
 }
