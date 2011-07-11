@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Mainframe.ClientHandler.FlagAdministration</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Mainframe.ClientHandler-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Package&nbsp;Mainframe ::
+        <a href="Mainframe.ClientHandler-module.html">Package&nbsp;ClientHandler</a> ::
+        Module&nbsp;FlagAdministration
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="Mainframe.ClientHandler.FlagAdministration-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="Mainframe.ClientHandler.FlagAdministration-module.html">Module Mainframe.ClientHandler.FlagAdministration</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-docstring">This module handles the distribution of flags.</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-docstring">When the game is started, this service is started alongside. </tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-docstring">The module information (how many flags) is retrieved from the database first.</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"><tt class="py-docstring">The team's VMs connect to this service and request flags for their modules.</tt> </tt>
+<a name="L6"></a><tt class="py-lineno">  6</tt>  <tt class="py-line"><tt class="py-docstring">When they haven't yet requested any flags, the service generates flags and sends them to the requesting VM.</tt> </tt>
+<a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"><tt class="py-docstring">When a VM tries to request flags again, it will fail.</tt> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L9"></a><tt class="py-lineno">  9</tt>  <tt class="py-line"><tt class="py-docstring">@var modules: A list of dictionaries which contain the module info. The dictionary contains the following keys: `modulename`, `numFlags`, `deployscript`</tt> </tt>
+<a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line"><tt class="py-docstring">@var db: The DatabaseHandler instance.</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line"> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">threading</tt><tt class="py-op">,</tt> <tt class="py-name">string</tt><tt class="py-op">,</tt> <tt class="py-name">random</tt><tt class="py-op">,</tt> <tt class="py-name">sys</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">SocketServer</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-0" class="py-name" targets="Module Mainframe.ClientHandler.DatabaseHandler=Mainframe.ClientHandler.DatabaseHandler-module.html,Class Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler=Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler-class.html"><a title="Mainframe.ClientHandler.DatabaseHandler
+Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler" class="py-name" href="#" onclick="return doclink('link-0', 'DatabaseHandler', 'link-0');">DatabaseHandler</a></tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line"> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line"><tt id="link-1" class="py-name" targets="Variable Mainframe.ClientHandler.FlagAdministration.modules=Mainframe.ClientHandler.FlagAdministration-module.html#modules,Variable Mainframe.ClientHandler.ManifestParser.modules=Mainframe.ClientHandler.ManifestParser-module.html#modules"><a title="Mainframe.ClientHandler.FlagAdministration.modules
+Mainframe.ClientHandler.ManifestParser.modules" class="py-name" href="#" onclick="return doclink('link-1', 'modules', 'link-1');">modules</a></tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line"><tt id="link-2" class="py-name" targets="Variable Mainframe.ClientHandler.FlagAdministration.db=Mainframe.ClientHandler.FlagAdministration-module.html#db"><a title="Mainframe.ClientHandler.FlagAdministration.db" class="py-name" href="#" onclick="return doclink('link-2', 'db', 'link-2');">db</a></tt> <tt class="py-op">=</tt> <tt id="link-3" class="py-name"><a title="Mainframe.ClientHandler.DatabaseHandler
+Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler" class="py-name" href="#" onclick="return doclink('link-3', 'DatabaseHandler', 'link-0');">DatabaseHandler</a></tt><tt class="py-op">.</tt><tt id="link-4" class="py-name"><a title="Mainframe.ClientHandler.DatabaseHandler
+Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler" class="py-name" href="#" onclick="return doclink('link-4', 'DatabaseHandler', 'link-0');">DatabaseHandler</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line"> </tt>
+<a name="ThreadedTCPRequestHandler"></a><div id="ThreadedTCPRequestHandler-def"><a name="L21"></a><tt class="py-lineno"> 21</tt> <a class="py-toggle" href="#" id="ThreadedTCPRequestHandler-toggle" onclick="return toggle('ThreadedTCPRequestHandler');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="Mainframe.ClientHandler.FlagAdministration.ThreadedTCPRequestHandler-class.html">ThreadedTCPRequestHandler</a><tt class="py-op">(</tt><tt class="py-base-class">SocketServer</tt><tt class="py-op">.</tt><tt class="py-base-class">StreamRequestHandler</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ThreadedTCPRequestHandler-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ThreadedTCPRequestHandler-expanded"><a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line">    <tt class="py-docstring">"""Helper class to handle multiple requests at the same time"""</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line"> </tt>
+<a name="ThreadedTCPRequestHandler.handle"></a><div id="ThreadedTCPRequestHandler.handle-def"><a name="L24"></a><tt class="py-lineno"> 24</tt> <a class="py-toggle" href="#" id="ThreadedTCPRequestHandler.handle-toggle" onclick="return toggle('ThreadedTCPRequestHandler.handle');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="Mainframe.ClientHandler.FlagAdministration.ThreadedTCPRequestHandler-class.html#handle">handle</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ThreadedTCPRequestHandler.handle-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="ThreadedTCPRequestHandler.handle-expanded"><a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line">        <tt class="py-docstring">"""</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line"><tt class="py-docstring">        Handles a request.</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line"><tt class="py-docstring">            1. Check client IP to see if already requested, if yes: return REQFAIL</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line"><tt class="py-docstring">            2. Generate number of flags that are needed according to the manifest</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line"><tt class="py-docstring">            3. Send the flags one by one separated by a new module</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">data</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">rfile</tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">strip</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">data</tt> <tt class="py-op">==</tt> <tt class="py-string">"REQFLAGS"</tt><tt class="py-op">:</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">            <tt class="py-keyword">print</tt> <tt class="py-string">"[FLAGDISTRIB] Got request from "</tt> <tt class="py-op">+</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">client_address</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt id="link-5" class="py-name"><a title="Mainframe.ClientHandler.FlagAdministration.db" class="py-name" href="#" onclick="return doclink('link-5', 'db', 'link-2');">db</a></tt><tt class="py-op">.</tt><tt id="link-6" class="py-name" targets="Method Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler.checkClientIP()=Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler-class.html#checkClientIP"><a title="Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler.checkClientIP" class="py-name" href="#" onclick="return doclink('link-6', 'checkClientIP', 'link-6');">checkClientIP</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">client_address</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">                <tt class="py-comment">#Client already requested flags in the past</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">                <tt class="py-name">response</tt> <tt class="py-op">=</tt> <tt class="py-string">"REQFAIL\n"</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">wfile</tt><tt class="py-op">.</tt><tt class="py-name">write</tt><tt class="py-op">(</tt><tt class="py-name">response</tt><tt class="py-op">)</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">            <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">wfile</tt><tt class="py-op">.</tt><tt class="py-name">write</tt><tt class="py-op">(</tt><tt class="py-string">"STARTFLAGS\n"</tt><tt class="py-op">)</tt> <tt class="py-comment">#initiate flag transmission</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">                <tt class="py-comment">#Client has no flags assigned to him, generate some.</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">                <tt class="py-keyword">for</tt> <tt class="py-name">module</tt> <tt class="py-keyword">in</tt> <tt id="link-7" class="py-name"><a title="Mainframe.ClientHandler.FlagAdministration.modules
+Mainframe.ClientHandler.ManifestParser.modules" class="py-name" href="#" onclick="return doclink('link-7', 'modules', 'link-1');">modules</a></tt><tt class="py-op">:</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">                    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">wfile</tt><tt class="py-op">.</tt><tt class="py-name">write</tt><tt class="py-op">(</tt><tt class="py-string">"MODNAME "</tt> <tt class="py-op">+</tt> <tt class="py-name">module</tt><tt class="py-op">[</tt><tt class="py-string">'name'</tt><tt class="py-op">]</tt><tt class="py-op">+</tt><tt class="py-string">'\n'</tt><tt class="py-op">)</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">                    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">wfile</tt><tt class="py-op">.</tt><tt class="py-name">write</tt><tt class="py-op">(</tt><tt class="py-string">"DEPLOYSCRIPT "</tt> <tt class="py-op">+</tt> <tt class="py-name">module</tt><tt class="py-op">[</tt><tt class="py-string">'deployscript'</tt><tt class="py-op">]</tt> <tt class="py-op">+</tt> <tt class="py-string">'\n'</tt><tt class="py-op">)</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">                    <tt class="py-name">module</tt><tt class="py-op">[</tt><tt class="py-string">'flags'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt id="link-8" class="py-name" targets="Function Mainframe.ClientHandler.FlagAdministration.generateFlags()=Mainframe.ClientHandler.FlagAdministration-module.html#generateFlags"><a title="Mainframe.ClientHandler.FlagAdministration.generateFlags" class="py-name" href="#" onclick="return doclink('link-8', 'generateFlags', 'link-8');">generateFlags</a></tt><tt class="py-op">(</tt><tt class="py-name">module</tt><tt class="py-op">[</tt><tt class="py-string">'name'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">module</tt><tt class="py-op">[</tt><tt class="py-string">'numFlags'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">client_address</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">                    <tt class="py-keyword">for</tt> <tt class="py-name">flag</tt> <tt class="py-keyword">in</tt> <tt class="py-name">module</tt><tt class="py-op">[</tt><tt class="py-string">'flags'</tt><tt class="py-op">]</tt><tt class="py-op">:</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">                        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">wfile</tt><tt class="py-op">.</tt><tt class="py-name">write</tt><tt class="py-op">(</tt><tt class="py-string">"FLAG "</tt> <tt class="py-op">+</tt> <tt class="py-name">flag</tt><tt class="py-op">+</tt><tt class="py-string">'\n'</tt><tt class="py-op">)</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">                    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">wfile</tt><tt class="py-op">.</tt><tt class="py-name">write</tt><tt class="py-op">(</tt><tt class="py-string">"ENDMODULE\n"</tt><tt class="py-op">)</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">wfile</tt><tt class="py-op">.</tt><tt class="py-name">write</tt><tt class="py-op">(</tt><tt class="py-string">"ENDFLAGS\n"</tt><tt class="py-op">)</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">                <tt class="py-keyword">print</tt> <tt class="py-string">"[FLAGDISTRIB] Sent "</tt> <tt class="py-op">+</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">client_address</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> <tt class="py-op">+</tt> <tt class="py-string">" some flags."</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">        <tt class="py-keyword">elif</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">data</tt> <tt class="py-op">==</tt> <tt class="py-string">"REQSHUTDOWN"</tt><tt class="py-op">:</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">            <tt class="py-keyword">if</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">client_address</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-string">"127.0.0.1"</tt><tt class="py-op">:</tt> <tt class="py-comment">#can only be sent from localhost</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">                <tt class="py-keyword">print</tt> <tt class="py-string">"[FLAGDISTRIB] Server shutting down..."</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">                <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">server</tt><tt class="py-op">.</tt><tt class="py-name">shutdown</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line">            <tt class="py-keyword">return</tt> </tt>
+</div></div><a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line"> </tt>
+<a name="ThreadedTCPServer"></a><div id="ThreadedTCPServer-def"><a name="L57"></a><tt class="py-lineno"> 57</tt> <a class="py-toggle" href="#" id="ThreadedTCPServer-toggle" onclick="return toggle('ThreadedTCPServer');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="Mainframe.ClientHandler.FlagAdministration.ThreadedTCPServer-class.html">ThreadedTCPServer</a><tt class="py-op">(</tt><tt class="py-base-class">SocketServer</tt><tt class="py-op">.</tt><tt class="py-base-class">ThreadingMixIn</tt><tt class="py-op">,</tt> <tt class="py-base-class">SocketServer</tt><tt class="py-op">.</tt><tt class="py-base-class">TCPServer</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="ThreadedTCPServer-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="ThreadedTCPServer-expanded"><a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">    <tt class="py-keyword">pass</tt> </tt>
+</div><a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line"> </tt>
+<a name="setDB"></a><div id="setDB-def"><a name="L60"></a><tt class="py-lineno"> 60</tt> <a class="py-toggle" href="#" id="setDB-toggle" onclick="return toggle('setDB');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="Mainframe.ClientHandler.FlagAdministration-module.html#setDB">setDB</a><tt class="py-op">(</tt><tt class="py-param">dbname</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="setDB-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="setDB-expanded"><a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">    <tt class="py-docstring">"""Sets the database module variable to a new DatabaseHandler</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line"><tt class="py-docstring">    @type dbname: string</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"><tt class="py-docstring">    @param dbname: The filename of the SQLite database.</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-9" class="py-name"><a title="Mainframe.ClientHandler.FlagAdministration.db" class="py-name" href="#" onclick="return doclink('link-9', 'db', 'link-2');">db</a></tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line">    <tt id="link-10" class="py-name"><a title="Mainframe.ClientHandler.FlagAdministration.db" class="py-name" href="#" onclick="return doclink('link-10', 'db', 'link-2');">db</a></tt> <tt class="py-op">=</tt> <tt id="link-11" class="py-name"><a title="Mainframe.ClientHandler.DatabaseHandler
+Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler" class="py-name" href="#" onclick="return doclink('link-11', 'DatabaseHandler', 'link-0');">DatabaseHandler</a></tt><tt class="py-op">.</tt><tt id="link-12" class="py-name"><a title="Mainframe.ClientHandler.DatabaseHandler
+Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler" class="py-name" href="#" onclick="return doclink('link-12', 'DatabaseHandler', 'link-0');">DatabaseHandler</a></tt><tt class="py-op">(</tt><tt class="py-name">dbname</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"> </tt>
+<a name="getModules"></a><div id="getModules-def"><a name="L69"></a><tt class="py-lineno"> 69</tt> <a class="py-toggle" href="#" id="getModules-toggle" onclick="return toggle('getModules');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="Mainframe.ClientHandler.FlagAdministration-module.html#getModules">getModules</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="getModules-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="getModules-expanded"><a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"><tt class="py-docstring">    Get module info from the database.</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line">    <tt class="py-keyword">global</tt> <tt id="link-13" class="py-name"><a title="Mainframe.ClientHandler.FlagAdministration.modules
+Mainframe.ClientHandler.ManifestParser.modules" class="py-name" href="#" onclick="return doclink('link-13', 'modules', 'link-1');">modules</a></tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">    <tt id="link-14" class="py-name"><a title="Mainframe.ClientHandler.FlagAdministration.modules
+Mainframe.ClientHandler.ManifestParser.modules" class="py-name" href="#" onclick="return doclink('link-14', 'modules', 'link-1');">modules</a></tt> <tt class="py-op">=</tt> <tt id="link-15" class="py-name"><a title="Mainframe.ClientHandler.FlagAdministration.db" class="py-name" href="#" onclick="return doclink('link-15', 'db', 'link-2');">db</a></tt><tt class="py-op">.</tt><tt id="link-16" class="py-name" targets="Method Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler.getModuleInfo()=Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler-class.html#getModuleInfo"><a title="Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler.getModuleInfo" class="py-name" href="#" onclick="return doclink('link-16', 'getModuleInfo', 'link-16');">getModuleInfo</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line"> </tt>
+<a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"> </tt>
+<a name="generateFlags"></a><div id="generateFlags-def"><a name="L77"></a><tt class="py-lineno"> 77</tt> <a class="py-toggle" href="#" id="generateFlags-toggle" onclick="return toggle('generateFlags');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="Mainframe.ClientHandler.FlagAdministration-module.html#generateFlags">generateFlags</a><tt class="py-op">(</tt><tt class="py-param">modulename</tt><tt class="py-op">,</tt> <tt class="py-param">number</tt><tt class="py-op">,</tt> <tt class="py-param">IP</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="generateFlags-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="generateFlags-expanded"><a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line"><tt class="py-docstring">    Generates a number of flags for the module with the given modulename and for the given team VM ip and adds them to the database.</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line"><tt class="py-docstring">    Flags always start with the string FLG and 61 random characters/digits follow that.</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line"><tt class="py-docstring">    @type modulename: string</tt> </tt>
+<a name="L82"></a><tt class="py-lineno"> 82</tt>  <tt class="py-line"><tt class="py-docstring">    @param modulename: the name of the module</tt> </tt>
+<a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line"><tt class="py-docstring">    @type number: integer</tt> </tt>
+<a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"><tt class="py-docstring">    @param number: the number of flags to generate</tt> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line"><tt class="py-docstring">    @type IP: string</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line"><tt class="py-docstring">    @param IP: the IP of the team VM the flags will belong to</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">    <tt class="py-keyword">while</tt> <tt class="py-name">True</tt><tt class="py-op">:</tt> </tt>
+<a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line">        <tt class="py-name">flags</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
+<a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">x</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-name">number</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">            <tt class="py-name">flags</tt><tt class="py-op">.</tt><tt class="py-name">append</tt><tt class="py-op">(</tt><tt class="py-string">"FLG"</tt><tt class="py-op">)</tt> </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">            <tt class="py-keyword">for</tt> <tt class="py-name">x</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">61</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">                <tt class="py-name">flags</tt><tt class="py-op">[</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">]</tt> <tt class="py-op">+=</tt> <tt class="py-name">random</tt><tt class="py-op">.</tt><tt class="py-name">choice</tt><tt class="py-op">(</tt><tt class="py-name">string</tt><tt class="py-op">.</tt><tt class="py-name">letters</tt><tt class="py-op">+</tt><tt class="py-name">string</tt><tt class="py-op">.</tt><tt class="py-name">digits</tt><tt class="py-op">)</tt> <tt class="py-comment">#choose a random letter or digit</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt id="link-17" class="py-name"><a title="Mainframe.ClientHandler.FlagAdministration.db" class="py-name" href="#" onclick="return doclink('link-17', 'db', 'link-2');">db</a></tt><tt class="py-op">.</tt><tt id="link-18" class="py-name" targets="Method Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler.addFlags()=Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler-class.html#addFlags"><a title="Mainframe.ClientHandler.DatabaseHandler.DatabaseHandler.addFlags" class="py-name" href="#" onclick="return doclink('link-18', 'addFlags', 'link-18');">addFlags</a></tt><tt class="py-op">(</tt><tt class="py-name">modulename</tt><tt class="py-op">,</tt> <tt class="py-name">flags</tt><tt class="py-op">,</tt> <tt class="py-name">IP</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> <tt class="py-keyword">break</tt> <tt class="py-comment">#if succesfully added, we're done.</tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">flags</tt> </tt>
+</div><a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line"> </tt>
+<a name="startServer"></a><div id="startServer-def"><a name="L97"></a><tt class="py-lineno"> 97</tt> <a class="py-toggle" href="#" id="startServer-toggle" onclick="return toggle('startServer');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="Mainframe.ClientHandler.FlagAdministration-module.html#startServer">startServer</a><tt class="py-op">(</tt><tt class="py-param">host</tt><tt class="py-op">,</tt><tt class="py-param">port</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="startServer-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="startServer-expanded"><a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">    <tt class="py-docstring">"""</tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"><tt class="py-docstring">    Starts the FlagAdministration service on the given host and port</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-docstring">    @type host: string</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt class="py-docstring">    @param host: the IP to listen on</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"><tt class="py-docstring">    @type port: integer</tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"><tt class="py-docstring">    @param port: the port to listen on</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">    <tt class="py-name">server</tt> <tt class="py-op">=</tt> <tt id="link-19" class="py-name" targets="Class Mainframe.ClientHandler.FlagAdministration.ThreadedTCPServer=Mainframe.ClientHandler.FlagAdministration.ThreadedTCPServer-class.html"><a title="Mainframe.ClientHandler.FlagAdministration.ThreadedTCPServer" class="py-name" href="#" onclick="return doclink('link-19', 'ThreadedTCPServer', 'link-19');">ThreadedTCPServer</a></tt><tt class="py-op">(</tt><tt class="py-op">(</tt><tt class="py-name">host</tt><tt class="py-op">,</tt><tt class="py-name">port</tt><tt class="py-op">)</tt><tt class="py-op">,</tt> <tt id="link-20" class="py-name" targets="Class Mainframe.ClientHandler.FlagAdministration.ThreadedTCPRequestHandler=Mainframe.ClientHandler.FlagAdministration.ThreadedTCPRequestHandler-class.html"><a title="Mainframe.ClientHandler.FlagAdministration.ThreadedTCPRequestHandler" class="py-name" href="#" onclick="return doclink('link-20', 'ThreadedTCPRequestHandler', 'link-20');">ThreadedTCPRequestHandler</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">    <tt class="py-name">ip</tt><tt class="py-op">,</tt> <tt class="py-name">port</tt> <tt class="py-op">=</tt> <tt class="py-name">server</tt><tt class="py-op">.</tt><tt class="py-name">server_address</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">    <tt class="py-name">server_thread</tt> <tt class="py-op">=</tt> <tt class="py-name">threading</tt><tt class="py-op">.</tt><tt class="py-name">Thread</tt><tt class="py-op">(</tt><tt class="py-name">target</tt><tt class="py-op">=</tt><tt class="py-name">server</tt><tt class="py-op">.</tt><tt class="py-name">serve_forever</tt><tt class="py-op">)</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">    <tt class="py-name">server_thread</tt><tt class="py-op">.</tt><tt id="link-21" class="py-name" targets="Method Mainframe.ClientHandler.SanityCheckService.SanityChecker.start()=Mainframe.ClientHandler.SanityCheckService.SanityChecker-class.html#start"><a title="Mainframe.ClientHandler.SanityCheckService.SanityChecker.start" class="py-name" href="#" onclick="return doclink('link-21', 'start', 'link-21');">start</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt class="py-string">"\n[FLAGDISTRIB] Server running on %s and port %d"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">host</tt><tt class="py-op">,</tt> <tt class="py-name">port</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">     </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt class="py-name">__name__</tt> <tt class="py-op">==</tt> <tt class="py-string">"__main__"</tt><tt class="py-op">:</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">    <tt class="py-name">HOST</tt><tt class="py-op">,</tt> <tt class="py-name">PORT</tt> <tt class="py-op">=</tt> <tt class="py-string">"localhost"</tt><tt class="py-op">,</tt> <tt class="py-number">9999</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">    <tt id="link-22" class="py-name" targets="Function Mainframe.ClientHandler.FlagAdministration.setDB()=Mainframe.ClientHandler.FlagAdministration-module.html#setDB"><a title="Mainframe.ClientHandler.FlagAdministration.setDB" class="py-name" href="#" onclick="return doclink('link-22', 'setDB', 'link-22');">setDB</a></tt><tt class="py-op">(</tt><tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">argv</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">    <tt id="link-23" class="py-name" targets="Function Mainframe.ClientHandler.FlagAdministration.getModules()=Mainframe.ClientHandler.FlagAdministration-module.html#getModules"><a title="Mainframe.ClientHandler.FlagAdministration.getModules" class="py-name" href="#" onclick="return doclink('link-23', 'getModules', 'link-23');">getModules</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">    <tt id="link-24" class="py-name" targets="Function Mainframe.ClientHandler.FlagAdministration.startServer()=Mainframe.ClientHandler.FlagAdministration-module.html#startServer,Method Mainframe.ClientHandler.ManualSanityChecker.ManualSanityCheckerService.startServer()=Mainframe.ClientHandler.ManualSanityChecker.ManualSanityCheckerService-class.html#startServer"><a title="Mainframe.ClientHandler.FlagAdministration.startServer
+Mainframe.ClientHandler.ManualSanityChecker.ManualSanityCheckerService.startServer" class="py-name" href="#" onclick="return doclink('link-24', 'startServer', 'link-24');">startServer</a></tt><tt class="py-op">(</tt><tt class="py-name">HOST</tt><tt class="py-op">,</tt> <tt class="py-name">PORT</tt><tt class="py-op">)</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt class="py-string">"Started flag administration service on port "</tt> <tt class="py-op">+</tt> <tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">PORT</tt><tt class="py-op">)</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Mainframe.ClientHandler-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Mon Jul 11 09:32:40 2011
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
