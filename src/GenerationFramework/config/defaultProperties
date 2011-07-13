@@ -15,5 +15,5 @@ externalScriptDirectory=/home/hazelwire/
 sshPassword=hazelwire
 knownHostsFile=config/known_hosts
 modulePath=modules/
-baseVMMirror=http://shokora.student.utwente.nl/HazelwireTest.ova
+baseVMMirror=http://dacs-fw.tsl.utwente.nl/HazelwireTest.ova
 downloadDirectory=download/
