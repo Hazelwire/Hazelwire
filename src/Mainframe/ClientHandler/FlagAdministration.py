@@ -109,7 +109,7 @@ def startServer(host,port):
     print "\n[FLAGDISTRIB] Server running on %s and port %d" % (host, port)
     
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 9999
+    HOST, PORT = "", 9999
     setDB(sys.argv[1])
     getModules()
     startServer(HOST, PORT)
