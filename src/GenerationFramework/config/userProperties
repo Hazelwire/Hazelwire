@@ -1,8 +1,9 @@
 #
-#Sun Jun 19 23:22:39 CEST 2011
+#Mon Jul 11 13:13:36 CEST 2011
 vmPath=/home/shokora/Code/Java/hazelwire/hazelwire/src/GenerationFramework/dist/HazelwireTest.ova
-vmName=HazelwireTest
+downloadDirectory=download/
 tempDirectory=tmp/
+vmName=HazelwireTest
 sshHostPort=2222
 outputDirectory=output/
 sshUsername=hazelwire
@@ -10,10 +11,9 @@ vmExportPath=output/test.ova
 externalModuleDirectory=/home/hazelwire/modules/
 propertyPath=config/userProperties
 virtualBoxPath=/usr/bin/vboxmanage
+baseVMMirror=http\://dacs-fw.tsl.utwente.nl/HazelwireTest.ova
 sshGuestPort=22
 externalScriptDirectory=/home/hazelwire/
 sshPassword=hazelwire
 knownHostsFile=config/known_hosts
 modulePath=modules/
-baseVMMirror=http://shokora.student.utwente.nl/HazelwireTest.ova
-downloadDirectory=download/

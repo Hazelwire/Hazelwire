@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import org.hazelwire.main.Configuration;
 import org.hazelwire.main.Generator;
@@ -100,7 +101,7 @@ public class ModuleHandler
 			ZipFile zipFile = new ZipFile(packageFile);
 			Enumeration<? extends ZipEntry> e = zipFile.entries();
 			BufferedOutputStream dest = null;
-	        BufferedInputStream in = null;
+	        ZipInputStream in = null;
 			boolean first = true;
 	        String dirPath = "";
 	        
@@ -121,21 +122,20 @@ public class ModuleHandler
 				}
 				else
 				{
-					in = new BufferedInputStream(zipFile.getInputStream(entry));
+					in = new ZipInputStream(new BufferedInputStream(zipFile.getInputStream(entry)));
 					int count;
 					byte data[] = new byte[2048];
-					dest = new BufferedOutputStream(new FileOutputStream(Configuration.getInstance().getModulePath()+entry.getName()));
+					dest = new BufferedOutputStream(new FileOutputStream(Configuration.getInstance().getModulePath()+entry.getName()),2048);
 					
 					while((count = in.read(data,0,2048)) != -1)
 					{
-						dest.write(data);
+						dest.write(data,0,count);
 					}
 					dest.flush();
 					dest.close();
-					in.close();
 				}
 			}
-			
+			in.close();
 			tempModule = importModuleFromDirectory(dirPath);
 			
 		}
