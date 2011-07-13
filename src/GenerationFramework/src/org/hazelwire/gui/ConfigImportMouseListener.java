@@ -40,7 +40,7 @@ public class ConfigImportMouseListener implements MouseListener
         //Hier stond eerst export. Nu niet meer.
 		fd.setText("Import configuration");
 		String[] ext = new String[1];
-		ext[0] = ".xml";
+		ext[0] = "*.xml";
 		fd.setFilterExtensions(ext);
 		
         String selected = fd.open();
