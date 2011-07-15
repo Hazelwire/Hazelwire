@@ -41,10 +41,11 @@ public class ManifestGenerator
 		
 		Element rootElement = document.createElement("MANIFEST");
 		document.appendChild(rootElement);
-		Element moduleRoot = document.createElement("MODULE");
 		
 		while(iterate.hasNext())
 		{
+			Element moduleRoot = document.createElement("MODULE");
+			
 			Module module = iterate.next();
 			Collection<Flag> flags = module.getFlags();
 			Iterator<Flag> flagIterator = flags.iterator();
@@ -71,9 +72,8 @@ public class ManifestGenerator
 				em.appendChild(flagElement);
 			}
 			moduleRoot.appendChild(em);
-		}
-		
-		rootElement.appendChild(moduleRoot);
+			rootElement.appendChild(moduleRoot);
+		}		
 		
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	    Transformer transformer = transformerFactory.newTransformer();
