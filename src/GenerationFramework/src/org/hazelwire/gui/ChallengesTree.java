@@ -3,6 +3,7 @@ package org.hazelwire.gui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
@@ -93,9 +94,20 @@ public class ChallengesTree implements MouseListener
 	}
 
 	@Override
-	public void mouseDoubleClick(MouseEvent arg0)
+	public void mouseDoubleClick(MouseEvent m)
 	{
-		// FIXME: uitvouwen in linux?
+		if(m.getSource() instanceof Tree){
+			Tree t = ((Tree) m.getSource());
+			TreeItem ti = t.getItem(new Point(m.x, m.y));
+			if(ti != null){
+				//Expand TreeItems on Linux and Mac OS
+				String osName = System.getProperty("os.name");
+				//TODO: meer? Also: let someone check this.
+				if(osName.toLowerCase().contains("linux") || osName.toLowerCase().contains("mac os")){
+					ti.setExpanded(!ti.getExpanded());
+				}
+			}
+		}
 
 	}
 
