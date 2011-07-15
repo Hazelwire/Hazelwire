@@ -36,7 +36,7 @@ public class ConfigExportListener implements MouseListener
 		FileDialog fd = new FileDialog(((Button)m.getSource()).getShell(), SWT.SAVE);
         fd.setText("Export configuration");
         String[] ext = new String[1];
-        ext[0] = ".xml";
+        ext[0] = "*.xml";
         fd.setFilterExtensions(ext);
 
         String selected = fd.open();
