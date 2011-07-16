@@ -66,7 +66,12 @@ class WebInterface {
         $q->execute(array(time()));
         foreach($q as $res){
             $c = Contestant::getById($res['team_id'], $this->database);
-            exec("mv ".$this->config['site_folder']."lib/admin/openvpn/ccd/_Team".$c->getId(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId()."_vm");
+            if(OpenVPNManager::getVPNStatus($c)){
+                OpenVPNManager::diconnectVPN($c);
+                OpenVPNManager::stopVPN($c);
+                sleep(5);
+            }
+            exec("mv ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId(). "/_Team".$c->getId(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId(). "/Team".$c->getId()."_vm");
 
             $smarty = &$this->getSmarty();
             $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
@@ -76,7 +81,7 @@ class WebInterface {
             $tpl->assign("server_ip_range",  $c->getSubnet());
             $tpl->assign("man_port",$this->config['management_port_base'] + $res['team_id']);
             $tpl->assign("port",$this->config['base_port'] + $res['team_id']);
-            $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd/Team" .$c->getId() );
+            $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "ccd/Team" .$c->getId() );
             $config_file_data = $tpl->fetch();
 
             $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";
@@ -88,11 +93,7 @@ class WebInterface {
             fwrite($handle, $config_file_data);
             fclose($handle);
             
-            if(OpenVPNManager::getVPNStatus($c)){
-                OpenVPNManager::diconnectVPN($c);
-                OpenVPNManager::stopVPN($c);
-                sleep(5);
-            }
+            
             OpenVPNManager::startVPN($c);
 
             $q = $this->database->prepare("DELETE FROM bans WHERE team_id = ?");
