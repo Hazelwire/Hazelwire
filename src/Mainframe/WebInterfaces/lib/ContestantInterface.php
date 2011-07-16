@@ -193,6 +193,22 @@ class ContestantInterface extends WebInterface{
                 
                 return $smarty->fetch("contestant.tpl");
 
+            }else if(strcmp($_POST['ajax'],"leaderboard")==0){
+                $db = &$this->database;
+                $retval = new stdClass();
+                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
+                             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
+                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
+
+                $contestants = array();
+                while (($res = $q->fetch()) !== false){
+                    $c = Contestant::getById($res['team_id'], $db);
+                    array_push($contestants, $c);
+                }
+                $smarty->assign("contestants",$contestants);
+                $retval->action = "leaderboard";
+                $retval->reply = $smarty->fetch("contestant_ajax_leaderboard.tpl");
+                return json_encode($retval);
             }else if(strcmp($_POST['ajax'],"plotdata")==0){
                 $db = &$this->database;
                 $retval = new stdClass();
@@ -336,7 +352,7 @@ class ContestantInterface extends WebInterface{
                             }
                         }else{
                             //fetch old block time
-                            $q = $db->prepare("SELECT team_id, try_timestamp, block_timestamp as count FROM submission_block WHERE team_id = ? AND block_timestamp >= ? ORDER BY try_timestamp DESC");
+                            $q = $db->prepare("SELECT team_id, try_timestamp, block_timestamp FROM submission_block WHERE team_id = ? AND block_timestamp >= ? ORDER BY try_timestamp DESC");
                             $q->execute(array($this->contestant->getId(),$now));
                             $res = $q->fetch();
                             if($res != false){

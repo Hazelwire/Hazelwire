@@ -847,6 +847,7 @@ class AdminInterface extends WebInterface {
 
                 // VPN client config for the Virtual Machine
                 $tpl = $smarty->createTemplate("client.conf"); /* @var $tpl Smarty_Internal_Template */
+                $tpl->clearAllAssign();
                 $tpl->assign("teamname", "Team".$c->getId()."_vm");
                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
                 $tpl->assign("server_ip", $gc->server_ip);
