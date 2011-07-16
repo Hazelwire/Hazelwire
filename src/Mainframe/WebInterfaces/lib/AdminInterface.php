@@ -992,13 +992,15 @@ class AdminInterface extends WebInterface {
             if($time == 0){
                 $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
                 $q->execute(array(intval($id)));
+                $q = $db->prepare("INSERT INTO bans values(?,?,?,?)");
+                $q->execute(array(intval($id),0,"Pwned",0));
                 if(OpenVPNManager::getVPNStatus($c))
                     OpenVPNManager::diconnectVPN($c);
                 $this->cban_success =  true;
                 return;
             }
 
-            exec("mv  ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/_Team".$c->getId()."_vm");
+            exec("mv ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId(). "/Team".$c->getId(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId(). "/_Team".$c->getId()."_vm");
 
             $smarty = &$this->getSmarty();
             $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
@@ -1070,11 +1072,11 @@ class AdminInterface extends WebInterface {
                 return;
             }
 
-            if(OpenVPNManager::getVPNStatus($c)){
+            //if(OpenVPNManager::getVPNStatus($c)){
                 OpenVPNManager::diconnectVPN($c);
                 OpenVPNManager::stopVPN($c);
                 sleep(3);
-            }
+            //}
 
             if(!deleteAll($this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId())){
                 $this->handleError(new Error("cdell_error", "(#1) Could not properly delete files asscociated with this contestant.", false));

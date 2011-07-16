@@ -76,6 +76,7 @@ class WebInterface {
             $tpl->assign("server_ip_range",  $c->getSubnet());
             $tpl->assign("man_port",$this->config['management_port_base'] + $res['team_id']);
             $tpl->assign("port",$this->config['base_port'] + $res['team_id']);
+            $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd/Team" .$c->getId() );
             $config_file_data = $tpl->fetch();
 
             $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";
