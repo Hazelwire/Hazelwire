@@ -1393,7 +1393,7 @@ class AdminInterface extends WebInterface {
         // teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
         $q = $db->prepare("SELECT et.port as port, et.timestamp as timestamp, ifnull(m.name,'ClientBot') as modulename, ifnull(t.name,'System') as reporter
                             FROM evil_teams et
-                            INNER JOIN modules m ON et.port = m.serviceport
+                            LEFT OUTER JOIN modules m ON et.port = m.serviceport
                             LEFT OUTER JOIN teams t ON et.reporter = t.VMip
                             WHERE et.ip = ?
                             ORDER BY et.timestamp DESC");
