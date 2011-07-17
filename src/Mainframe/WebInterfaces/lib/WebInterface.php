@@ -67,7 +67,7 @@ class WebInterface {
         foreach($q as $res){
             $c = Contestant::getById($res['team_id'], $this->database);
             if(OpenVPNManager::getVPNStatus($c)){
-                OpenVPNManager::diconnectVPN($c);
+               // OpenVPNManager::diconnectVPN($c);
                 OpenVPNManager::stopVPN($c);
                 sleep(5);
             }

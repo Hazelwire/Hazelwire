@@ -947,7 +947,7 @@ class AdminInterface extends WebInterface {
                 $this->createVPNServerConf($c);
 
                 if(OpenVPNManager::getVPNStatus($c)){
-                    OpenVPNManager::diconnectVPN($c);
+                    //OpenVPNManager::diconnectVPN($c);
                     OpenVPNManager::stopVPN($c);
                     sleep(5);
                 }
@@ -999,7 +999,12 @@ class AdminInterface extends WebInterface {
                 $this->cban_success =  true;
                 return;
             }
-
+            
+            if(OpenVPNManager::getVPNStatus($c)){
+                OpenVPNManager::diconnectVPN($c);
+                OpenVPNManager::stopVPN($c);
+                sleep(5);
+            }
             exec("mv ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId(). "/Team".$c->getId(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId(). "/_Team".$c->getId()."_vm");
 
             $smarty = &$this->getSmarty();
@@ -1022,12 +1027,7 @@ class AdminInterface extends WebInterface {
             }
             fwrite($handle, $config_file_data);
             fclose($handle);
-
-            if(OpenVPNManager::getVPNStatus($c)){
-                OpenVPNManager::diconnectVPN($c);
-                OpenVPNManager::stopVPN($c);
-                sleep(5);
-            }
+            
             OpenVPNManager::startVPN($c);
 
             $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
