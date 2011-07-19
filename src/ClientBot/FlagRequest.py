@@ -5,7 +5,7 @@ of the deployment of the flags.
 """
 
 
-import socket, os, sys
+import socket, os, sys, time
 
 moduleFlags = [] #array of dictionaries {'ModuleName': String, 'BasePath': String, 'InstallScript': String, 'flags': []}
 
@@ -22,7 +22,13 @@ def requestFlags(host, port):
     """
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host,port))
+    while True:
+	try:
+	    s.connect((host,port))
+	    break
+	except:
+	    print "Mainframe is not yet online, sleeping for 5 minutes"
+            time.sleep(300)
     sfile = s.makefile("r")
     s.send("REQFLAGS\n")
     first = sfile.readline().strip()
@@ -51,10 +57,12 @@ def requestFlags(host, port):
 def deployFlags():
     """Calls the management script for every flag in order to deploy flags."""
     for module in moduleFlags:
-        os.system(module['deployscript']) #execute deploy script
-        
+        #os.system(module['deployscript'] + " deploy " + ' '.join(module['flags'])) #execute deploy script
+        print module['deployscript'] + " deploy " + ' '.join(module['flags'])
     
 
 if __name__ == "__main__":
-    requestFlags(sys.argv[1],9999)
-    deployFlags()        
+    if requestFlags(sys.argv[1],9999):
+        deployFlags()
+    else:
+	print "We already requested flags."
