@@ -3,8 +3,8 @@
 		<name>Test Module</name>
 		<author>Tim Strijdhorst</author>
 		<date>11-05-2011</date>
-		<file>test.deb</file>
-		<deploy>/usr/share/test/deploy.sh</deploy>
+		<file>testmodule_0.7-1ubuntu2_all.deb</file>
+		<deploy>/usr/share/hazelwire/testmodule1/deploy.py</deploy>
 		<package>
 			<name>Hazelwire Test Package</name>
 			<id>1</id>
