@@ -104,7 +104,7 @@ class OpenVPNManager {
     public static function stopVPN(&$contestant){
         global $interface; /* @var $interface WebInterface */
         $config =$interface->getConfig();
-        $fp = @fsockopen("127.0.0.1", $config['management_port_base'] + $contestant->getId(), $errno, $errstr, 5);
+        $fp = @fsockopen("127.0.0.1", $config['management_port_base'] + $contestant->getId(), $errno, $errstr, 2);
         if(!$fp){
             $interface->handleError(new Error("vpn_error", "Error #2: Cannot stop openVPN service! (".$errno.")", false));
         }else{

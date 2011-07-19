@@ -9,15 +9,15 @@ function addNotification(content, type) {
 		notifyboxHeight = notifyboxHeight - $(event.target).outerHeight(true);
 		$("#notifybox").animate({
 			"height": notifyboxHeight
-		}, "slow");
-		$(event.target).slideToggle("slow", function() {
+		}, "fast", 'linear');
+		$(event.target).slideToggle("fast", 'linear', function() {
 			$(event.target).remove();
 		});
 	});
 	notifyboxHeight = notifyboxHeight + $(".notification:last-child").outerHeight(true);
 	$("#notifybox").animate({
 		"height": notifyboxHeight
-	}, "slow");
+	}, "fast", 'linear');
 }
 
 //SETTING UP OUR POPUP

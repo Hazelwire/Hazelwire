@@ -66,15 +66,13 @@
 }
 
 .dataTables_info {
-	width: 60%;
-	float: left;
+	margin: auto;
 }
 
 .dataTables_paginate {
-	width: 44px;
-	* width: 50px;
-	float: right;
-	text-align: right;
+	margin-top: 1em;
+	width: 100%;
+	text-align: center;
 }
 
 /* Pagination nested */
@@ -83,6 +81,7 @@
 	width: 19px;
 	margin-left: 3px;
 	float: left;
+	cursor: pointer;
 }
 
 .paginate_disabled_previous {
@@ -94,11 +93,11 @@
 }
 
 .paginate_disabled_next {
-
+	float: right;
 }
 
 .paginate_enabled_next {
-
+	float: right;
 }
 
 
@@ -156,13 +155,19 @@ table.display td.center {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * DataTables sorting
  */
-
-.sorting_asc {
-	background: url('../images/sort_asc.png') no-repeat center right;
+.dataTables_scrollHead .sorting_asc, table.display .sorting_desc {
+	background-color: #bbb;
 }
 
-.sorting_desc {
-	background: url('../images/sort_desc.png') no-repeat center right;
+.dataTables_scrollHead .sorting_asc::after {
+	margin-left: .5em;
+	content: "^";
+	font-weight: bold;
+}
+.dataTables_scrollHead .sorting_desc::after {
+	margin-left: .5em;
+	content: "v";
+	font-weight: bold;
 }
 
 .sorting {
