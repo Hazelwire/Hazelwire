@@ -57,8 +57,7 @@ def requestFlags(host, port):
 def deployFlags():
     """Calls the management script for every flag in order to deploy flags."""
     for module in moduleFlags:
-        #os.system(module['deployscript'] + " deploy " + ' '.join(module['flags'])) #execute deploy script
-        print module['deployscript'] + " deploy " + ' '.join(module['flags'])
+        os.system(module['deployscript'] + " deploy " + ' '.join(module['flags'])) #execute deploy script
     
 
 if __name__ == "__main__":
