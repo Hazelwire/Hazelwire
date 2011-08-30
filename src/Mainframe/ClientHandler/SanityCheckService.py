@@ -147,15 +147,18 @@ class SanityChecker:
             allresults = p2p.getResults()
             for client in allresults:
                 for result in client['results']:
-                    #logging.info("[P2PCHECK] %s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), contestant, result['fine']))
-                    if str(result['port']) == "" and client['IP'] == "": #this means the contestant is not running P2PRequestListener
-                        logging.info("[P2PCHECK] Adding "+ contestant + " for not running PeerToPeerRequestListener")
-                    else:
-                        logging.info("[P2PCHECK] Adding " + contestant + " with port " + str(result['port']) + "reported by " + client['IP'])
+                    #logging.info("[P2PCHECK] %s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), contestant, result['fine']))                    
                     if result['fine'] != "True":
-                        self.normal_dbWriteLock.acquire()
-                        self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
-                        self.normal_dbWriteLock.release()
+                        if str(result['port']) == "": #this means the contestant is not running P2PRequestListener
+                            logging.info("[P2PCHECK] Adding "+ client["IP"] + " for not running PeerToPeerRequestListener")
+                            self.normal_dbWriteLock.acquire()
+                            self.db.addSuspiciousContestant(client["IP"], "","")
+                            self.normal_dbWriteLock.release()
+                        else:
+                            logging.info("[P2PCHECK] Adding " + contestant + " with port " + str(result['port']) + "reported by " + client['IP'])
+                            self.normal_dbWriteLock.acquire()
+                            self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
+                            self.normal_dbWriteLock.release()
         logging.info("[P2PCHECK] Finished check.")
 
     def start(self):

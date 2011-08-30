@@ -62,10 +62,14 @@ class ManualSanityCheckerService:
                 results = p2p.getResults()
                 for client in results:
                     for result in client['results']:
-                        #print "%s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), IP, result['fine'])
+                        #logging.info("%s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), IP, result['fine']))
                         if result['fine'] == 'False':
-                            logging.info("[MANUALP2P] Adding " + IP + " with port " + str(result['port']) + "reported by " + client['IP'])
-                            self.db.addSuspiciousContestant(IP, result['port'], client['IP'])
+                            if  str(result['port'] == ""):
+                                logging.info("[MANUALP2P] Adding " + client['IP'] + " for not running P2PRequestListener")
+                                self.db.addSuspiciousContestant(client["IP"], "","")
+                            else:
+                                logging.info("[MANUALP2P] Adding " + IP + " with port " + str(result['port']) + "reported by " + client['IP'])
+                                self.db.addSuspiciousContestant(IP, result['port'], client['IP'])
                 logging.info("[MANUALP2P] Finished check.")
 
         elif data == "STOPMANUAL":
