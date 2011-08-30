@@ -85,7 +85,7 @@ class DatabaseHandler:
         self.disconnect()
         return res
 
-    def addSuspiciousContestant(self, IP, port, reporterIP):
+    def addSuspiciousContestant(self, IP, port, reporterIP, modulename):
         """
         Adds an IP to the suspicious contestant table.
         
@@ -98,7 +98,7 @@ class DatabaseHandler:
         """
         self.connect()
         c = self.conn.cursor()
-        c.execute("INSERT INTO evil_teams VALUES(?,?,?,?,1);", [IP, port, int(time.time()), reporterIP])
+        c.execute("INSERT INTO evil_teams VALUES(?,?,?,?,1,?);", [IP, port, int(time.time()), reporterIP, modulename])
         c.close()
         self.disconnect()
 
@@ -137,6 +137,18 @@ class DatabaseHandler:
         c.execute("SELECT serviceport FROM modules;")
         for port in c.fetchall():
             res.append(port[0])
+        c.close()
+        self.disconnect()
+        return res
+    
+    def getModulePortsAndNames(self):
+        """Returns a dict of {'moduleName','port'}"""
+        res = []
+        self.connect()
+        c = self.conn.cursor()
+        c.execute("SELECT name,serviceport FROM modules;")
+        for module in c.fetchall():
+            res.append({'name':module[0],'port':module[1]})
         c.close()
         self.disconnect()
         return res

@@ -28,7 +28,7 @@ class ManualSanityCheckerService:
         self.sock.bind((host,port))
         self.sock.listen(1)
         self.contestants = self.db.getClientIPs()
-        self.portsToScan = self.db.getModulePorts()
+        self.modules = self.db.getModulePortsAndNames()
 
     def startServer(self):
         self.running = True
@@ -46,8 +46,9 @@ class ManualSanityCheckerService:
             IP = data.split(' ')[3]
             if checktype == "NORMAL":
                 logging.info("[MANUALNORMAL] Starting check")
-                results = checkIP(IP, self.portsToScan)
-                for result in results:
+                for module in self.modules:
+                    logging.info("Checking module " + module['name'] + "on port " + str(module['port']))
+                    result = checkIP(IP, module['port'])[0]
                     if not result['fine']:
                         logging.info("[MANUALNORMAL] Adding " + IP + " with port " + str(result['port']))
                         self.db.addSuspiciousContestant(IP, result['port'],'')
@@ -55,21 +56,23 @@ class ManualSanityCheckerService:
 
             elif checktype == "P2P":
                 logging.info("[MANUALP2P] Starting check")
-                self.targets = copy.copy(self.contestants)
-                self.targets.remove(IP)
-                p2p = P2PSanityCheck.PeerToPeerSanityChecker(IP,self.targets, self.portsToScan)
-                p2p.checkIP()
-                results = p2p.getResults()
-                for client in results:
-                    for result in client['results']:
-                        #logging.info("%s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), IP, result['fine']))
-                        if result['fine'] == 'False':
-                            if  str(result['port'] == ""):
-                                logging.info("[MANUALP2P] Adding " + client['IP'] + " for not running P2PRequestListener")
-                                self.db.addSuspiciousContestant(client["IP"], "","")
-                            else:
-                                logging.info("[MANUALP2P] Adding " + IP + " with port " + str(result['port']) + "reported by " + client['IP'])
-                                self.db.addSuspiciousContestant(IP, result['port'], client['IP'])
+                for module in self.modules:
+                    logging.info("[MANUALP2P] Checking module " + module['name'] + " on port " + str(module['port']))
+                    self.targets = copy.copy(self.contestants)
+                    self.targets.remove(IP)
+                    p2p = P2PSanityCheck.PeerToPeerSanityChecker(IP,self.targets, module['port'])
+                    p2p.checkIP()
+                    results = p2p.getResults()
+                    for client in results:
+                        for result in client['results']:
+                            #logging.info("%s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), IP, result['fine']))
+                            if result['fine'] == 'False':
+                                if  str(result['port'] == ""):
+                                    logging.info("[MANUALP2P] Adding " + client['IP'] + " for not running P2PRequestListener")
+                                    self.db.addSuspiciousContestant(client["IP"], "","")
+                                else:
+                                    logging.info("[MANUALP2P] Adding " + IP + " with port " + str(result['port']) + "reported by " + client['IP'])
+                                    self.db.addSuspiciousContestant(IP, result['port'], client['IP'])
                 logging.info("[MANUALP2P] Finished check.")
 
         elif data == "STOPMANUAL":

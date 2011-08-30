@@ -46,7 +46,7 @@ class SanityChecker:
         self.db = DatabaseHandler.DatabaseHandler(db)
         self.normal_interval, self.p2p_interval = self.db.getIntervals()
         self.contestants = self.db.getClientIPs()
-        self.ports = self.db.getModulePorts()
+        self.modules = self.db.getModulePortsAndNames()
         self.normal_dbWriteLock = threading.Lock()
         logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', level=logging.INFO, filename='sanitycheck.log')
         
@@ -105,31 +105,33 @@ class SanityChecker:
         Normal sanity checking involves the Mainframe to check every port used by the modules on all the team's VMs.
         When it can't connect to a specific port it adds an entry to the suspicious IP table.
         """
-        self.normal_threads = []
         logging.info("[NORMALCHECK] Running check...")
-        for contestant in self.contestants:
-            logging.info("[NORMALCHECK] Checking " + contestant + " on ports " + str(self.ports))
-            self.normal_threads.append(threading.Thread(target=self.NormalCheck_checkIP, args=[contestant, self.ports]))
-            self.normal_threads[-1].start()
-        for thread in self.normal_threads:
-            thread.join()
+        for module in self.modules:
+            self.normal_threads = []
+            logging.info("[NORMALCHECK] Checking module " + module['name'] + " on port " + str(module['port']))
+            for contestant in self.contestants:
+                logging.info("[NORMALCHECK] Checking " + contestant)
+                self.normal_threads.append(threading.Thread(target=self.NormalCheck_checkIP, args=[contestant,module['port'], module['name']]))
+                self.normal_threads[-1].start()
+            for thread in self.normal_threads:
+                thread.join()
+            logging.info("[NORMALCHECK] Finished checking module " + module['name'])
         logging.info("[NORMALCHECK] Finished check")
         
-    def NormalCheck_checkIP(self, IP, ports):
+    def NormalCheck_checkIP(self, IP, port, name):
         """
-        Helper function to simultaneously check all the IPs
+        Helper function to check a port on an IP
         @type IP: string
         @param IP: the IP to check
         @type ports: list
         @param ports: the list of ports to check
         """
-        results = SanityCheck.checkIP(IP, self.ports)
-        for result in results:
-            if not result['fine']:
-                logging.info("[NORMALCHECK] Adding " + IP + " with port " + str(result['port']))
-                self.normal_dbWriteLock.acquire()
-                self.db.addSuspiciousContestant(IP, result['port'],'')
-                self.normal_dbWriteLock.release()
+        result = SanityCheck.checkIP(IP, port)[0]
+        if not result['fine']:
+            logging.info("[NORMALCHECK] Adding " + IP + " with port " + str(result['port']))
+            self.normal_dbWriteLock.acquire()
+            self.db.addSuspiciousContestant(IP, result['port'],'', name)
+            self.normal_dbWriteLock.release()
 
     def P2PCheck(self):
         """
@@ -138,27 +140,30 @@ class SanityChecker:
         When a VM finds a suspicious client the IP of the reporting VM will also be added to the database.
         """
         logging.info( "[P2PCHECK] Running check...")
-        for contestant in self.contestants:
-            temp = copy.copy(self.contestants)
-            temp.remove(contestant)
-            logging.info("[P2PCHECK] " + contestant + " is being checked by "  + ', '.join(temp))
-            p2p = P2PSanityCheck.PeerToPeerSanityChecker(contestant, temp, self.ports)
-            p2p.checkIP()
-            allresults = p2p.getResults()
-            for client in allresults:
-                for result in client['results']:
-                    #logging.info("[P2PCHECK] %s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), contestant, result['fine']))                    
-                    if result['fine'] != "True":
-                        if str(result['port']) == "": #this means the contestant is not running P2PRequestListener
-                            logging.info("[P2PCHECK] Adding "+ client["IP"] + " for not running PeerToPeerRequestListener")
-                            self.normal_dbWriteLock.acquire()
-                            self.db.addSuspiciousContestant(client["IP"], "","")
-                            self.normal_dbWriteLock.release()
-                        else:
-                            logging.info("[P2PCHECK] Adding " + contestant + " with port " + str(result['port']) + "reported by " + client['IP'])
-                            self.normal_dbWriteLock.acquire()
-                            self.db.addSuspiciousContestant(contestant, result['port'], client['IP'])
-                            self.normal_dbWriteLock.release()
+        for module in self.modules:
+            logging.info("[P2PCHECK] Checking module " + module['name'] + " on port " + str(module['port']))
+            for contestant in self.contestants:
+                temp = copy.copy(self.contestants)
+                temp.remove(contestant)
+                logging.info("[P2PCHECK] " + contestant + " is being checked by "  + ', '.join(temp))
+                p2p = P2PSanityCheck.PeerToPeerSanityChecker(contestant, temp, module['port'])
+                p2p.checkIP()
+                allresults = p2p.getResults()
+                for client in allresults:
+                    for result in client['results']:
+                        #logging.info("[P2PCHECK] %s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), contestant, result['fine']))                    
+                        if result['fine'] != "True":
+                            if str(result['port']) == "": #this means the contestant is not running P2PRequestListener
+                                logging.info("[P2PCHECK] Adding "+ client["IP"] + " for not running PeerToPeerRequestListener")
+                                self.normal_dbWriteLock.acquire()
+                                self.db.addSuspiciousContestant(client["IP"], "","", "PeerToPeerRequestListener")
+                                self.normal_dbWriteLock.release()
+                            else:
+                                logging.info("[P2PCHECK] Adding " + contestant + " with port " + str(result['port']) + "reported by " + client['IP'])
+                                self.normal_dbWriteLock.acquire()
+                                self.db.addSuspiciousContestant(contestant, result['port'], client['IP'], module['name'])
+                                self.normal_dbWriteLock.release()
+                logging.info("[P2PCHECK] Finished checking module " + module['name'])
         logging.info("[P2PCHECK] Finished check.")
 
     def start(self):
