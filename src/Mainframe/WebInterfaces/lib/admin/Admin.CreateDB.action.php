@@ -21,7 +21,7 @@ function create_database(){
                 CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
                 CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
                 CREATE TABLE submission_block (team_id INTEGER, try_timestamp INTEGER, block_timestamp INTEGER);
-                CREATE TABLE evil_teams ( ip TEXT, port INTEGER, timestamp INTEGER, reporter TEXT, seen INTEGER);
+                CREATE TABLE evil_teams ( ip TEXT, port INTEGER, timestamp INTEGER, reporter TEXT, seen INTEGER, modulename TEXT);
                 CREATE TABLE announcements ( id INTEGER PRIMARY KEY, title TEXT, announcement TEXT, timestamp INTEGER);
                 CREATE TABLE bans ( team_id INTEGER, end_timestamp INTEGER, reason TEXT, jobid INTEGER );
                 COMMIT;
