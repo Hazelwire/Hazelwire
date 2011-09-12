@@ -1,23 +1,51 @@
 //Notifications
 
 var notifyboxHeight = 0;
+var notid=0;
+var notifications = [];
 
 //Type is a classname representing the kind of feedback given. Use "notifybad" for a warning/negative feedback, "notifyneutral" for a neutral message and "notifygood" for positive feedback.
 function addNotification(content, type) {
 	$("#notifybox").append('<div class="notification ' + type + '">' + content + '</div>');
 	$(".notification:last-child").click(function(event){
-		notifyboxHeight = notifyboxHeight - $(event.target).outerHeight(true);
-		$("#notifybox").animate({
-			"height": notifyboxHeight
-		}, "fast", 'linear');
-		$(event.target).slideToggle("fast", 'linear', function() {
-			$(event.target).remove();
-		});
+		removeNotification(event.target, notid);
 	});
 	notifyboxHeight = notifyboxHeight + $(".notification:last-child").outerHeight(true);
 	$("#notifybox").animate({
 		"height": notifyboxHeight
 	}, "fast", 'linear');
+	var not = new Array(2);
+	not[0] = notid++;
+	not[1] = Math.round(new Date().getTime() / 1000);
+	notifications.push(not);
+}
+
+function removeNotification(target, id) {
+	notifyboxHeight = notifyboxHeight - $(target).outerHeight(true);
+	$("#notifybox").animate({
+		"height": notifyboxHeight
+	}, "fast", 'linear');
+	$(target).slideToggle("fast", 'linear', function() {
+		$(target).remove();
+	});
+	for(var i=0,len=notifications.length; i<len; i++) {
+		if(notifications[i][0] == id){
+			notifications.splice(i,1);
+			break;
+		}
+	}
+}
+
+function notificationTick(){
+	for(var i=notifications.length-1; i>=0; i--) {
+		if(notifications[i][1] < (Math.round(new Date().getTime() / 1000) + 30))
+		{
+			notifications.splice(0,i+1);
+			break;
+		}
+	}
+	
+	setTimeout("notificationTick()",1000);
 }
 
 //SETTING UP OUR POPUP
@@ -315,7 +343,8 @@ function bindDefaultText() {
 }
 
 $(document).ready(function(){
-        
+    notificationTick();
+	
         //CLOSING POPUP
 	//Click the x event!
 	$("#popupClose").click(function(){
