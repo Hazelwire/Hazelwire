@@ -8,20 +8,20 @@ var notifications = [];
 function addNotification(content, type) {
 	$("#notifybox").append('<div class="notification ' + type + '">' + content + '</div>');
 	$(".notification:last-child").click(function(event){
-		removeNotification($(event.target), notid);
+		removeNotification($(event.target), $(event.target).attr("ID"));
 	}).mouseover(function(event){
 		for(var i=0,len=notifications.length; i<len; i++) {
-			if(notifications[i][0] == id){
-				notifications[i][2] = Math.round(new Date().getTime() / 1000) + 999999;
+			if(notifications[i][0] == $(event.target).attr("ID")){
+				notifications[i][1] = Math.round(new Date().getTime() / 1000) + 999999;
 			}
 		}
 	}).mouseout(function(event){
 		for(var i=0,len=notifications.length; i<len; i++) {
-			if(notifications[i][0] == id){
-				notifications[i][2] = Math.round(new Date().getTime() / 1000);
+			if(notifications[i][0] == $(event.target).attr("ID")){
+				notifications[i][1] = Math.round(new Date().getTime() / 1000);
 			}
 		}
-	});
+	}).attr("ID",notid);
 	notifyboxHeight = notifyboxHeight + $(".notification:last-child").outerHeight(true);
 	$("#notifybox").animate({
 		"height": notifyboxHeight
