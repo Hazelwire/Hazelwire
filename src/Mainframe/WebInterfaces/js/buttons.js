@@ -8,25 +8,26 @@ var notifications = [];
 function addNotification(content, type) {
 	$("#notifybox").append('<div class="notification ' + type + '">' + content + '</div>');
 	$(".notification:last-child").click(function(event){
-		removeNotification(event.target, notid);
+		removeNotification($(event.target), notid);
 	});
 	notifyboxHeight = notifyboxHeight + $(".notification:last-child").outerHeight(true);
 	$("#notifybox").animate({
 		"height": notifyboxHeight
 	}, "fast", 'linear');
-	var not = new Array(2);
+	var not = new Array(3);
 	not[0] = notid++;
 	not[1] = Math.round(new Date().getTime() / 1000);
+	not[2] = $(".notification:last-child");
 	notifications.push(not);
 }
 
 function removeNotification(target, id) {
-	notifyboxHeight = notifyboxHeight - $(target).outerHeight(true);
+	notifyboxHeight = notifyboxHeight - target.outerHeight(true);
 	$("#notifybox").animate({
 		"height": notifyboxHeight
 	}, "fast", 'linear');
-	$(target).slideToggle("fast", 'linear', function() {
-		$(target).remove();
+	target.slideToggle("fast", 'linear', function() {
+		target.remove();
 	});
 	for(var i=0,len=notifications.length; i<len; i++) {
 		if(notifications[i][0] == id){
@@ -38,10 +39,9 @@ function removeNotification(target, id) {
 
 function notificationTick(){
 	for(var i=notifications.length-1; i>=0; i--) {
-		if(notifications[i][1] < (Math.round(new Date().getTime() / 1000) + 30))
+		if(notifications[i][1] < (Math.round(new Date().getTime() / 1000) - 30))
 		{
-			notifications.splice(0,i+1);
-			break;
+			removeNotification(notifications[2], notifications[0])
 		}
 	}
 	
