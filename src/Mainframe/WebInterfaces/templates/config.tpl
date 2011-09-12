@@ -12,10 +12,7 @@
 	       {literal}$(document).ready(function() {
 				$('#fileinput').fadeTo(1,0);
 				$('#fileinput').change(function(event){$('#browseField').val($('#fileinput').val())});
-				$('#browseButton').click(function(event){
-					$('#fileinput').click();
-				});
-                                $('#browseField').click(function(event){
+                $('#browseField').click(function(event){
 					$('#fileinput').click();
 				});{/literal}
                                 {if $db_created == 1}
@@ -67,7 +64,7 @@
 							</li>
 							<li>
 								<input id="fileinput" type="file" name="manifest"/>
-								<input type="text" id="browseField" title="Manifest File" style="z-index:1;"/>
+								<input type="text" id="browseField" title="Manifest File" class="defaultText" style="z-index:1;"/>
 								<!--<input type="button" id="browseButton" value="Browse..." style="height:1.8em;z-index:1;"/>-->
 								<label for="setting0111">Manifest file</label>
 							</li>

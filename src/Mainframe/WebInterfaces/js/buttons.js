@@ -9,6 +9,18 @@ function addNotification(content, type) {
 	$("#notifybox").append('<div class="notification ' + type + '">' + content + '</div>');
 	$(".notification:last-child").click(function(event){
 		removeNotification($(event.target), notid);
+	}).mouseover(function(event){
+		for(var i=0,len=notifications.length; i<len; i++) {
+			if(notifications[i][0] == id){
+				notifications[i][2] = Math.round(new Date().getTime() / 1000) + 999999;
+			}
+		}
+	}).mouseout(function(event){
+		for(var i=0,len=notifications.length; i<len; i++) {
+			if(notifications[i][0] == id){
+				notifications[i][2] = Math.round(new Date().getTime() / 1000);
+			}
+		}
 	});
 	notifyboxHeight = notifyboxHeight + $(".notification:last-child").outerHeight(true);
 	$("#notifybox").animate({
