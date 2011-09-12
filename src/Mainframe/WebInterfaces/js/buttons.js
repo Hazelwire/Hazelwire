@@ -41,7 +41,7 @@ function notificationTick(){
 	for(var i=notifications.length-1; i>=0; i--) {
 		if(notifications[i][1] < (Math.round(new Date().getTime() / 1000) - 30))
 		{
-			removeNotification(notifications[2], notifications[0])
+			removeNotification(notifications[i][2], notifications[i][0])
 		}
 	}
 	
