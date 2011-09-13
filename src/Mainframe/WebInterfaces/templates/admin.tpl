@@ -29,12 +29,14 @@
 			<div id="gamebuttons">
 				<div class="content">
 					<div class="buttons">
-						<div>
+				{if isset($endgame)}
+                                            <strong>Game has ended.</strong>{else}
+                                                <div>
 							<input type="button" id="vpnstart" value="Start VPN" {if not $allow_startvpn} disabled="disabled" {/if}/>
 							<input type="button" id="vpnstop" value="Stop VPN" {if not $allow_stopvpn} disabled="disabled" {/if} />
 							<input type="button" id="gstart" value="Start Game" {if not $allow_startgame} disabled="disabled" {/if} />
 							<input type="button" id="gstop" value="Stop Game" {if not $allow_endgame} disabled="disabled" {/if} />
-						</div>
+						</div>{/if}
 					</div>
 				</div>
 			</div>

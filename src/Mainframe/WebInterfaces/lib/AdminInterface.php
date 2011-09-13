@@ -83,6 +83,9 @@ class AdminInterface extends WebInterface {
              * and show everything.
              */
             if(!isset($_GET['aaction'])){
+
+                if($this->getCurrentState() == POSTGAME)
+                        $smarty->assign ("endgame", true);
                 
                 $allow_startvpn = OpenVPNManager::getBaseVPNStatus();
                 $allow_stopvpn = OpenVPNManager::getBaseVPNStatus();

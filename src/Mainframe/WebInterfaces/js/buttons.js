@@ -189,6 +189,7 @@ function loadFormButtons(){
                         if(data.success == true)
                             disablePopup();
                         updateAlist();
+                        
             });
     });
     $("#okadel").click(function(){
