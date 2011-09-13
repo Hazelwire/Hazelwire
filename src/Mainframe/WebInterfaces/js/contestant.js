@@ -73,7 +73,7 @@ function updateLeaderboard(){
                 $('#scorecontainer').append(data.reply);
                 if(data.action.indexOf("final") >= 0){
                     $('#flagresponse').remove();
-                    $('#flagform').prepend("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> The game has ended! </div>");
+                    $('#flagform').prepend("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> The game has ended!</div>");
                     $('#flagdisplay').animate({bottom: (40+$('#flagresponse').outerHeight())+'px'});
                     $('#flagresponse').slideDown();
                     $("#flagsubmit").attr("disabled", true);
@@ -101,15 +101,7 @@ function updateAnnouncements(){
                 for ( var i=0, len=openAnnouncements.length; i<len; ++i ){
                   $('label[for="announcement_'+openAnnouncements[i]+ '"]').find('div').show();
                 }
-                if(data.action.indexOf("final") >= 0){
-                    $('#flagresponse').remove();
-                    $('#flagform').prepend("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> The game has ended! </div>");
-                    $('#flagdisplay').animate({bottom: (40+$('#flagresponse').outerHeight())+'px'});
-                    $('#flagresponse').slideDown();
-                    $("#flagsubmit").attr("disabled", true);
-                }
-                else
-                    setTimeout("updateAnnouncements()",60000);
+                setTimeout("updateAnnouncements()",60000);
             }
         }
     });
