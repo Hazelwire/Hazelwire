@@ -72,7 +72,12 @@
                                 clearTimeout(resizeTimer);
                                 resizeTimer = setTimeout(onresize, 100);
 			});
-                            });
+                            {/literal}{if isset($endgame)} 
+                                    $('#flagform').prepend("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> The wargame has ended!</div>");
+                                    $('#flagdisplay').animate({bottom: (40+$('#flagresponse').outerHeight())+'px'});
+                                    $('#flagresponse').slideDown();
+                            {/if}
+                            {literal}});
                             function changeSort(){
                                 location="index.php?winsort=" + $('#winsort').val();
                             }{/literal}
@@ -137,7 +142,7 @@
 							<input id="flaginputfield" title="Insert flag code here" class="defaultText" name="flagcode" type="text" tabindex="1"></input>
 						</div>
 						<div id="flagsubmission">
-							<input id="flagsubmit" name="sub_flag" type="submit" value="Claim Flag" tabindex="2"></input>
+							<input id="flagsubmit" name="sub_flag" type="submit" value="Claim Flag" tabindex="2" {if isset($endgame)}disabled{/if}></input>
 						</div>
 					</form>
 				</div>

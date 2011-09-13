@@ -55,6 +55,8 @@ class ContestantInterface extends WebInterface{
             return $smarty->fetch("game_not_started.tpl");
         } else {
             if(!isset($_POST['ajax'])){
+                if($this->getCurrentState() == POSTGAME)
+                        $smarty->assign ("endgame", true);
                 $db = &$this->database;
                 $q = $db->query("SELECT value FROM config WHERE config_name = 'gamename'");
                 $res = $q->fetch();
@@ -244,6 +246,13 @@ class ContestantInterface extends WebInterface{
 
                 return json_encode($retval);
             }else if(strcmp($_POST['ajax'],"flagsub")==0){
+                if($this->getCurrentState() == POSTGAME){
+                    $retval = new stdClass();
+                    $retval->action = "endgame";
+                    $retval->reply = "The game has ended.";
+                    return json_encode($retval);
+                }
+
                 if($this->flag_success){
                     $smarty->assign("flag_success", 1);
                 }
@@ -284,6 +293,8 @@ class ContestantInterface extends WebInterface{
         // @TODO check for db_ready.
         if($this->getCurrentState() == GAMEINPROGRESS){
             $this->unban();
+            if($this->contestant->getBanned())
+                return;
             if (strtolower($_SERVER['REQUEST_METHOD']) == "post") {
                 if(isset($_POST['sub_flag'])){
                     $now = time(); // take a timestamp.

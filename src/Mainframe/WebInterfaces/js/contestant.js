@@ -3,6 +3,7 @@ $(document).ready(function() {
         setTimeout("updateAnnouncements()",30000);
         setTimeout("updatePlotData()",5*60000);
         var flgsubmsgt;
+        var endgame = false;
         //$('#chart1').append('<div id="toolTip" style="position:absolute;display:none;background:#E5DACA;padding:4px;"></div>');
 
         $("#flagsubmit").click(function() {
@@ -23,6 +24,9 @@ $(document).ready(function() {
                     if(data!=null && data.action == "flagsub"){
                         $('#flagform').prepend(data.reply);
                         
+                    }else if(data!=null && data.action == "endgame"){
+                        $('#flagform').prepend("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> The game has already ended, you cannot submit flags anymore! </div>");
+                        endgame = true;
                     }else{
                         $('#flagform').prepend("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> Error while connecting to the mainframe! The mainframe returned an unexpected result.</div>");
                     }
@@ -46,7 +50,8 @@ $(document).ready(function() {
                     },10000);
                 },
                 complete:  function(){
-                    $("#flagsubmit").attr("disabled", false);
+                    if(!endgame)
+                        $("#flagsubmit").attr("disabled", false);
                 }
             });  
             
