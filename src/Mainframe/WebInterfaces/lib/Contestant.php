@@ -100,6 +100,7 @@ class Contestant {
                 if($res['end_timestamp'] == -1){
                     $result->banned = true;
                     $result->bantime= "-1";
+                    $result->bantime_full = -1;
                 }else{
                     $result->banned = true;
                     $result->bantime_full = (intval($res['end_timestamp']) - time());

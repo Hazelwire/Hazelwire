@@ -13,7 +13,7 @@
 		<script type="text/javascript" src="js/buttons.js"></script>
 		<script type="text/javascript" src="js/collapse.js"></script>
                 <script type="text/javascript" src="js/textfield.js"></script>
-                <script type="text/javascript" src="js/admin.js"></script>
+                <script type="text/javascript" src="js/admin.js"></script>{if $ban_time >0}}
                 <script type="text/javascript">
 		{literal}$(function () {
 				var austDay = new Date();
@@ -21,14 +21,14 @@
 				$('#countdown').countdown({until: austDay});
 			});{/literal}
 		</script>
-                
+                {/if}
 	</head>
 
 	<body>
 		
 		<div id="container">
                     <div style="right:0;left:0;top:0;bottom:0; text-align:center;padding-top:3em;font-size:3em;"> You are <span style="color:#cc0000">BANNED</span>!
-                        <div id="countdown" style=" width:400px;left:50%;margin-left:-200px;font-size:0.5em;margin-top:1em;">Time until unban</div>
+                        <div id="countdown" style=" width:400px;left:50%;margin-left:-200px;font-size:0.5em;margin-top:1em;">Indefinitely!</div>
                     </div>
 			
 		</div>
