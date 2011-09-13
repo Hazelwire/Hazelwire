@@ -27,7 +27,7 @@
                               {foreach from=$series->series item=serie}
                                 var {$serie->id}={$serie->string};
                               {/foreach}
-                                  
+
                               plot1 = $.jqplot('chart1', [{$series->seriesString}],{literal} {
                                   legend:{show:true},
                                   axes:{
@@ -72,10 +72,11 @@
                                 clearTimeout(resizeTimer);
                                 resizeTimer = setTimeout(onresize, 100);
 			});
-                            {/literal}{if isset($endgame)} 
-                                    $('#flagform').prepend("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> The wargame has ended!</div>");
+                            {/literal}{if isset($endgame)}
+                                    $('#flagform').prepend("<div id=\"flagresponse\" style=\"display: none; right: 0pt; left: 0pt; bottom: 2em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);\"> The wargame has ended!</div>");{literal}
                                     $('#flagdisplay').animate({bottom: (40+$('#flagresponse').outerHeight())+'px'});
                                     $('#flagresponse').slideDown();
+                                    $('ol.scorelist li').first().css("background-color","green").css("color","white");{/literal}
                             {/if}
                             {literal}});
                             function changeSort(){

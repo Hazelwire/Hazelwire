@@ -69,9 +69,9 @@ class AdminInterface extends WebInterface {
             }
             return $smarty->fetch("config.tpl");
             /* If there's no game, and the has not been just stopped, show the End Game page*/
-        } elseif ($this->getCurrentState() == POSTGAME && !$this->endgame_success) {
+        } /*elseif ($this->getCurrentState() == POSTGAME && !$this->endgame_success) {
             return $smarty->fetch("game_end.tpl");
-        } else {
+        } */else {
             // Get the name of the game
             $db = &$this->database;
             $q = $db->query("SELECT value FROM config WHERE config_name = 'gamename'");
@@ -1261,7 +1261,7 @@ class AdminInterface extends WebInterface {
             fwrite($fp, "CHECK TYPE NORMAL ".$c->getVm_ip()."\n");
             fclose($fp);
         }
-        sleep(3);
+        sleep(5);
         $fp = @fsockopen("127.0.0.1", 9997, $errno, $errstr, 5);
         if(!$fp){
             $this->handleError(new Error("vpn_error", "Error #42+1: Cannot connect to Sanity Check Service! (".$errno.")", false));

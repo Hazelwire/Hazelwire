@@ -209,12 +209,16 @@ class ContestantInterface extends WebInterface{
                 }
                 $smarty->assign("contestants",$contestants);
                 $retval->action = "leaderboard";
+                if($this->getCurrentState() == POSTGAME)
+                        $retval->action .="_final";
                 $retval->reply = $smarty->fetch("contestant_ajax_leaderboard.tpl");
                 return json_encode($retval);
             }else if(strcmp($_POST['ajax'],"plotdata")==0){
                 $db = &$this->database;
                 $retval = new stdClass();
                 $retval->action="plotdata";
+                if($this->getCurrentState() == POSTGAME)
+                        $retval->action .="_final";
 
                 $q = $db->query("SELECT value FROM config WHERE config_name = 'start_time'");
                 $res = $q->fetch();
@@ -277,6 +281,8 @@ class ContestantInterface extends WebInterface{
                 $smarty->assign("announcements",$announcements);
                 $retval = new stdClass();
                 $retval->action = "announcements";
+                if($this->getCurrentState() == POSTGAME)
+                        $retval->action .="_final";
                 $retval->reply = $smarty->fetch("contestant_ajax_announcements.tpl");
                 return json_encode($retval);
             }
