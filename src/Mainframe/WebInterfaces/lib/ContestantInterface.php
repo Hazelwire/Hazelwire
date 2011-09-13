@@ -31,7 +31,7 @@ class ContestantInterface extends WebInterface{
             die("Not allowed to access this webpage. Shoo!");
         if($this->contestant->getBanned()){
              $smarty = &$this->getSmarty();
-             $smarty->assign("ban_time",(($bt = $this->contestant->getBantime()) != "-" && $bt != "-1")?$bt:0);
+             $smarty->assign("ban_time",$this->contestant->getBantime_full());
              return $smarty->fetch("banpage.tpl");
         }
         $smarty = &$this->getSmarty();
