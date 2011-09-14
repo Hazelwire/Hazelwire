@@ -27,7 +27,6 @@ class ManualSanityCheckerService:
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
         self.sock.bind((host,port))
         self.sock.listen(1)
-        self.contestants = self.db.getClientIPs()
         self.modules = self.db.getModulePortsAndNames()
 
     def startServer(self):
@@ -42,6 +41,7 @@ class ManualSanityCheckerService:
         """Handles a request"""
         data = conn.recv(1024).strip('\n')
         if data.startswith("CHECK TYPE "):
+            self.contestants = self.db.getClientIPs()
             checktype = data.split(' ')[2]
             IP = data.split(' ')[3]
             if checktype == "NORMAL":
