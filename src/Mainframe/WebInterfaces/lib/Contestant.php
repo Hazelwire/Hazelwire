@@ -16,6 +16,7 @@ class Contestant {
     private $block_time;
     private $banned;
     private $bantime;
+    private $bantime_full = 0;
     private $sane = true;
 
     /**
@@ -99,8 +100,10 @@ class Contestant {
                 if($res['end_timestamp'] == -1){
                     $result->banned = true;
                     $result->bantime= "-1";
+                    $result->bantime_full = -1;
                 }else{
                     $result->banned = true;
+                    $result->bantime_full = (intval($res['end_timestamp']) - time());
                     $result->bantime = round((intval($res['end_timestamp']) - time())/60);
                     if($result->bantime <0){
                         $result->banned = false;
@@ -123,7 +126,11 @@ class Contestant {
         }
         return false;
     }
-    
+
+    public function getBantime_full() {
+        return $this->bantime_full;
+    }
+
     /** 
      * Wrapper for OpenVPNManager's getVPNStatus(...)
      * 

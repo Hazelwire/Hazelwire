@@ -12,10 +12,7 @@
 	       {literal}$(document).ready(function() {
 				$('#fileinput').fadeTo(1,0);
 				$('#fileinput').change(function(event){$('#browseField').val($('#fileinput').val())});
-				$('#browseButton').click(function(event){
-					$('#fileinput').click();
-				});
-                                $('#browseField').click(function(event){
+                $('#browseField').click(function(event){
 					$('#fileinput').click();
 				});{/literal}
                                 {if $db_created == 1}
@@ -65,10 +62,10 @@
 								<input type="text" name="point_penalty_mod" id="setting0110" title="0.5" class="defaultText" />
 								<label for="setting0110">Points Penalty Modifier:</label>
 							</li>
-							<li style="height:2.5em;">
+							<li>
 								<input id="fileinput" type="file" name="manifest"/>
-								<input type="text" id="browseField" title="Manifest File" style="right:6em;z-index:1;"/>
-								<input type="button" id="browseButton" value="Browse..." style="height:1.8em;z-index:1;"/>
+								<input type="text" id="browseField" title="Manifest File" class="defaultText" style="z-index:1;"/>
+								<!--<input type="button" id="browseButton" value="Browse..." style="height:1.8em;z-index:1;"/>-->
 								<label for="setting0111">Manifest file</label>
 							</li>
 						</ul>
