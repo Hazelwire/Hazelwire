@@ -31,6 +31,7 @@ public class VMGenerationThread extends Thread
 	public void init(GenerateDialog progressDialog)
 	{
 		this.progressDialog = progressDialog;
+		progressDialog.setVMGenerationThread(this);
 	}
 	
 	@Override
@@ -41,13 +42,13 @@ public class VMGenerationThread extends Thread
 			GUIBridge.synchronizeModulesFrontToBack();
 			Generator.getInstance().setTui(new GUIOutput(GUIBuilder.getInstance().getDisplay(),GUIBuilder.getInstance().getTextOutput(),this.progressDialog));
 			((GUIOutput) Generator.getInstance().getTui()).clear(); //clear the text area before starting the generation process
-			Generator.getInstance().setKeepGenerating(true);
 			Generator.getInstance().generateVM();
 		}
-		catch (Exception e)
+		catch(Exception e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 	}
 }

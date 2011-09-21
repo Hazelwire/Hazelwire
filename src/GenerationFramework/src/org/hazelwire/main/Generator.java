@@ -59,7 +59,6 @@ public class Generator
 	
 	private Generator()
 	{
-		tui = new CLI();
 		keepGenerating = false;
 		try
 		{		
@@ -78,32 +77,6 @@ public class Generator
 		}
 		
 		moduleSelector = new ModuleSelector();
-	}
-	
-	public void shutDown(boolean output, boolean export) throws Exception
-	{
-    	if(vmHandler != null && vmHandler.checkIfImported())
-    	{
-	    	if(output) tui.println("Stopping VM");
-	    	vmHandler.stopVM();
-	    	if(output) tui.setProgress(90);
-	    	if(output) tui.println("Removing port forwarding");
-	    	vmHandler.removeForward("ssh");
-	    	if(output) tui.setProgress(92);
-	    	if(export)
-	    	{
-	    		FileName exportPath = new FileName(Configuration.getInstance().getVMExportPath(),Generator.getInstance().getFileSeperator(),'.');
-	    		findUniqueExportName(exportPath);
-	    		
-	    		if(output) tui.println("Exporting vm to: "+exportPath.getFullPath());
-	    		
-	    		vmHandler.exportVM(exportPath.getFullPath());
-	    	}
-	    	if(output) tui.setProgress(98);
-	    	if(output) tui.println("Unregistering vm from virtualbox");
-	    	if(output) tui.setProgress(99);
-	    	vmHandler.unregisterVM(DELETEVM);
-    	}
 	}
 
 	public ModuleSelector getModuleSelector()
@@ -139,6 +112,35 @@ public class Generator
 		return descriptions;
 	}
 	
+	public void shutDown(boolean output, boolean export) throws Exception
+	{
+    	if(vmHandler != null && vmHandler.checkIfImported())
+    	{
+	    	if(output) tui.println("Stopping VM");
+	    	vmHandler.stopVM();
+	    	if(output) tui.setProgress(90);
+	    	if(output) tui.println("Removing port forwarding");
+	    	vmHandler.removeForward("ssh");
+	    	if(output) tui.setProgress(92);
+	    	if(export)
+	    	{
+	    		FileName exportPath = new FileName(Configuration.getInstance().getVMExportPath(),Generator.getInstance().getFileSeperator(),'.');
+	    		findUniqueExportName(exportPath);
+	    		
+	    		if(output) tui.println("Exporting vm to: "+exportPath.getFullPath());
+	    		
+	    		vmHandler.exportVM(exportPath.getFullPath());
+	    	}
+	    	if(output) tui.setProgress(98);
+	    	if(output) tui.println("Unregistering vm from virtualbox");
+	    	if(output) tui.setProgress(99);
+	    	vmHandler.unregisterVM(DELETEVM);
+	    	if(output) tui.setProgress(100);
+    	}
+    	
+    	this.keepGenerating = false; //this actually should have never been true unless you are very quick with pushing cancel
+	}
+	
 	/**
 	 * @todo it should wait with stopping the vm until the callback is done
 	 */
@@ -146,104 +148,70 @@ public class Generator
 	{
     	try
     	{
+    		this.keepGenerating = true;
 			vmHandler = new VMHandler(config.getVirtualBoxPath(),config.getVMName(), config.getVMPath(), true);
-	    	if(keepGenerating && !vmHandler.checkIfImported())
+	    	if(!vmHandler.checkIfImported())
 	    	{
 	    		tui.println("Importing VM");
 	    		vmHandler.importAndDiscover();
 	    	}
 	    	
-	    	if(keepGenerating)
+	    	tui.setProgress(10);
+	    	tui.println("Adding portforward for ssh: "+config.getSSHHostPort()+" to "+config.getSSHGuestPort()+" in the vm");
+	    	vmHandler.addForward("ssh", config.getSSHHostPort(), config.getSSHGuestPort(), "TCP"); //add forward so we can reach the VM
+
+	    	tui.setProgress(15);
+	    	tui.println("Starting VM");
+	    	vmHandler.startVM();    	
+
+	    	if(vmHandler.discoverBootedVM(config.getSSHHostPort())) //wait for it to actually be booted so we can use the SSH service
 	    	{
-		    	tui.setProgress(10);
-		    	tui.println("Adding portforward for ssh: "+config.getSSHHostPort()+" to "+config.getSSHGuestPort()+" in the vm");
-		    	vmHandler.addForward("ssh", config.getSSHHostPort(), config.getSSHGuestPort(), "TCP"); //add forward so we can reach the VM
-	    	}
+	    		SSHConnection ssh = new SSHConnection("localhost",config.getSSHHostPort(),config.getSSHUsername(),config.getSSHPassword());
+	    		String externalPath = config.getExternalScriptDirectory()+INSTALLNAME;
+
+		    	tui.setProgress(20);
+		    	tui.println("Creating directories");
+		    	prepareVM(ssh);
 	    	
-	    	if(keepGenerating)
-	    	{
-		    	tui.setProgress(15);
-		    	tui.println("Starting VM");
-		    	vmHandler.startVM();
-	    	}
+		    	tui.setProgress(25);
+		    	tui.println("Uploading modules");
+		    	uploadModules(ssh);
+
+		    	tui.setProgress(50);
+		    	tui.println("Generating installation script");
+		    	generateInstallScript(config.getOutputDirectory()+INSTALLNAME);
 	    	
-	    	if(keepGenerating)
-	    	{
-		    	if(vmHandler.discoverBootedVM(config.getSSHHostPort())) //wait for it to actually be booted so we can use the SSH service
-		    	{
-		    		SSHConnection ssh = new SSHConnection("localhost",config.getSSHHostPort(),config.getSSHUsername(),config.getSSHPassword());
-		    		String externalPath = config.getExternalScriptDirectory()+INSTALLNAME;
-		    		
-		    		if(keepGenerating)
-			    	{
-				    	tui.setProgress(20);
-				    	tui.println("Creating directories");
-				    	prepareVM(ssh);
-			    	}
-			    	
-			    	if(keepGenerating)
-			    	{
-				    	tui.setProgress(25);
-				    	tui.println("Uploading modules");
-				    	uploadModules(ssh);
-			    	}
-			    	
-			    	if(keepGenerating)
-			    	{
-				    	tui.setProgress(50);
-				    	tui.println("Generating installation script");
-				    	generateInstallScript(config.getOutputDirectory()+INSTALLNAME);
-			    	}
-			    	
-			    	if(keepGenerating)
-			    	{
-				    	tui.setProgress(55);
-				    	tui.println("Generating manifest");
-				    	generateManifest(config.getOutputDirectory()+MANIFESTFILENAME);
-			    	}
-	
-			    	if(keepGenerating)
-			    	{
-				    	tui.setProgress(60);
-				    	tui.println("Uploading installation script");
-				    	uploadInstallScript(ssh, config.getOutputDirectory()+INSTALLNAME,externalPath);
-			    	}
-			    	
-			    	if(keepGenerating)
-			    	{
-				    	tui.setProgress(65);
-				    	tui.println("Executing installation script");
-				    	executeInstallScript(ssh,externalPath);
-			    	}
-			    	
-			    	if(keepGenerating)
-			    	{
-				    	tui.setProgress(85);
-				    	shutDown(true,true);
-				    	tui.println("Succesfully created VM");
-				    	tui.setProgress(100);
-			    	}
-		    	}
-		    	else
-		    	{
-		    		throw new Exception("Could not connect to the virtualmachine");
-		    	}
+		    	tui.setProgress(55);
+		    	tui.println("Generating manifest");
+		    	generateManifest(config.getOutputDirectory()+MANIFESTFILENAME);
+
+		    	tui.setProgress(60);
+		    	tui.println("Uploading installation script");
+		    	uploadInstallScript(ssh, config.getOutputDirectory()+INSTALLNAME,externalPath);
+	    	
+		    	tui.setProgress(65);
+		    	tui.println("Executing installation script");
+		    	executeInstallScript(ssh,externalPath);
+	    	
+		    	tui.setProgress(85);
+		    	shutDown(true,true);
+		    	tui.println("Succesfully created VM");
 	    	}
+	    	else
+	    	{
+	    		throw new Exception("Could not connect to the virtualmachine");
+	    	}
+    	}
+    	catch(InterruptedException e)
+    	{
+    		tui.println("Generation process canceled by user.");
+    		this.shutDown(true, false);
     	}
     	catch(Exception e)
     	{
     		tui.println(e.getMessage());
     		this.shutDown(true, false);
     	}
-    	
-    	if(!keepGenerating)
-    	{
-    		shutDown(true,false);
-    		tui.println("Generation process canceled");
-    		tui.setProgress(100);
-    	}
-    	
-    	keepGenerating = false;
 	}
 	
 	public void uploadModules(SSHConnection ssh) throws Exception
@@ -309,8 +277,7 @@ public class Generator
 		try
 		{
 			ssh.scpUpload(scriptPathLocal, scriptPathExternal);
-			//String[] arguments = {"rm",scriptPathLocal};
-			//Runtime.getRuntime().exec(arguments); //delete the local install.sh file
+			new File(scriptPathLocal).delete(); //delete the local install file
 		}
 		catch(Exception e)
 		{

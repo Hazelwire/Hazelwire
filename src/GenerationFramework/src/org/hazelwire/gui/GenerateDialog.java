@@ -31,6 +31,7 @@ public class GenerateDialog extends Dialog {
 	private ProgressBar progressBar;
 	private Button controlButton;
 	private Label lblProgress;
+	private VMGenerationThread generationThread;
 
 	/**
 	 * Constructs an instance of GenerateDialog.
@@ -72,6 +73,11 @@ public class GenerateDialog extends Dialog {
 			}
 		}
 		return input;
+	}
+	
+	public void setVMGenerationThread(VMGenerationThread generationThread)
+	{
+		this.generationThread = generationThread;
 	}
 
 	/**
@@ -117,10 +123,11 @@ public class GenerateDialog extends Dialog {
 				{
 					if(controlButton.getText().equals("Cancel"))
 					{
-						Generator.getInstance().setKeepGenerating(false);
-						controlButton.setText("Wait");
 						controlButton.setEnabled(false);
+						controlButton.setText("Wait");
 						lblProgress.setText("Cleaning up");
+						// old Generator.getInstance().setKeepGenerating(false);
+						generationThread.interrupt(); //interrupt the generationthread causing it to have an interrupted exception
 					}
 					else if(controlButton.getText().equals("Done"))
 					{

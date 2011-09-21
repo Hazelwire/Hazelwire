@@ -32,6 +32,8 @@ public class InstallScriptGenerator
 	{
 		ArrayList<Module> modules = Generator.getInstance().getModuleSelector().getMarkedModules();
 		String script = "#!/bin/bash\n";
+		script += "sudo apt-get update\n"; //update the repos first or else older vm's might fail because of old packages
+		script += "sudo -y apt-get install openvpn\n"; //Download openvpn if it's not already there
 		Iterator<Module> iterate = modules.iterator();
 		
 		while(iterate.hasNext())
