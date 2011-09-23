@@ -23,7 +23,7 @@ public class Module
 	private ArrayList<String> tags; 
 	private Date date;
 	private ModulePackage modulePackage;
-	private int id;
+	private int id, servicePort;
 	private FileName filePath;
 	private boolean hidden;
 	
@@ -33,6 +33,7 @@ public class Module
 		this.filePath = new FileName(filePath,Generator.getInstance().getFileSeperator(),'.');
 		init();
 	}
+	
 	
 	public Module()
 	{
@@ -231,5 +232,31 @@ public class Module
 	public boolean isHidden()
 	{
 		return hidden;
+	}
+
+	public void setServicePort(int servicePort)
+	{
+		this.servicePort = servicePort;
+	}
+
+	public int getServicePort()
+	{
+		this.syncServicePort(); //sync first
+		
+		return servicePort;
+	}
+	
+	public void syncServicePort()
+	{
+		if(options.containsKey(0))
+		{
+			Option portOption = options.get(0);
+			
+			//Check again just to be sure...
+			if(portOption.getName().equals("Service port"))
+			{
+				this.servicePort = Integer.valueOf(portOption.getValue());
+			}
+		}
 	}
 }

@@ -24,10 +24,6 @@
 	</flags>
 	<options>
 		<option>
-			<name>Listen port</name>
-			<value type="integer">31337</value>
-		</option>
-		<option>
 			<name>Welcome message</name>
 			<value type="text">Welcome to the megacorp website</value>
 		</option>
