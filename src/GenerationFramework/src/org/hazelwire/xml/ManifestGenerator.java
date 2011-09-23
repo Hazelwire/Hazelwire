@@ -58,10 +58,13 @@ public class ManifestGenerator
 			
 			try
 			{
-				//<serviceport>
-				em = document.createElement("serviceport");
-				em.appendChild(document.createTextNode(String.valueOf(module.getServicePort())));
-				moduleRoot.appendChild(em);
+				if(module.getServicePort() != 0)
+				{
+					//<serviceport>
+					em = document.createElement("serviceport");
+					em.appendChild(document.createTextNode(String.valueOf(module.getServicePort())));
+					moduleRoot.appendChild(em);
+				}
 			}
 			catch(NumberFormatException e)
 			{
