@@ -4,6 +4,7 @@
 		<author>Maarten Rijke</author>
 		<date>07-06-2011</date>
 		<file>testmodule2_0.1-0ubuntu4_all.deb</file>
+		<serviceport editable="true">80</serviceport>
 		<deploy>/usr/share/hazelwire/testmodule2/manage.py</deploy>
 		<package>
 			<name>Hazelwire Test Package</name>

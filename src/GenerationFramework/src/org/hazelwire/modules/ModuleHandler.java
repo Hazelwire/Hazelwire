@@ -74,7 +74,15 @@ public class ModuleHandler
 				else if(fileList[a].equals("config.xml"))
 				{						
 					ParserModuleConfig xmlParser = new ParserModuleConfig(dir.getPath()+fileSeperator+fileList[a]);
-					tempModule = (Module) xmlParser.parseDocument();
+					
+					try
+					{
+						tempModule = (Module) xmlParser.parseDocument();
+					}
+					catch(Exception e)
+					{
+						System.err.println("ERROR: Failed to parse one or more module configurations.\n Exception-message: "+e.getMessage());
+					}
 				}
 			}
 			

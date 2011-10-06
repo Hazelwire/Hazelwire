@@ -54,8 +54,26 @@ public class ParserModuleConfig extends XMLParser
         	tempModule.setAuthor(this.getTextValue(el, "author"));
         	tempModule.setDate(dateFormat.parse(this.getTextValue(el, "date")));
         	tempModule.setFileName(this.getTextValue(el, "file"));
-        	tempModule.setDeployPath(this.getTextValue(el, "deploy"));
+        	tempModule.setDeployPath(this.getTextValue(el, "deployscript"));
         	tempModule.setHidden(Boolean.valueOf(this.getTextValue(el, "hidden")));
+        	
+        	
+        	//serviceport is a bit trickier
+        	NodeList portNl = el.getElementsByTagName("serviceport");
+        	
+        	if(portNl != null && portNl.getLength() > 0)
+        	{
+    	        Element portEl = (Element)portNl.item(0);
+        	
+	        	tempModule.setServicePort(Integer.valueOf(portEl.getFirstChild().getNodeValue())); //set the default port
+	        	
+	        	//serviceport is editable, add an option for this
+	        	//this is a bit of a dirty trick, but because this is done here it will always have id=0 ;)
+	        	if(Boolean.valueOf(portEl.getAttribute("editable")))
+	        	{
+	        		tempModule.addOption(new Option("Service port","integer",String.valueOf(tempModule.getServicePort())));
+	        	}
+        	}
         }
         
         NodeList packageNl = docElement.getElementsByTagName("package");

@@ -17,6 +17,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.hazelwire.main.Generator;
 import org.hazelwire.modules.Flag;
 import org.hazelwire.modules.Module;
+import org.hazelwire.modules.Option;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -55,8 +56,23 @@ public class ManifestGenerator
 			em.appendChild(document.createTextNode(module.getName()));
 			moduleRoot.appendChild(em);
 			
+			try
+			{
+				if(module.getServicePort() != 0)
+				{
+					//<serviceport>
+					em = document.createElement("serviceport");
+					em.appendChild(document.createTextNode(String.valueOf(module.getServicePort())));
+					moduleRoot.appendChild(em);
+				}
+			}
+			catch(NumberFormatException e)
+			{
+				//do nothing ~_~ 
+			}
+			
 			//<deploypath>
-			em = document.createElement("deploypath");
+			em = document.createElement("deployscript");
 			em.appendChild(document.createTextNode(module.getDeployPath()));
 			moduleRoot.appendChild(em);
 			

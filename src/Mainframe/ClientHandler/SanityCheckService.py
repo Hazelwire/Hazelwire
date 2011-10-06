@@ -45,7 +45,6 @@ class SanityChecker:
         """
         self.db = DatabaseHandler.DatabaseHandler(db)
         self.normal_interval, self.p2p_interval = self.db.getIntervals()
-        self.contestants = self.db.getClientIPs()
         self.modules = self.db.getModulePortsAndNames()
         self.normal_dbWriteLock = threading.Lock()
         logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', level=logging.INFO, filename='sanitycheck.log')
@@ -106,6 +105,7 @@ class SanityChecker:
         When it can't connect to a specific port it adds an entry to the suspicious IP table.
         """
         logging.info("[NORMALCHECK] Running check...")
+        self.contestants = self.db.getClientIPs()
         for module in self.modules:
             self.normal_threads = []
             logging.info("[NORMALCHECK] Checking module " + module['name'] + " on port " + str(module['port']))
@@ -140,6 +140,7 @@ class SanityChecker:
         When a VM finds a suspicious client the IP of the reporting VM will also be added to the database.
         """
         logging.info( "[P2PCHECK] Running check...")
+        self.contestants = self.db.getClientIPs()
         for module in self.modules:
             logging.info("[P2PCHECK] Checking module " + module['name'] + " on port " + str(module['port']))
             for contestant in self.contestants:
