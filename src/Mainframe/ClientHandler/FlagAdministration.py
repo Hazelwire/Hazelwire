@@ -39,7 +39,7 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
                 self.wfile.write("MODNAME " + module['name']+'\n')
                 self.wfile.write("DEPLOYSCRIPT " + module['deployscript'] + '\n')
                 if len(module['flags']) == 0:
-                    print "[FLAGDISTRIB] %s already requested flags!" % \
+                    print "[FLAGDISTRIB] %s has no flags yet, generating some..." % \
                             (self.client_address[0])
                     module['flags'] = generateFlags(module['name'], module['numFlags'], self.client_address[0])
                 for flag in module['flags']:
