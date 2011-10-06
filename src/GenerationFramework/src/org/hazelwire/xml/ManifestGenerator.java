@@ -72,7 +72,7 @@ public class ManifestGenerator
 			}
 			
 			//<deploypath>
-			em = document.createElement("deploypath");
+			em = document.createElement("deployscript");
 			em.appendChild(document.createTextNode(module.getDeployPath()));
 			moduleRoot.appendChild(em);
 			

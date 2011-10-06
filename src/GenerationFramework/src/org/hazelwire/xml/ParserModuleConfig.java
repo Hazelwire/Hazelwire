@@ -54,7 +54,7 @@ public class ParserModuleConfig extends XMLParser
         	tempModule.setAuthor(this.getTextValue(el, "author"));
         	tempModule.setDate(dateFormat.parse(this.getTextValue(el, "date")));
         	tempModule.setFileName(this.getTextValue(el, "file"));
-        	tempModule.setDeployPath(this.getTextValue(el, "deploy"));
+        	tempModule.setDeployPath(this.getTextValue(el, "deployscript"));
         	tempModule.setHidden(Boolean.valueOf(this.getTextValue(el, "hidden")));
         	
         	
