@@ -3,7 +3,7 @@ This module listens for requests for Peer-to-peer sanity checks from the Mainfra
 It receives an IP and a set of ports to check, and returns the result to the Mainframe.
 """
 
-import socket, time
+import socket 
 
 class PeerToPeerRequestListener:
 

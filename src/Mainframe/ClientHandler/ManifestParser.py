@@ -49,7 +49,7 @@ class ManifestHandler(xml.sax.ContentHandler):
         elif name == "points":
             self.startPointElement = False
         elif name == "serviceport":
-            isServicePortElement = False
+            self.isServicePortElement = False
 
     def characters (self, ch):
         if self.isNameElement:

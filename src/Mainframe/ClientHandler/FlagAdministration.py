@@ -11,7 +11,7 @@ When a VM tries to request flags again, it will fail.
 
 """
 
-import threading, string, random, sys
+import threading, string, random, sys, copy
 import SocketServer
 import DatabaseHandler
 
@@ -28,26 +28,25 @@ class ThreadedTCPRequestHandler(SocketServer.StreamRequestHandler):
             2. Generate number of flags that are needed according to the manifest
             3. Send the flags one by one separated by a new module
         """
+        global modules
+        modules2 = copy.deepcopy(modules)
         self.data = self.rfile.readline().strip()
         if self.data == "REQFLAGS":
             print "[FLAGDISTRIB] Got request from " + self.client_address[0]
-            if db.checkClientIP(self.client_address[0]):
-                #Client already requested flags in the past
-                response = "REQFAIL\n"
-                self.wfile.write(response)
-                return
-            else:
-                self.wfile.write("STARTFLAGS\n") #initiate flag transmission
-                #Client has no flags assigned to him, generate some.
-                for module in modules:
-                    self.wfile.write("MODNAME " + module['name']+'\n')
-                    self.wfile.write("DEPLOYSCRIPT " + module['deployscript'] + '\n')
+            modules2 = db.getClientFlagsByModule((self.client_address[0]))
+            self.wfile.write("STARTFLAGS\n") #initiate flag transmission
+            for module in modules2:
+                self.wfile.write("MODNAME " + module['name']+'\n')
+                self.wfile.write("DEPLOYSCRIPT " + module['deployscript'] + '\n')
+                if len(module['flags']) == 0:
+                    print "[FLAGDISTRIB] %s already requested flags!" % \
+                            (self.client_address[0])
                     module['flags'] = generateFlags(module['name'], module['numFlags'], self.client_address[0])
-                    for flag in module['flags']:
-                        self.wfile.write("FLAG " + flag+'\n')
-                    self.wfile.write("ENDMODULE\n")
-                self.wfile.write("ENDFLAGS\n")
-                print "[FLAGDISTRIB] Sent " + self.client_address[0] + " some flags."
+                for flag in module['flags']:
+                    self.wfile.write("FLAG " + flag+'\n')
+                self.wfile.write("ENDMODULE\n")
+            self.wfile.write("ENDFLAGS\n")
+            print "[FLAGDISTRIB] Sent " + self.client_address[0] + " some flags."
         elif self.data == "REQSHUTDOWN":
             if self.client_address[0] == "127.0.0.1": #can only be sent from localhost
                 print "[FLAGDISTRIB] Server shutting down..."

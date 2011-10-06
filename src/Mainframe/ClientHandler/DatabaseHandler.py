@@ -15,20 +15,6 @@ class DatabaseHandler:
         self.conn.commit()
         self.conn.close()
 
-    def checkClientIP(self,IP):
-        """
-        Checks if a IP already requested and received flag
-        @type IP: string
-        @param IP: the IP to check
-        """
-        self.connect()
-        c = self.conn.cursor()
-        c.execute("SELECT * FROM flags WHERE team_id = (SELECT id FROM teams WHERE VMip=?);", [IP])
-        res = c.fetchall()
-        c.close()
-        self.disconnect()
-        return len(res) != 0
-
     def addFlags(self, modulename, flags, IP): 
         """
         Adds a flag to the database.
@@ -81,7 +67,7 @@ class DatabaseHandler:
         c = self.conn.cursor()
         c.execute("SELECT * FROM modules;")
         for module in c.fetchall():
-            res.append({'name':module[1], 'numFlags':module[2], 'deployscript':module[3]})
+            res.append({'id': module[0],'name':module[1], 'numFlags':module[2], 'deployscript':module[3]})
         self.disconnect()
         return res
 
@@ -152,3 +138,16 @@ class DatabaseHandler:
         c.close()
         self.disconnect()
         return res
+    
+    def getClientFlagsByModule(self, clientIP):
+        """Returns the flags for a given client"""
+        modules = self.getModuleInfo()
+        self.connect()
+        c = self.conn.cursor()
+        for module in modules:
+            module['flags'] = []
+            c.execute("SELECT flag FROM flags WHERE team_id = (SELECT id FROM teams WHERE VMip=?) AND mod_id=?;", [clientIP, module['id']])
+            for flag in c.fetchall():
+                module['flags'].append(flag[0])
+        return modules
+        

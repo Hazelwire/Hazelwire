@@ -61,7 +61,7 @@ def deployFlags():
     
 
 if __name__ == "__main__":
-    if requestFlags(sys.argv[1],9999):
+    if requestFlags("10.0.1.1",9999):
         deployFlags()
     else:
 	print "We already requested flags."
