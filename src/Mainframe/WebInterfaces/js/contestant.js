@@ -32,6 +32,8 @@ $(document).ready(function() {
                     }
                     $('#flagdisplay').animate({bottom: (40+$('#flagresponse').outerHeight())+'px'});
                     $('#flagresponse').slideDown();
+                    updateLeaderboard(false);
+
                     flgsubmsgt = setTimeout(function(){
                         $('#flagresponse').fadeOut(1000,function(){$('#flagresponse').remove()});
                         $('#flagdisplay').delay(1000).animate({bottom: '2em'});
@@ -52,14 +54,15 @@ $(document).ready(function() {
                 complete:  function(){
                     if(!endgame)
                         $("#flagsubmit").attr("disabled", false);
+                    $("input#flaginputfield").val('');
+                    $(".defaultText").blur();
                 }
             });
 
             return false;
           });
 });
-
-function updateLeaderboard(){
+function updateLeaderboard(schedule){
     var dataString = 'ajax=leaderboard';
 
     $.ajax({
@@ -79,11 +82,14 @@ function updateLeaderboard(){
                     $("#flagsubmit").attr("disabled", true);
                     $('ol.scorelist li').first().css("background-color","green").css("color","white");
                 }
-                else
+                else if(schedule)
                     setTimeout("updateLeaderboard()",30000);
             }
         }
     });
+}
+function updateLeaderboard(){
+    updateLeaderboard(true);
 }
 
 function updateAnnouncements(){

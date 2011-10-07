@@ -1006,7 +1006,7 @@ class AdminInterface extends WebInterface {
             if(OpenVPNManager::getVPNStatus($c)){
                 OpenVPNManager::diconnectVPN($c);
                 OpenVPNManager::stopVPN($c);
-                sleep(5);
+                sleep(4);
             }
             exec("mv ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId(). "/Team".$c->getId(). "_vm ".$this->config['site_folder']."lib/admin/openvpn/ccd/Team".$c->getId(). "/_Team".$c->getId()."_vm");
 
@@ -1030,7 +1030,8 @@ class AdminInterface extends WebInterface {
             }
             fwrite($handle, $config_file_data);
             fclose($handle);
-            
+
+            sleep(3);
             OpenVPNManager::startVPN($c);
 
             $q = $db->prepare("DELETE FROM bans WHERE team_id = ?");
