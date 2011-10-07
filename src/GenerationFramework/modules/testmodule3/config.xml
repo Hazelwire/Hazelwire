@@ -1,0 +1,22 @@
+<hazelwire-module>
+	<general-info>
+		<name>Test Module 2</name>
+		<author>Maarten Rijke</author>
+		<date>07-06-2011</date>
+		<file>testmodule3_0.1-1_all.deb</file>
+		<serviceport editable="true">80</serviceport>
+		<deploy>/usr/share/hazelwire/testmodule3/manage.py</deploy>
+		<package>
+			<name>Hazelwire Test Package</name>
+			<id>2</id>
+		</package>
+		<tags>
+			<tag>Network services</tag>
+		</tags>
+	</general-info>
+	<flags>
+		<flag>
+			<points>50</points>
+		</flag>
+	</flags>
+</hazelwire-module>
