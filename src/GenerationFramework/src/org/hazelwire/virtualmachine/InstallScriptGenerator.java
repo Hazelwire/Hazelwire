@@ -24,17 +24,24 @@ public class InstallScriptGenerator
 	public static void saveScriptToDisk(String filePath) throws Exception
 	{		
 		BufferedWriter out = new BufferedWriter(new FileWriter(filePath));
-		out.write(generateInstallScript());
+		out.write(generateInstallScript(true));
 		out.flush();
 	}
 	
-	private static String generateInstallScript() throws IOException
+	/**
+	 * Userleveldebugging means that the actual installation script, module-files and log will not be deleted.
+	 * This means that you will have to delete these yourself (or not, but that might give people a LOT of advantage :P).
+	 * @param userlevelDebugging
+	 * @return
+	 * @throws IOException
+	 */
+	private static String generateInstallScript(boolean userlevelDebugging) throws IOException
 	{
 		ArrayList<Module> modules = Generator.getInstance().getModuleSelector().getMarkedModules();
 		String script = "#!/bin/bash\n";
 		script += "sudo apt-get update\n"; //update the repos first or else older vm's might fail because of old packages
 		script += "sudo apt-get -y install openvpn\n"; //Download openvpn if it's not already there
-		script += "sudo apt-get -y install screen"; //TODO i should really read this in from a file -_-
+		script += "sudo apt-get -y install screen\n"; //TODO i should really read this in from a file -_-
 		Iterator<Module> iterate = modules.iterator();
 		
 		while(iterate.hasNext())
@@ -42,6 +49,13 @@ public class InstallScriptGenerator
 			Module module = iterate.next();
 			String externalFilePath = Configuration.getInstance().getExternalModuleDirectory()+module.getFileNameWithoutExtension()+"/"+module.getFileName();
 			script += "sudo gdebi -n "+externalFilePath+" > log\n";
+		}
+		
+		if(userlevelDebugging)
+		{
+			script += "rm -rf "+Configuration.getInstance().getExternalModuleDirectory()+"\n"; //remove all the module files
+			script += "rm log\n"; //debug
+			script += "rm ./install.sh\n";
 		}
 		
 		return script;
