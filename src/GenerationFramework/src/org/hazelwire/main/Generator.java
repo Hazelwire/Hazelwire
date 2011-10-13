@@ -321,6 +321,7 @@ public class Generator
 		}
 		catch (Exception e)
 		{
+			System.out.println(e.getMessage());
 			e.printStackTrace();
 			throw new Exception("ERROR: something went wrong while generating the manifest file");
 		}
