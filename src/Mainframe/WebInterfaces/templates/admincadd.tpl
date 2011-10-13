@@ -10,7 +10,7 @@
                                                 </div>
                                                 <div class="cformlabel">Subnet:</div>
                                                 <div class="cformfield">
-                                                        10.<input id="subnet" type="text" name="csubnet" value="1" title="#" class="defaultText" />.0.0/24
+                                                        10.<input id="subnet" type="text" name="csubnet" value="2" title="#" class="defaultText" />.0.0/24
                                                 </div>
                                                 <div class="cformlabel">VM IP:</div>
                                                 <div class="cformfield">

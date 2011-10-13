@@ -758,8 +758,8 @@ class AdminInterface extends WebInterface {
         // @FIXME doe dubbele code weghalen?
         if(!ctype_alnum($_POST['cname']))
             $this->handleError(new Error("team_input_error", "Illegal name. Only alphanumeric allowed!", false));
-        elseif((!(intval($_POST['cvmip']) > 0 && intval($_POST['cvmip']) < 255)) || !((intval($_POST['csubnet']) > 0 && intval($_POST['csubnet']) < 255)))
-            $this->handleError(new Error("team_input_error", "IP input has to be between 0 and 255, excluding.", false));
+        elseif((!(intval($_POST['cvmip']) > 0 && intval($_POST['cvmip']) < 255)) || !((intval($_POST['csubnet']) > 1 && intval($_POST['csubnet']) < 255)))
+            $this->handleError(new Error("team_input_error", "IP input has to be between 1 and 255, excluding.", false));
         else {
             $subnet = "10." . $_POST['csubnet'] . ".0.0/24";
             $vmip =   "10." . $_POST['csubnet'] . "." . $_POST['cvmip'] . ".1";
@@ -908,8 +908,8 @@ class AdminInterface extends WebInterface {
 
         if(!ctype_alnum($_POST['cname']))
             $this->handleError(new Error("team_input_error", "Illegal name. Only alphanumeric allowed!", false));
-        elseif((!(intval($_POST['cvmip']) > 0 && intval($_POST['cvmip']) < 255)) || !((intval($_POST['csubnet']) > 0 && intval($_POST['csubnet']) < 255)))
-            $this->handleError(new Error("team_input_error", "IP input has to be between 0 and 255, excluding.", false));
+        elseif((!(intval($_POST['cvmip']) > 0 && intval($_POST['cvmip']) < 255)) || !((intval($_POST['csubnet']) > 1 && intval($_POST['csubnet']) < 255)))
+            $this->handleError(new Error("team_input_error", "IP input has to be between 1 and 255, excluding.", false));
         else {
             $subnet = "10." . $_POST['csubnet'] . ".0.0/24";
             $vmip =   "10." . $_POST['csubnet'] . "." . $_POST['cvmip'] . ".1";

@@ -321,13 +321,13 @@ class ContestantInterface extends WebInterface{
                             if((startsWith($flag, "FLG") && strlen($flag) && ctype_alnum($flag))){
 
                                 // Check for duplicate flag
-                                $q = $db->prepare("SELECT * FROM scores WHERE flag = ? AND team_id = ?"); /* @var $q PDOStatement */
-                                $q->execute(array($flag,$this->contestant->getId()));
-                                if($q->fetch()){
-                                    $this->handleError(new Error("flag_error", "You already submitted that flag!"));
-                                    $this->addFlagFailure($now);
-                                    return;
-                                }
+                                //$q = $db->prepare("SELECT * FROM scores WHERE flag = ? AND team_id = ?"); /* @var $q PDOStatement */
+                                //$q->execute(array($flag,$this->contestant->getId()));
+                                //if($q->fetch()){
+                                //    $this->handleError(new Error("flag_error", "You already submitted that flag!"));
+                                //    $this->addFlagFailure($now);
+                                //    return;
+                                //}
 
                                 /*
                                  * Select all the flags from the database (along with relevant information) which is the same as the submitted flag.
@@ -342,6 +342,14 @@ class ContestantInterface extends WebInterface{
                                     $this->handleError(new Error("flag_error", "Rooting your own box is not cool man!"));
                                     $this->addFlagFailure($now);
                                 } else {
+                                    // Check for duplicate flag
+                                    $q = $db->prepare("SELECT * FROM scores WHERE flag = ? AND team_id = ?"); /* @var $q PDOStatement */
+                                    $q->execute(array($flag,$this->contestant->getId()));
+                                    if($q->fetch()){
+                                        $this->handleError(new Error("flag_error", "You already submitted that flag!"));
+                                        $this->addFlagFailure($now);
+                                        return;
+                                    }
                                     
                                     /*
                                      * Calculate points

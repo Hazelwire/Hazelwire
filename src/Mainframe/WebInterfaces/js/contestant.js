@@ -1,5 +1,5 @@
 $(document).ready(function() {
-        setTimeout("updateLeaderboard()",30000);
+        setTimeout("updateAutoLeaderboard()",30000);
         setTimeout("updateAnnouncements()",30000);
         setTimeout("updatePlotData()",5*60000);
         var flgsubmsgt;
@@ -54,7 +54,7 @@ $(document).ready(function() {
                 complete:  function(){
                     if(!endgame)
                         $("#flagsubmit").attr("disabled", false);
-                    $("input#flaginputfield").val('');
+                    $("#flaginputfield").val('');
                     $(".defaultText").blur();
                 }
             });
@@ -83,12 +83,12 @@ function updateLeaderboard(schedule){
                     $('ol.scorelist li').first().css("background-color","green").css("color","white");
                 }
                 else if(schedule)
-                    setTimeout("updateLeaderboard()",30000);
+                    setTimeout("updateAutoLeaderboard()",30000);
             }
         }
     });
 }
-function updateLeaderboard(){
+function updateAutoLeaderboard(){
     updateLeaderboard(true);
 }
 
