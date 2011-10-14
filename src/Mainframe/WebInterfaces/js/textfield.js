@@ -1,4 +1,4 @@
-$(document).ready(function()
+/* $(document).ready(function()
 {
 	$(".defaultText").focus(function(srcc)
 	{
@@ -13,17 +13,13 @@ $(document).ready(function()
 	{
 		if ($(this).val() == "")
 		{
-			$(this).addClass("defaultTextActive");
 			$(this).val($(this)[0].title);
+		}
+		if ($(this).val() == "" || $(this).val() == $(this)[0].title)
+		{
+			$(this).addClass("defaultTextActive");
 		}
 	});
 
 	$(".defaultText").blur();
-        
-        $('form span#subinvmip').html($('input#subnet').val());
-        $('input#subnet').change(function(){
-
-            $('form span#subinvmip').html($(this).val());
-
-        });
-});
+}); */

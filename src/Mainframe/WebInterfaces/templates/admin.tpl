@@ -64,7 +64,7 @@
 										<div class="cpoints">{$contestant->getPoints()}</div>
 										<div class="cname">{$contestant->getTeamname()}</div>
                                                                                 <div class="cextrainfo">
-                                                                                        <div class="cextralabel">Virtual Machine IP:</div>
+                                                                                        <div class="cextralabel">VM IP:</div>
                                                                                         <div class="cextradata">{$contestant->getVm_ip()}</div>
                                                                                         <div class="cextralabel">VPN Status:</div>
                                                                                         <div class="cextradata">{if $contestant->getVPNStatus()}Online{else}Offline{/if}</div>
@@ -103,7 +103,7 @@
 		 {foreach from=$announcements item=announcement}<li>
 									<input type="radio" name="announcement" value="{$announcement->id}" id="announcement{$announcement->id}"/>
 									<label for="announcement{$announcement->id}">{$announcement->title}
-                                                                                <span style="float: right; display: block; font-size: 0.8em; padding-right: 0.3em; padding-top: 2px;">{$announcement->timestamp|date_format:'%b %e, %Y @ %H:%M:%S'}</span>
+                                                                                <span>{$announcement->timestamp|date_format:'%e/%m/%Y @ %H:%M'}</span>
 										<div>{$announcement->content}</div>
 									</label>
 								</li>{/foreach}

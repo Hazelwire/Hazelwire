@@ -202,6 +202,14 @@ ul.collapsible label
 	border: 1px solid #e6e6e6;
 	background-color: #e6e6e6;
 }
+ul.collapsible label::after
+{
+	content: ".";
+	height: 0;
+	visibility: hidden;
+	display: block;
+	clear: both;
+}
 ul.collapsible label:hover
 {
 	border-color: #9ad !important;
@@ -211,8 +219,17 @@ ul.collapsible .open
 	border-color: #eee;
 	background-color: #eee;
 }
+ul.collapsible label span
+{
+	float: right;
+	display: block;
+	font-size: 0.8em;
+	padding-right: 0.3em;
+	padding-top: 2px;
+}
 ul.collapsible li div
 {
+	clear: both;
 	background-color: #f7f7f7;
 	color: #444;
 	font-size: .9em;

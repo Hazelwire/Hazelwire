@@ -7,7 +7,7 @@
             <div class="cpoints">{$contestant->getPoints()}</div>
             <div class="cname">{$contestant->getTeamname()}</div>
             <div class="cextrainfo">
-                <div class="cextralabel">Virtual Machine IP:</div>
+                <div class="cextralabel">VM IP:</div>
                 <div class="cextradata">{$contestant->getVm_ip()}</div>
                 <div class="cextralabel">VPN Status:</div>
                 <div class="cextradata">{if $contestant->getVPNStatus()}Online{else}Offline{/if}</div>

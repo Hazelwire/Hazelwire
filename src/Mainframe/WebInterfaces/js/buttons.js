@@ -51,7 +51,7 @@ function removeNotification(target, id) {
 
 function notificationTick(){
 	for(var i=notifications.length-1; i>=0; i--) {
-		if(notifications[i][1] < (Math.round(new Date().getTime() / 1000) - 30))
+		if(notifications[i][1] < (Math.round(new Date().getTime() / 1000) - 10))
 		{
 			removeNotification(notifications[i][2], notifications[i][0])
 		}
@@ -171,8 +171,18 @@ function updateAlist(){
     });
 }
 
+function updateSubinvmip() {
+	$("#subinvmip").text($("#subnet").val());
+}
+
 //buttons
 function loadFormButtons(){
+	updateSubinvmip();
+	
+	$("#subnet").blur(function() {
+		updateSubinvmip();
+	});
+
     $("#okaadd").click(function(){
             var data = "submitted=true&atitle=" + $('#atitle [name="atitle"]').val() + "&abody=" + $('#abody [name="abody"]').val();
             ajaxReq("index.php?aaction=aadd", data, "aaddReply",
@@ -348,14 +358,19 @@ function bindDefaultText() {
 	{
 		if ($(this).val() == "")
 		{
-			$(this).addClass("defaultTextActive");
 			$(this).val($(this)[0].title);
 		}
+		if ($(this).val() == $(this)[0].title)
+		{
+			$(this).addClass("defaultTextActive");
+		}
 	});
+
 	$(".defaultText").blur();
 }
 
 $(document).ready(function(){
+	bindDefaultText();
     notificationTick();
 	
         //CLOSING POPUP
