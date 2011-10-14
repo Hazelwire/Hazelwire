@@ -111,24 +111,37 @@ div#scorecontainer
 	list-style-type: none;
 	counter-reset: position;
 }
-.scorelist li
+.scorelist li /* container */
 {
-	width: 100%;
-	float: left;
+	position: relative;
+	white-space: nowrap;
+	padding-left: 2em; /* LC width */
+	padding-right: 4em; /* RC width */
+	min-width: 8em;
 }
-.scorelist > li::before
+.scorelist li::after
 {
+	content: ".";
+	height: 0;
+	visibility: hidden;
+	display: block;
+	clear: both;
+}
+.scorelist li::before/* left */
+{
+	position: relative;
 	float: left;
-	width: 2em;
-	font-weight: bold;
-	margin-right:.5em;
+	width: 2em;  /* LC width */
+	right: .25em;
+	margin-left: -2em;
 	text-align: right;
+	font-weight: bold;
 }
-ul.scorelist > li::before
+ul.scorelist li::before
 {
 	content: "#";
 }
-ol.scorelist > li::before
+ol.scorelist li::before
 {
 	content: counter(position);
 	counter-increment: position;
@@ -141,14 +154,22 @@ ol.scorelist li:nth-child(even)
 {
 	background-color: #f7f7f7;
 }
-.scorelist div
+.scorelist span
 {
+	position: relative;
 	float: left;
-	margin-right: .5em;
 }
-.scorelist div:last-child
+.scorelist span:first-child /* center */
 {
-	float: right;
+	overflow: hidden;
+	width: 100%;
+}
+.scorelist span:last-child /* right */
+{
+	text-align: right;
+	width: 3.75em; /* RC width */
+	margin-right: -4em; /* RC width */
+	padding-right: .25em;
 }
 
 div#announcements

@@ -93,15 +93,15 @@
 					</div>
 					<div id="scorecontainer">
 						<ul class="scorelist">
-							<li><div>Team</div>
-								<div>points</div>
+							<li><span>Team</span>
+								<span>points</span>
 							</li>
 						</ul>
 						<ol class="scorelist">
                                                         {foreach from=$contestants item=contestant}
                                                             <li>
-                                                                    <div>{$contestant->getTeamname()}</div>
-                                                                    <div>{$contestant->getPoints()}</div>
+                                                                    <span>{$contestant->getTeamname()}</span>
+                                                                    <span>{$contestant->getPoints()}</span>
                                                             </li>
                                                         {/foreach}
 						</ol>
