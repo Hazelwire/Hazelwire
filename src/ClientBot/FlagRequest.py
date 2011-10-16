@@ -5,9 +5,12 @@ of the deployment of the flags.
 """
 
 
-import socket, os, sys, time
+import socket, os, time, signal
 
 moduleFlags = [] #array of dictionaries {'ModuleName': String, 'BasePath': String, 'InstallScript': String, 'flags': []}
+
+def received_signal(signum, stack):
+    print "Received SIGUSR1, immediately requesting flags."
 
 def requestFlags(host, port):
     """
@@ -61,6 +64,7 @@ def deployFlags():
     
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGUSR1, received_signal)
     if requestFlags("10.0.0.1",9999):
         deployFlags()
     else:
