@@ -4,7 +4,7 @@
 		<author>Maarten Rijke</author>
 		<date>07-06-2011</date>
 		<file>testmodule3_0.1-1_all.deb</file>
-		<serviceport editable="true">61281</serviceport>
+		<serviceport editable="true">31337</serviceport>
 		<deployscript>/usr/share/hazelwire/testmodule3/manage.py</deployscript>
 		<package>
 			<name>Hazelwire Test Package</name>
