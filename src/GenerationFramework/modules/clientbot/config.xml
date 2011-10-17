@@ -3,7 +3,7 @@
 		<name>Clientbot Management</name>
 		<author>Hazelwire Team</author>
 		<date>19-06-2011</date>
-		<file>hazelwire-clientbot_0.3-0ubuntu1_all.deb</file>
+		<file>hazelwire-clientbot_0.4-0ubuntu1_all.deb</file>
 		<hidden>true</hidden>
 	</general-info>
 </hazelwire-module>
