@@ -82,7 +82,7 @@ class ContestantInterface extends WebInterface{
                     //CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
                     //CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
                     $q = $db->query("SELECT * FROM flagpoints");
-                    $q2 = $db->prepare("SELECT DISTINCT t.VMip as ip FROM scores s INNER JOIN teams t ON s.team_id = t.id INNER JOIN flags f ON s.flag = f.flag AND s.team_id = f.team_id INNER JOIN scores s2 ON s.timestamp = s2.timestamp AND s.flag = s2.flag WHERE f.flag_id = ? AND f.mod_id = ? AND s2.team_id = ?"); /* @var $q2 PDOStatement */
+                    $q2 = $db->prepare("SELECT DISTINCT t.VMip as ip FROM scores s INNER JOIN teams t ON s.team_id = t.id INNER JOIN flags f ON s.flag = f.flag AND s.team_id = f.team_id INNER JOIN scores s2 ON s.timestamp = s2.timestamp AND s.flag = s2.flag WHERE s.points >=0 AND f.flag_id = ? AND f.mod_id = ? AND s2.team_id = ?"); /* @var $q2 PDOStatement */
 
                     $flags = array();$id = 0;
                     foreach ($q as $challenge) {
@@ -116,7 +116,7 @@ class ContestantInterface extends WebInterface{
                     $q  = $db->prepare("SELECT DISTINCT t.VMip as ip, t.id as id FROM scores s 
                                         INNER JOIN teams t ON t.id = s.team_id 
                                         INNER JOIN scores s2 ON s2.flag=s.flag AND s.timestamp=s2.timestamp AND s.team_id <> s2.team_id
-                                        WHERE s2.team_id=?");
+                                        WHERE s.points >= 0 AND s2.team_id=?");
                     $q->execute(array($this->contestant->getId()));
                     $q2 = $db->prepare("SELECT fp.points as pts, ifnull(s.timestamp, 'fail') as win FROM flagpoints fp 
                                         LEFT OUTER JOIN  flags f ON fp.flag_id = f.flag_id AND fp.mod_id = f.mod_id 
