@@ -17,7 +17,7 @@ import org.hazelwire.main.Generator;
  */
 public class Module
 {
-	private String name, author, deployPath;
+	private String name, author, deployPath, relativeDir;
 	private HashMap<Integer,Flag> flags; //<id,amountOfPoints>
 	private HashMap<Integer,Option> options; //<id,Option>
 	private ArrayList<String> tags; 
@@ -258,5 +258,17 @@ public class Module
 				this.servicePort = Integer.valueOf(portOption.getValue());
 			}
 		}
+	}
+
+
+	public void setRelativedir(String relativeDir)
+	{
+		this.relativeDir = relativeDir;
+	}
+
+
+	public String getRelativeDir()
+	{
+		return relativeDir;
 	}
 }

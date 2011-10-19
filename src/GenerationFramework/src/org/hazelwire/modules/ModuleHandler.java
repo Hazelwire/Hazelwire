@@ -88,6 +88,7 @@ public class ModuleHandler
 			
 			if(fileName == null) throw new Exception("Cannot find module");
 			tempModule.setFilePath(dir.getPath()+fileSeperator+fileName);
+			tempModule.setRelativedir(dir.getName());
 		}
 		
 		return tempModule;
