@@ -22,7 +22,7 @@ class PeerToPeerRequestListener:
             self.handle(conn, addr)
 
     def handle(self, conn, addr):
-        if not addr[0] == "10.0.0.1" or addr[0] == "127.0.0.1":
+        if not addr[0].endswith("0.1") or addr[0] == "127.0.0.1":
             conn.close() #This is not the Mainframe so not processing further.
             return
         data = conn.recv(1024).strip()

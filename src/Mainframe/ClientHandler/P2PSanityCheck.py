@@ -41,8 +41,7 @@ class PeerToPeerSanityChecker:
             self.writeResults([{'port':'','fine':"False"}], IP)
             return
         msg = 'CHECK ' + str(self.targetIP) + '\n'
-        for port in self.ports:
-            msg += "PORT " + str(port) + '\n'
+        msg += "PORT " + str(self.ports) + '\n'
         msg += "ENDPORTS\n"
         sock.settimeout(None)
         sock.send(msg)

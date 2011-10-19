@@ -65,9 +65,9 @@ class ManualSanityCheckerService:
                     results = p2p.getResults()
                     for client in results:
                         for result in client['results']:
-                            #logging.info("%s reports port %s on %s: fine = %s" % (client['IP'], str(result['port']), IP, result['fine']))
+                            #logging.info("%s reports port %s on %s: fine = %s" % (client['IP'], result['port'], IP, result['fine']))
                             if result['fine'] == 'False':
-                                if  str(result['port'] == ""):
+                                if  result['port'] == "":
                                     logging.info("[MANUALP2P] Adding " + client['IP'] + " for not running P2PRequestListener")
                                     self.db.addSuspiciousContestant(client["IP"], "","", "PeerToPeerRequestListener")
                                 else:
