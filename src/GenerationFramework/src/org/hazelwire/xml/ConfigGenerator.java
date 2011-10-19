@@ -47,29 +47,33 @@ public class ConfigGenerator
 		nameElement.appendChild(document.createTextNode(module.getName()));
 		rootElement.appendChild(nameElement);
 		
-		Element optionsElement = document.createElement("options");		
-		
-		while(iterate.hasNext())
+		Element optionsElement;
+		if(iterate.hasNext())		
 		{
-			Option option = iterate.next();
+			optionsElement = document.createElement("options");
 			
-			Element optionElement = document.createElement("option");
+			while(iterate.hasNext())
+			{
+				Option option = iterate.next();
+				
+				Element optionElement = document.createElement("option");
+				
+				//<name>
+				Element em = document.createElement("name");
+				em.appendChild(document.createTextNode(option.getName()));
+				optionElement.appendChild(em);
+				
+				//value
+				em = document.createElement("value");
+				em.appendChild(document.createTextNode(option.getValue()));
+				em.setAttribute("type", option.getType());
+				optionElement.appendChild(em);
+				
+				optionsElement.appendChild(optionElement);
+			}
 			
-			//<name>
-			Element em = document.createElement("name");
-			em.appendChild(document.createTextNode(option.getName()));
-			optionElement.appendChild(em);
-			
-			//value
-			em = document.createElement("value");
-			em.appendChild(document.createTextNode(option.getValue()));
-			em.setAttribute("type", option.getType());
-			optionElement.appendChild(em);
-			
-			optionsElement.appendChild(optionElement);
+			rootElement.appendChild(optionsElement);
 		}
-		
-		rootElement.appendChild(optionsElement);
 		
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 	    Transformer transformer = transformerFactory.newTransformer();

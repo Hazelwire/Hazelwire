@@ -223,7 +223,7 @@ public class Generator
 		while(iterate.hasNext())
 		{
 			Module tempModule = iterate.next();
-			String externalDir = config.getExternalModuleDirectory()+tempModule.getFileNameWithoutExtension()+"/";
+			String externalDir = config.getExternalModuleDirectory()+tempModule.getRelativeDir()+"/";
 			
 			try
 			{
