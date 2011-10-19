@@ -3,7 +3,7 @@
 		<name>Test Module 3</name>
 		<author>Maarten Rijke</author>
 		<date>07-06-2011</date>
-		<file>testmodule3_0.2-1ubuntu1_all.deb</file>
+		<file>testmodule3_0.2-1ubuntu2_all.deb</file>
 		<serviceport editable="true">31337</serviceport>
 		<deployscript>/usr/share/hazelwire/testmodule3/manage.py</deployscript>
 		<package>

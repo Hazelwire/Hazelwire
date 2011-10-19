@@ -3,7 +3,7 @@
 		<name>Test Module</name>
 		<author>Tim Strijdhorst</author>
 		<date>11-05-2011</date>
-		<file>testmodule_0.7-1ubuntu2_all.deb</file>
+		<file>testmodule_0.7-1ubuntu4_all.deb</file>
 		<serviceport editable="false">80</serviceport>
 		<deployscript>/usr/share/hazelwire/testmodule1/deploy.py</deployscript>
 		<package>
