@@ -44,14 +44,15 @@ public class InstallScriptGenerator
 		script += "sudo apt-get -y install screen\n"; //TODO i should really read this in from a file -_-
 		Iterator<Module> iterate = modules.iterator();
 		
+		int i = 0;
 		while(iterate.hasNext())
 		{
 			Module module = iterate.next();
-			String externalFilePath = Configuration.getInstance().getExternalModuleDirectory()+module.getFileNameWithoutExtension()+"/"+module.getFileName();
-			script += "sudo gdebi -n "+externalFilePath+" > log\n";
+			String externalFilePath = Configuration.getInstance().getExternalModuleDirectory()+module.getRelativeDir()+"/"+module.getFileName();
+			script += "sudo gdebi -n "+externalFilePath+" > log"+(i++)+"\n";
 		}
 		
-		if(userlevelDebugging)
+		if(!userlevelDebugging)
 		{
 			script += "rm -rf "+Configuration.getInstance().getExternalModuleDirectory()+"\n"; //remove all the module files
 			script += "rm log\n"; //debug

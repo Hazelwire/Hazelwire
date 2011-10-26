@@ -168,11 +168,12 @@ public class Generator
 	    	{
 	    		SSHConnection ssh = new SSHConnection("localhost",config.getSSHHostPort(),config.getSSHUsername(),config.getSSHPassword());
 	    		String externalPath = config.getExternalScriptDirectory()+INSTALLNAME;
-
+	    		
 		    	tui.setProgress(20);
 		    	tui.println("Creating directories");
 		    	prepareVM(ssh);
 	    	
+		    	
 		    	tui.setProgress(25);
 		    	tui.println("Uploading modules");
 		    	uploadModules(ssh);
@@ -188,6 +189,8 @@ public class Generator
 		    	tui.setProgress(60);
 		    	tui.println("Uploading installation script");
 		    	uploadInstallScript(ssh, config.getOutputDirectory()+INSTALLNAME,externalPath);
+		    	
+		    	//Thread.sleep(15000);
 	    	
 		    	tui.setProgress(65);
 		    	tui.println("Executing installation script");
@@ -230,8 +233,8 @@ public class Generator
 				ConfigGenerator.saveConfigToDisk(tempModule, configPath);
 				
 				ssh.executeRemoteCommand("mkdir "+externalDir);
-				ssh.scpUpload(tempModule.getFullPath(),externalDir+tempModule.getFileName());
-				ssh.scpUpload(configPath,externalDir+"config.xml");
+				ssh.sftpUpload(tempModule.getFullPath(),externalDir+tempModule.getFileName());
+				ssh.sftpUpload(configPath,externalDir+"config.xml");
 			}
 			catch(Exception e)
 			{
@@ -276,7 +279,7 @@ public class Generator
 	{
 		try
 		{
-			ssh.scpUpload(scriptPathLocal, scriptPathExternal);
+			ssh.sftpUpload(scriptPathLocal, scriptPathExternal);
 			new File(scriptPathLocal).delete(); //delete the local install file
 		}
 		catch(Exception e)

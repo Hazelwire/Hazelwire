@@ -8,6 +8,7 @@ import java.util.Iterator;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.Session.Command;
+import net.schmizz.sshj.sftp.SFTPClient;
 
 import org.hazelwire.main.Configuration;
 
@@ -29,7 +30,7 @@ public class SSHConnection
 		this.password = password;
 	}
 	
-	public void scpUpload(ArrayList<String> files, String targetDir) throws IOException, ClassNotFoundException
+	public void sftpUpload(ArrayList<String> files, String targetDir) throws IOException, ClassNotFoundException
 	{
 		SSHClient ssh = this.getSSHConnection();
         Iterator<String> iterator = files.iterator();
@@ -39,10 +40,18 @@ public class SSHConnection
             // Present here to demo algorithm renegotiation - could have just put this before connect()
             // Make sure JZlib is in classpath for this to work
             ssh.useCompression();
+            final SFTPClient sftp = ssh.newSFTPClient();
             
             while(iterator.hasNext())
             {
-            	ssh.newSCPFileTransfer().upload(iterator.next(),targetDir);
+            	try
+            	{
+            		sftp.put(iterator.next(),targetDir);
+            	}
+            	finally
+            	{
+            		sftp.close();
+            	}
             }
 
         }
@@ -52,11 +61,11 @@ public class SSHConnection
         }
 	}
 	
-	public void scpUpload(String filePath, String targetDir) throws IOException, ClassNotFoundException
+	public void sftpUpload(String filePath, String targetDir) throws IOException, ClassNotFoundException
 	{
 		ArrayList<String> files = new ArrayList<String>();
 		files.add(filePath);
-		this.scpUpload(files, targetDir);
+		this.sftpUpload(files, targetDir);
 	}
 	
 	public void executeRemoteCommand(String command) throws IOException, ClassNotFoundException
@@ -64,7 +73,7 @@ public class SSHConnection
 		SSHClient ssh = getSSHConnection();
         int exitStatus; //for some odd reason it doesn't always return an exit status, 
 		Session session = ssh.startSession();
-        
+		
 		try
 		{
 			Command cmd = session.exec(command);
