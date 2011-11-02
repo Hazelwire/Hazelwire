@@ -1,17 +1,10 @@
 =Project Description=
 
-Hazelwire is a software framework that aims at simplifying and standardizing the development and deployment of security wargames. 
-It consists of a deployment application, modules, moderation software and runs on top a VPN-network. It standardizes the development 
-process by specifying a common module interface for the vulnerable software. The modules developed according to this interface can be
-imported into the deployment application and combined to form the basis of a security wargame. The deployment application generates 
-virtual machines incorporating the vulnerabilities specified in the selected modules. The generated virtual machines combined with the 
-moderation-software and the VPN-network will form a fully administrable wargame.
+Hazelwire is a software framework that aims at simplifying and standardizing the development and deployment of security wargames.It consists of a deployment application, modules, moderation software and runs on top a VPN-network. It standardizes the development process by specifying a common module interface for the vulnerable software. The modules developed according to this interface can be imported into the deployment application and combined to form the basis of a security wargame. The deployment application generates virtual machines incorporating the vulnerabilities specified in the selected modules. The generated virtual machines combined with the moderation-software and the VPN-network will form a fully administrable wargame.
 
 
 =System Requirements=
-Full system requirements for the generation process / mainframe server are unknown at this time because it is a very dynamic situation.
-But you could imagine if you want to run a mainframe with 300 people on the same VPN network that it will probably cost some dramatic computing power
-and bandwith.
+Full system requirements for the generation process / mainframe server are unknown at this time because it is a very dynamic situation. But you could imagine if you want to run a mainframe with 300 people on the same VPN network that it will probably cost some dramatic computing power and bandwith.
 
 ==Software Requirements Generation==
 1. Linux based os
@@ -19,8 +12,7 @@ and bandwith.
 3. Virtualbox
 
 ==Installation==
-This is a very rough description of the installation that might not be specific enough for your needs.
-For further information please read the Manual.
+This is a very rough description of the installation that might not be specific enough for your needs. For further information please read the Manual.
 
 ===Generation Framework===
 1. Add all the files in the lib/ folder with regards to your CPU architecture to the buildpath.
@@ -30,12 +22,8 @@ For further information please read the Manual.
 1. Transfer all the files from the Mainframe/ folder to your server.
 
 =History=
-
-The project came into existence during the meetings of our local hacker collective (Twente Hacker Collective). We wanted to do a wargame
-but we already played a substantial amount of the fully released wargames on the internet (iCTF for instance). Even though we did not
-do all the challenges, we knew how some challenges worked and that would mean a very hard run for the challenges you already solved in
-an earlier attempt. There was no way to combine these 'unused' challenges into a fresh new wargame where nobody knew anything before actually playing.
-Because we felt this was something important, we decided to make it ourselved and do it as a project for our university.
+The project came into existence during the meetings of our local hacker collective (Twente Hacker Collective). We wanted to do a wargame but we already played a substantial amount of the fully released wargames on the internet (iCTF for instance). Even though we did not do all the challenges, we knew how some challenges worked and that would mean a very hard run for the challenges you already solved in
+an earlier attempt. There was no way to combine these 'unused' challenges into a fresh new wargame where nobody knew anything before actually playing. Because we felt this was something important, we decided to make it ourselved and do it as a project for our university.
 
 =Hazelwire Team=
 Tim Strijdhorst 	<Project Idea | Team Leader | Lead Programmer Generation Framework Backend>
