@@ -1,4 +1,6 @@
-/output
-/dist
-/VMGenGUI2
-/download
+/output/*
+/dist/*
+/download/*
+/release_backup
+/bin
+/tmp/*

@@ -1,6 +1,4 @@
-#
-#Sun Jun 19 23:22:39 CEST 2011
-vmPath=/home/shokora/Code/Java/hazelwire/hazelwire/src/GenerationFramework/dist/HazelwireTest.ova
+vmPath=
 vmName=HazelwireTest
 tempDirectory=tmp/
 sshHostPort=2222
