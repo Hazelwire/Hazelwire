@@ -4,7 +4,13 @@
   <meta charset='utf-8'>
 
   <title>Hazelwire Module Packaging Tutorial</title>
-
+  <script type="text/javascript" src="scripts/shCore.js"></script>
+  <script type="text/javascript" src="scripts/shBrushBash.js"></script>
+  <link href="styles/shCore.css" rel="stylesheet" type="text/css" />
+  <link href="styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript">
+       SyntaxHighlighter.all()
+  </script>
   <style type="text/css">
     body {
       margin-top: 1.0em;
@@ -33,7 +39,63 @@
 <body>
   <div id="container">
     <h1>Hazelwire Module Packaging Tutorial</h1>
-    <div class="description">Learn to package your module for Hazelwire</div>
+    <div class="description">Learn to package your module for Hazelwire<br />By: Maarten Rijke</div>
+
+    <h2>Introduction</h2>
+    In this tutorial I will explain how to create your own module for the Hazelwire Framework. I will use testmodule2 as an example module.
+    testmodule2 can be found <a href="https://github.com/Hazelwire/hazelwire-modules/tree/master/testmodule2">here</a>.
+    <p>
+    Hazelwire modules are essentially Debian packages. Everything that you can do with a Debian package you can use for your Hazelwire module.
+    This tutorial will only explain the necessary Debian files used for the creation of the testmodule2 module. To learn more about the Debian Packaging system, see <a href="http://www.debian.org/doc/manuals/maint-guide/">here</a> for example.
+
+    <h2>Prerequisites</h2>
+    In this tutorial I'm assuming that you are using a Debian-based Linux distribution, because we are going to create a Debian package after all.
+    To create a Debian package you'll need to install the following packages:
+
+    <pre># apt-get install debhelper devscriptsi dh-make</pre>
+
+    <h2>The Module</h2>
+    Begin by creating a new directory for your module, in the following format: <tt>MODULENAME-VERSION</tt>. Copy a clean copy of your module source code to this directory (so no version control system cruft) and create a .tar.gz from with filename <tt>MODULENAME_VERSION.orig.tar.gz</tt>:
+
+    <pre>maarten@test:~/modulepackages/$ mkdir testmodule2-0.1
+maarten@test:~/modulepackages/$ cp -R ~/modules/testmodule2/* testmodule2-0.1/
+maarten@test:~/modulepackages/$ tar cfz testmodule2_0.1.orig.tar.gz testmodule2-0.1</pre>
+    Before creating the package, we need to let the system know who is the maintainer of the package. This is done by setting the environment variables <tt>DEBFULLNAME</tt> and <tt>DEBEMAIL</tt>. Set these to your full name and email address respectively.
+    <pre>maarten@test:~/modulepackages/$ export DEBFULLNAME="Maarten Rijke"
+maarten@test:~/modulepackages/$ export DEBEMAIL="maartenrijke@gmail.com"</pre>
+
+    Now, enter the directory of the module and run <tt>dh_make</tt>. When asked for the type of the package, answer 'signle binary'.
+<pre>
+maarten@test:~/modulepackages/testmodule2-0.1/$ dh_make
+
+Type of package: single binary, indep binary, multiple binary, library, kernel module, kernel patch?
+ [s/i/m/l/k/n] s
+
+ Maintainer name  : Maarten Rijke
+ Email-Address    : maartenrijke@gmail.com 
+ Date             : Fri, 18 Nov 2011 16:59:15 +0100
+ Package Name     : testmodule2
+ Version          : 0.1
+ License          : blank
+ Type of Package  : Single
+ Hit enter to confirm: 
+ Skipping creating ../testmodule2_0.1.orig.tar.gz because it already exists
+ Currently there is no top level Makefile. This may require additional tuning.
+ Done. Please edit the files in the debian/ subdirectory now. You should also
+ check that the testmodule2 Makefiles install into $DESTDIR and not in / .
+</pre>
+    This will create the basic <tt>debian/</tt> directory structure. A lot of these files aren't necessary for this tutorial, so we'll delete them:
+<pre>
+maarten@test:~/modulepackages/testmodule2-0.1/debian$ rm *.ex *.EX README.*
+</pre>
+
+    <h2>The Debian files</h2>
+    The 
+
+
+    <div class="footer">                                                       
+      get the Hazelwire source code on GitHub : <a href="https://github.com/Hazelwire/Hazelwire">Hazelwire/Hazelwire</a>
+    </div>
   </div>
 </body>
 </html>
