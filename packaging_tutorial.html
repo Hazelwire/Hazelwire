@@ -39,7 +39,7 @@
 <body>
   <div id="container">
     <h1>Hazelwire Module Packaging Tutorial</h1>
-    <div class="description">Learn to package your module for Hazelwire<br />By: Maarten Rijke</div>
+    <div class="description">Learn to package your module for Hazelwire<br />By: Maarten Rijke<br />DRAFT</div>
 
     <h2>Introduction</h2>
     In this tutorial I will explain how to create your own module for the Hazelwire Framework. I will use testmodule2 as an example module.
@@ -90,10 +90,160 @@ maarten@test:~/modulepackages/testmodule2-0.1/debian$ rm *.ex *.EX README.*
 </pre>
 
     <h2>The Debian files</h2>
-    The 
+    There are a couple of Debian files that are required for a package. In this section I will explain these files and how they can be of use with your module.
+    For a better and more detailed explanation of these files and the other optional files, see <a href="http://www.debian.org/doc/manuals/maint-guide/dreq.en.html">here</a> and <a href="http://www.debian.org/doc/manuals/maint-guide/dother.en.html">here</a>.
+    <b>Note:</b> All these files go in the <tt>debian</tt> directory that <tt>dh-make</tt> created in the previous section.
+    <h3>The required files</h3>
+    <ul>
+      <li><tt>control</tt><br />
+      This file contains information of your package. This is mostly used by aptitude and such programs to identify your package.
+      You should put meaningful information here and describe your exploit. As an example, here is the <tt>control</tt> file for testmodule2:
+      <pre>
+Source: testmodule2
+Section: misc
+Priority: extra
+Maintainer: Maarten Rijke <m.rijke@student.utwente.nl>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
 
+Package: testmodule2
+Architecture: all
+Depends: python, php5, php5-sqlite, ${shlibs:Depends}, ${misc:Depends}
+Description: Test module for hazelwire framework (SQLite Injection)
+ This package is a test module for use with the Hazelwire
+ Framework. It consists of a simple web application that has a 
+ SQLite vulnerability.</pre>
+      The <tt>Depends</tt> field is very important. This lists all the dependencies of your package. All packages mentioned here will be installed prior to your package. Make sure this list is complete or else your package will fail to install on the Hazelwire Virtual Machine.
+      </li>
+      <li><tt>copyright</tt><br />
+      This file contains information about the copyright and the license type of the package. If you want your package to be included in the Hazelwire repositories, you need to use the GPLv3 license.
+      </li>
+      <li><tt>changelog</tt><br />
+      This file contains the changelog of the package. Here you specifiy what you changed in each revision of your package. This could be a new upstream release (i.e. a new version of your exploit) or an update of one of the <tt>debian/</tt> files.
+      </li>
+      <li><tt>rules</tt><br />
+      This file defines how to build your package. If you use a standard Makefile, or your package is static (it does not need to be compiled), this file should be fine as it is and you don't need to change anything in it.
+      </li>
+    </ul>
+    <h3>Optional files</h3>
+    The optional files give you more control over what should happen when your package is installed. With these files you can create init scripts, specifiy where files should be installed, what to do after the package has been installed, etc.
+    <ul>
+      <li><tt>cron.d</tt><br />
+      This file defines a cronjob. This file will be placed in /etc/cron.d/ when installing the package. For information on how to define a cronjob, see <a href="http://linux.die.net/man/5/crontab">here</a>
+      </li>
+      <li><i>packagename</i><tt>.init</tt><br />
+      This file defines an init script. It will be copied to /etc/init.d/<i>packagename</i> when installing the package. You have to comply to certain standards to keep the debian package builder happy.
+      As an example, here is the init script for <a href="https://github.com/Hazelwire/hazelwire-modules/tree/master/testmodule3">testmodule3</a>:
+      <pre class="brush: bash">
+#!/bin/bash
+case $1 in 
+  start)  sudo -u hazelwire python /usr/share/hazelwire/testmodule3/exploit/server_twisted & ;;
+  stop)   kill -9 `cat /usr/share/hazelwire/testmodule3.pid`
+          rm -rf /usr/share/hazelwire/testmodule3.pid;;
+esac
+exit 0</pre>
+      Note that this is a very basic init.d script. Because stuff like <tt>force-reload</tt> and <tt>restart</tt> are not implemented, you will get a warning when you try and build the package. This warning is not fatal however, if you code your <tt>init.d</tt> script correctly it will work anyway.
+      </li>
+      <li><tt>install</tt><br />
+      This file specifies all the files that need to be installed. This mostly is used for static files. If you for example want to package a web exploit, you don't need to compile anything but only need to copy the scripts to a directory. For example, observe the <tt>install</tt> file from testmodule2:
+      <pre>
+exploit/index.php usr/share/hazelwire/testmodule2/exploit
+manage.py usr/share/hazelwire/testmodule2</pre>
+      This will make sure the file exploit/index.php will be installed to /usr/share/hazelwire/testmodule2/exploit when the package is installed. The directory doesn't need to exist, the installer will create it automatically.
+      Note the absence of leading slashes in the file paths.
+      </li>
+      <li><tt>{pre,post}inst</tt><br />
+      The <tt>preinst</tt> and <tt>postinst</tt> files are bash scripts that are called before and after installation of the packages, respectively. You can do anything within these, just be careful since the script will be executed by root.
+      As an example, here is the <tt>postinst</tt> script from testmodule2:
+      <pre class="brush: bash">
+#!/bin/bash
 
-    <div class="footer">                                                       
+set -e
+
+if [ "$1" = "configure" ]; then
+
+  if [ -f /etc/init.d/apache2 ]; then
+      if [ -x /usr/sbin/invoke-rc.d ]; then
+            invoke-rc.d apache2 restart || true
+      else
+            /etc/init.d/apache2 restart || true
+      fi
+  fi
+  chmod 777 /usr/share/hazelwire/testmodule2/exploit
+fi</pre>
+      This script restarts Apache and makes sure the directory permissions are correct. The only thing that is mandatory is the 5th line. This tells the package installer that this script should be run when configuring (i.e. after installing) the package.
+      </li>
+      <li><tt>{pre,post}rm</tt><br />
+      These scripts are executed before and after removing the package, respectively. They can be used to remove for example content that got created after installing the package. Those files will not be deleted by the package manager, so you need to clean up after yourself.
+      testmodule2 is a good example of this, the SQLite database it uses is created when the exploit is first started, so that file will be unknown to the package manager. 
+      <pre class="brush: bash">
+#!/bin/sh
+
+if [ "$1" = "remove" ] || [ "$1" = "purge" ] ; then
+  rm -rf /usr/share/hazelwire/testmodule2
+fi</pre>
+      This script will take care of any left-over files. Again, the 3rd line is to ensure this script will only be run after removing the pacakge.
+      </li>
+      <li><tt>links</tt><br />
+      This file defines symlinks you want to create. This is useful if you have a web exploit, because it's not good practice to write to <tt>/var/www/</tt> directly. You want to write to an other location and then create a symlink inside <tt>/var/www/</tt> to that other location.
+      For example, here is the <tt>links</tt> file from testmodule2:
+      <pre>
+usr/share/hazelwire/testmodule2/exploit var/www/testmodule2
+</pre>
+      The file followes the format <tt>TARGET LINK-NAME</tt>.
+      </li>
+  </ul>
+  That were all the files that we need for testmodule2. Now, to actually build the package...
+
+  <h2>Building the package</h2>
+  Now that we have configured all the necessary Debian files, we can finally create the package itself.
+  But first we need to update the <tt>changelog</tt>, because we made some changes.
+  You don't need to edit the <tt>changelog</tt> file by hand, instead run the following command:
+<pre>
+maarten@test:~/modulepackages/testmodule2-0.1/$ dch -i
+</pre>
+  This will launch an editor and increment (<tt>-i</tt>) the version number. Please make sure to write detailed notes on what you changed. For example, see the changelog file for testmodule3:
+<pre>
+testmodule3 (0.2-1ubuntu2) lucid; urgency=low
+
+  * Fixed manage.py correct xml  parsing
+
+-- hazelwire <hazelwire@dacs-fw.tsl.utwente.nl>  Wed, 19 Oct 2011 13:53:55 +0200
+
+testmodule3 (0.2-1ubuntu1) lucid; urgency=low
+
+   * Postinst configuring
+   * New upstream version which has configurable listen port
+
+-- hazelwire <hazelwire@dacs-fw.tsl.utwente.nl>  Mon, 17 Oct 2011 12:58:57 +0200
+</pre>
+  Note the changes in the version number. If you know how Debian packages should be versioned, you'll see that the version of testmodule3 is wrong, because it is not an official Debian package so it shouldn't have the -1. But luckily we're not commiting to the Debian/Ubuntu repository, so there's no check that rejects our package.
+  For Hazelwire, just make sure the version numbers increase, some way or another.<br />
+  Now, we can finally create the package. This is done by running the following command:
+<pre>
+maarten@test:~/modulepackages/testmodule2-0.1/$ debuild -uc -us
+</pre>
+  Hopefully everything builds fine. If not, study the error messages. To get even more verbose output, you can uncomment the <tt>#export DH_VERBOSE=1</tt> line in the <tt>rules</tt> file to get more output.
+  The package along with some other files will be created in the parent directory. After <tt>debuild</tt> created the files, it will check them for any conflicts with the Debian Policy. This can result in warnings and/or errors. Most warnings can be ignored, just make sure the package installs and runs correctly.
+
+  <h2>Installing and testing the package</h2>
+  After creating the package it is vital to test it extensively to ensure it works correctly.
+  To do this, first install the package using <tt>gdebi</tt> (from the package <tt>gdebi-core</tt>).<br />
+  Run the following command:
+<pre>
+maarten@test:~/modulepackages/$ sudo gdebi --install testmodule2_0.1-0ubuntu7_all.deb
+</pre>
+  This program will first look at the dependencies of the package and install them alongside the package.
+  If there are errors in the <tt>{pre,post}{rm,inst}</tt> scripts, the installation will fail. You'll need to fix those errors in your scripts and rebuild the package. Don't forget to increase the version number with <tt>dch -i</tt>!<br />
+  If your package installed correctly, make sure the exploit is also working fine. If you use an <tt>init.d</tt> script, make sure your module is actually started on boot.
+  Finally, remove the package again (using your normal package manager) to ensure everything is cleaned up nicely.
+
+  <h2>Getting your module into the Hazelwire repository</h2>
+  Now that you have a working packaged version of your module, you might want to share your creation with other Hazelwire users. This can be done through the <a href="https://github.com/Hazelwire/hazelwire-modules">hazelwire-modules</a> repository.
+  First, you need to <a href="https://github.com/Hazelwire/hazelwire-modules/fork">fork</a> the repository. Then, add your module (complete with debian directory) to the root of the repository.
+  Finally, you send us a <a href="https://github.com/Hazelwire/hazelwire-modules/pulls">pull request</a>. We will then take a look at the module and see if matches our high-quality standards. If it does, we will accept the pull request and the module will be in the Hazelwire repository.
+  
+  <div class="footer">                                                       
       get the Hazelwire source code on GitHub : <a href="https://github.com/Hazelwire/Hazelwire">Hazelwire/Hazelwire</a>
     </div>
   </div>
