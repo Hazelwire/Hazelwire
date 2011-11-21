@@ -238,6 +238,10 @@ maarten@test:~/modulepackages/$ sudo gdebi --install testmodule2_0.1-0ubuntu7_al
   If your package installed correctly, make sure the exploit is also working fine. If you use an <tt>init.d</tt> script, make sure your module is actually started on boot.
   Finally, remove the package again (using your normal package manager) to ensure everything is cleaned up nicely.
 
+  <br />
+  <b>Note on dependencies:</b>If the package installs on your own machine it doesn't necessarily install on the Hazelwire virtual machine. You might already have packages installed that are dependencies, but forgot to mention in the <tt>control</tt> file. This way the package installs fine on your box, but not on a clean install.
+  If you can, install the package on a clean install, perhaps in a virtual machine. This way you can be sure that all the dependencies are statisfied.
+
   <h2>Getting your module into the Hazelwire repository</h2>
   Now that you have a working packaged version of your module, you might want to share your creation with other Hazelwire users. This can be done through the <a href="https://github.com/Hazelwire/hazelwire-modules">hazelwire-modules</a> repository.
   First, you need to <a href="https://github.com/Hazelwire/hazelwire-modules/fork">fork</a> the repository. Then, add your module (complete with debian directory) to the root of the repository.
