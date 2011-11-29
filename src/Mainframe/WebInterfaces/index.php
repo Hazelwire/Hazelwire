@@ -37,9 +37,8 @@ include_once 'lib/Error.php';
 include_once 'lib/Contestant.php';
 include_once 'lib/OpenVPNManager.php';
 
-
 $interface;
-if(strcmp($_SERVER['REMOTE_ADDR'], '127.0.0.1') === 0 || ip_in_range($_SERVER['REMOTE_ADDR'], $config['admin_ip_range'])){
+if(ip_in_range($_SERVER['REMOTE_ADDR'], explode(",",$config['admin_ip_range']))){
       $interface = new AdminInterface();
 }
 else {

@@ -240,7 +240,7 @@ ul.collapsible .open
 	border-color: #eee;
 	background-color: #eee;
 }
-ul.collapsible label span
+ul.collapsible label > span
 {
 	float: right;
 	display: block;

@@ -19,9 +19,9 @@
  * along with Hazelwire.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
  
-// IP range from which admin(s) will connect. 127.0.0.1 will always be considered admin.
+// IP ranges from which admin(s) will connect, separated with comma's (no spaces!)
 //$config['admin_ip_range'] = '192.168.0.0/16';
-$config['admin_ip_range'] = '130.89.224.172/0';
+$config['admin_ip_range'] = '127.0.0.01/32,130.89.224.172/0';
 
 // name of the database file (perhaps location?)
 $config['database_file_name'] = 'Hazelwire.sqlite';
