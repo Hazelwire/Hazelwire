@@ -134,8 +134,8 @@ class Contestant {
                 $result->bantime= "-";
             }
             
-            $q = $db->prepare("SELECT ifnull(sum(points),0) as sum FROM scores WHERE team_id = ?");
-            $q->execute(array($id));
+            $q = $db->prepare("SELECT ifnull(sum(points),0) as sum FROM scores WHERE (attacker_id = ? AND type=0) OR (target_id=? AND type=1)");
+            $q->execute(array($id,$id));
             $res = $q->fetch();
             $result->setPoints($res['sum']);
 

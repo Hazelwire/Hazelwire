@@ -115,9 +115,13 @@ class AdminInterface extends WebInterface {
                 /*
                  * Get the contestants ordered by their points
                  */
-                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
-                             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
-                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
+                /*$q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
+                /*             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
+                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");*/
+
+                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM ".
+                                    "teams LEFT OUTER JOIN scores ON (teams.id = scores.attacker_id AND scores.type=0) OR (teams.id = scores.target_id AND scores.type=1) " .
+                                    "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC");
 
                 $contestants = array();
                 while (($res = $q->fetch()) !== false){
@@ -190,9 +194,13 @@ class AdminInterface extends WebInterface {
                 /*
                  * Get the contestants ordered by their points
                  */
-                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
-                             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
-                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
+                /*$q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
+                /*             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
+                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");*/
+                
+                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM ".
+                                    "teams LEFT OUTER JOIN scores ON (teams.id = scores.attacker_id AND scores.type=0) OR (teams.id = scores.target_id AND scores.type=1) " .
+                                    "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC");
 
                 $contestants = array();
                 while (($res = $q->fetch()) !== false){

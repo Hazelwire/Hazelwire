@@ -45,20 +45,24 @@ function myip2long($ip) {
 /**
  * Tests whether the given IP falls within the given network range
  * @param string $ip The dotted notated IP to check
- * @param string $range The CIDR notated IP range
+ * @param array $range The array of CIDR notated IP ranges
  * @return boolean true if it falls within the range, false otherwise
  */
-function ip_in_range($ip,$range) {
+function ip_in_range($ip,$ranges) {
    $match = false;
+   if(!is_array($ranges))
+        $ranges = array($ranges);
    
-   $ip_addr = decbin(myip2long($ip));
+   for ($i = 0; $i<count($ranges) && !$match; $i++){
+       $ip_addr = decbin(myip2long($ip));
 
-   $network = explode("/", $range);
-   $net_addr = decbin(myip2long($network[0]));
-   $cidr = $network[1];
+       $network = explode("/", $ranges);
+       $net_addr = decbin(myip2long($network[0]));
+       $cidr = $network[1];
 
-   if (strcmp(substr($net_addr, 0, $cidr),substr($ip_addr, 0, $cidr)) == 0) {
-       $match = true;
+       if (strcmp(substr($net_addr, 0, $cidr),substr($ip_addr, 0, $cidr)) == 0) {
+           $match = true;
+       }
    }
    return $match;
 }

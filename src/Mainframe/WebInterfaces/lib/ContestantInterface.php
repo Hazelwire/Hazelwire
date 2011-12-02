@@ -83,9 +83,14 @@ class ContestantInterface extends WebInterface{
                 $res = $q->fetch();
                 $smarty->assign("title",$res[0]);
 
-                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
-                             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
-                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
+                /*$q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
+                /*             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
+                             "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");*/
+
+                $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM ".
+                                    "teams LEFT OUTER JOIN scores ON (teams.id = scores.attacker_id AND scores.type=0) OR (teams.id = scores.target_id AND scores.type=1) " .
+                                    "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC");
+
 
                 $contestants = array();
                 while (($res = $q->fetch()) !== false){
@@ -100,7 +105,10 @@ class ContestantInterface extends WebInterface{
                     //CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
                     //CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
                     $q = $db->query("SELECT * FROM flagpoints");
-                    $q2 = $db->prepare("SELECT DISTINCT t.VMip as ip FROM scores s INNER JOIN teams t ON s.team_id = t.id INNER JOIN flags f ON s.flag = f.flag AND s.team_id = f.team_id INNER JOIN scores s2 ON s.timestamp = s2.timestamp AND s.flag = s2.flag WHERE s.points >=0 AND f.flag_id = ? AND f.mod_id = ? AND s2.team_id = ?"); /* @var $q2 PDOStatement */
+                    $q2 = $db->prepare("SELECT DISTINCT t.VMip as ip FROM scores s 
+                                        INNER JOIN teams t ON s.target_id = t.id
+                                        INNER JOIN flags f ON s.flag = f.flag AND s.target_id = f.team_id
+                                        WHERE s.type = 0 AND f.flag_id = ? AND f.mod_id = ? AND s.attacker_id = ?"); /* @var $q2 PDOStatement */
 
                     $flags = array();$id = 0;
                     foreach ($q as $challenge) {
@@ -132,14 +140,19 @@ class ContestantInterface extends WebInterface{
                 }else{
 
                     $q  = $db->prepare("SELECT DISTINCT t.VMip as ip, t.id as id FROM scores s 
-                                        INNER JOIN teams t ON t.id = s.team_id 
-                                        INNER JOIN scores s2 ON s2.flag=s.flag AND s.timestamp=s2.timestamp AND s.team_id <> s2.team_id
-                                        WHERE s.points >= 0 AND s2.team_id=?");
+                                        INNER JOIN teams t ON t.id = s.target_id
+                                        WHERE s.type = 0 AND s.attacker_id=?");
                     $q->execute(array($this->contestant->getId()));
-                    $q2 = $db->prepare("SELECT fp.points as pts, ifnull(s.timestamp, 'fail') as win FROM flagpoints fp 
+                    /*$q2 = $db->prepare("SELECT fp.points as pts, ifnull(s.timestamp, 'fail') as win FROM flagpoints fp
                                         LEFT OUTER JOIN  flags f ON fp.flag_id = f.flag_id AND fp.mod_id = f.mod_id 
                                         LEFT OUTER JOIN scores s ON s.flag = f.flag 
                                         WHERE (ifnull(s.team_id,0)=0 OR s.team_id = ?) AND f.team_id = ?;"); /* @var $q2 PDOStatement */
+
+                    $q2 = $db->prepare("SELECT fp.points as pts, ifnull(s.timestamp, 'fail') as win FROM flagpoints fp
+                                        LEFT OUTER JOIN  flags f ON fp.flag_id = f.flag_id AND fp.mod_id = f.mod_id
+                                        LEFT OUTER JOIN scores s ON s.flag = f.flag 
+                                        WHERE (ifnull(s.attacker_id,0)=0 OR s.attacker_id = ?) AND s.type = 0 AND f.team_id = ?;");
+
 
                     $flags = array();$id = 0;
                     foreach ($q as $team) {
@@ -184,7 +197,7 @@ class ContestantInterface extends WebInterface{
                 $start_time = $res['value']*1000;
                 $smarty->assign("start_time",$start_time);
                 $now = time();
-                $point_fetch = $db->prepare("SELECT points,timestamp FROM scores WHERE team_id=? ORDER BY timestamp"); /* @var $point_fetch PDOStatement */
+                $point_fetch = $db->prepare("SELECT points,timestamp FROM scores WHERE (attacker_id=? AND type=0) OR (target_id=? AND type=1) ORDER BY timestamp"); /* @var $point_fetch PDOStatement */
                 $q = $db->prepare("SELECT id, name FROM teams");
                 $q->execute();
                 $series = new stdClass();
@@ -200,7 +213,7 @@ class ContestantInterface extends WebInterface{
                     $serie->string .= "[".($start_time).",0],";
                     $total = 0;
 
-                    $point_fetch->execute(array($contest['id']));
+                    $point_fetch->execute(array($contest['id'],$contest['id']));
                     foreach($point_fetch as $points){
                         $total += intval($points['points']);
                         $serie->string .= "[".($points['timestamp']*1000).",".$total."],";
@@ -220,7 +233,7 @@ class ContestantInterface extends WebInterface{
                 $db = &$this->database;
                 $retval = new stdClass();
                 $q = $db->query("SELECT teams.id as team_id, ifnull(sum(scores.points),0) as points FROM " . /* @var $q PDOStatement */
-                             "teams LEFT OUTER JOIN scores ON teams.id = scores.team_id ".
+                             "teams LEFT OUTER JOIN scores ON (teams.id = scores.attacker_id AND scores.type = 0) OR (teams.id = scores.target_id AND scores.type = 1) ".
                              "GROUP BY teams.id ORDER BY ifnull(sum(scores.points),0) DESC;");
 
                 $contestants = array();
@@ -246,7 +259,7 @@ class ContestantInterface extends WebInterface{
                 $retval->starttime = $res['value']*1000 - 60000;
                 
                 $now = time();
-                $point_fetch = $db->prepare("SELECT points,timestamp FROM scores WHERE team_id=? ORDER BY timestamp"); /* @var $point_fetch PDOStatement */
+                $point_fetch = $db->prepare("SELECT points,timestamp FROM scores WHERE (attacker_id=? AND type=0) OR (target_id=? AND type=1) ORDER BY timestamp"); /* @var $point_fetch PDOStatement */
                 $q = $db->prepare("SELECT id, name FROM teams");
                 $q->execute();
                 
@@ -259,7 +272,7 @@ class ContestantInterface extends WebInterface{
 
                     $total = 0;
 
-                    $point_fetch->execute(array($contest['id']));
+                    $point_fetch->execute(array($contest['id'],$contest['id']));
                     foreach($point_fetch as $points){
                         $total += intval($points['points']);
                         array_push($serie,array(($points['timestamp']*1000),$total));
@@ -361,7 +374,7 @@ class ContestantInterface extends WebInterface{
                                     $this->addFlagFailure($now);
                                 } else {
                                     // Check for duplicate flag
-                                    $q = $db->prepare("SELECT * FROM scores WHERE flag = ? AND team_id = ?"); /* @var $q PDOStatement */
+                                    $q = $db->prepare("SELECT * FROM scores WHERE flag = ? AND attacker_id = ? AND type=0"); /* @var $q PDOStatement */
                                     $q->execute(array($flag,$this->contestant->getId()));
                                     if($q->fetch()){
                                         $this->handleError(new Error("flag_error", "You already submitted that flag!"));
@@ -374,7 +387,7 @@ class ContestantInterface extends WebInterface{
                                      *
                                      * First select the already scored flags of this Contestant which have the same type
                                      */
-                                    $q = $db->prepare("SELECT f.flag_id FROM scores s INNER JOIN flags f ON s.flag = f.flag WHERE s.team_id = ? AND " . 
+                                    $q = $db->prepare("SELECT f.flag_id FROM scores s INNER JOIN flags f ON s.flag = f.flag WHERE s.attacker_id = ? AND s.type = 0 AND " .
                                                         "f.flag_id = (SELECT flag_id FROM flags WHERE flag = ?) AND f.mod_id = (SELECT mod_id FROM flags WHERE flag = ?)");
                                     $q->execute(array($this->contestant->getId(), $flag, $flag));
                                     $exp = count($q->fetchAll(PDO::FETCH_COLUMN, 0));
@@ -386,9 +399,9 @@ class ContestantInterface extends WebInterface{
                                     
                                     //Give points to scoring team and substract from pwned team
                                     $timestamp = time();
-                                    $q = $db->prepare("INSERT INTO scores VALUES (?, ? ,? ,?);");
-                                    $q->execute(array($this->contestant->getId(), $flag, $timestamp, ($points > $gc->points_min)?$points:$gc->points_min));
-                                    $q->execute(array($result['team_id'], $flag, $timestamp, -1 *intval(intval($result['points']) * $gc->points_penalty_mod)));
+                                    $q = $db->prepare("INSERT INTO scores VALUES (?, ? ,? ,?, ?, ?);");
+                                    $q->execute(array($this->contestant->getId(), $result['team_id'], $flag, $timestamp, ($points > $gc->points_min)?$points:$gc->points_min,0));
+                                    $q->execute(array($this->contestant->getId(), $result['team_id'], $flag, $timestamp, -1 *intval(intval($result['points']) * $gc->points_penalty_mod),1));
                                     $this->flag_success = true;
                                 }
 
