@@ -83,7 +83,7 @@ class AdminInterface extends WebInterface {
             $smarty->assign("db_created", ($this->created_db ? 1 : 0));
             if ($this->created_db) {
                 $smarty->assign("db_file_name", $this->config['database_file_name']);
-                $smarty->assign("site_path", $this->config['site_folder']);
+                $smarty->assign("site_path", $this->config['public_site_folder']);
             }
             return $smarty->fetch("config.tpl");
             /* If there's no game, and the has not been just stopped, show the End Game page*/
@@ -617,7 +617,7 @@ class AdminInterface extends WebInterface {
      */
     public function doWork() {
         if (!$this->db_ready) {
-            include_once 'admin/Admin.CreateDB.action.php';
+            include_once '../lib/admin/Admin.CreateDB.action.php';
             $db_create_result = create_database();
             $this->created_db = true;
             if ($db_create_result === false || !$this->connectDB()) {
@@ -713,7 +713,7 @@ class AdminInterface extends WebInterface {
 
             move_uploaded_file($manifest['tmp_name'], "manifest.xml");
 
-            $res = exec("python ". $this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['site_folder'].$this->config['database_file_name'], $cmd_result);
+            $res = exec("python ". $this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['public_site_folder'].$this->config['database_file_name'], $cmd_result);
             if(strrpos($res,"False") !== false){
                 $this->handleError(new Error("config_input_error", "Invalid manifest XML!", true));
                 return;
@@ -828,12 +828,12 @@ class AdminInterface extends WebInterface {
                     $smarty = &$this->getSmarty();
                     $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
                     $tpl->assign("filename", "basevpn");
-                    $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
-                    $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
+                    $tpl->assign("path_to_rsa", $this->config['public_site_folder'] . $this->config['RSA_location']);
+                    $tpl->assign("path_to_openvpn", $this->config['public_site_folder'] . $this->config['openvpn_location']);
                     $tpl->assign("server_ip_range",  "10.0.0.0");
                     $tpl->assign("man_port",$this->config['management_port_base']);
                     $tpl->assign("port",$this->config['base_port']);
-                    $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd" );
+                    $tpl->assign("ccd",$this->config['public_site_folder'] . $this->config['openvpn_location'] . "/ccd" );
                     $config_file_data = $tpl->fetch();
 
                     $config_file_loc = $this->config['openvpn_location'] . "basevpn.conf";
@@ -1039,12 +1039,12 @@ class AdminInterface extends WebInterface {
             $smarty = &$this->getSmarty();
             $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
             $tpl->assign("filename", "server_Team".$c->getId());
-            $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
-            $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
+            $tpl->assign("path_to_rsa", $this->config['public_site_folder'] . $this->config['RSA_location']);
+            $tpl->assign("path_to_openvpn", $this->config['public_site_folder'] . $this->config['openvpn_location']);
             $tpl->assign("server_ip_range",  $c->getSubnet());
             $tpl->assign("man_port",$this->config['management_port_base'] + $id);
             $tpl->assign("port",$this->config['base_port'] + $id);
-            $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd/Team" .$c->getId() );
+            $tpl->assign("ccd",$this->config['public_site_folder'] . $this->config['openvpn_location'] . "/ccd/Team" .$c->getId() );
             $tpl->assign("banned",1);
             $config_file_data = $tpl->fetch();
 
@@ -1320,8 +1320,8 @@ class AdminInterface extends WebInterface {
         }
         
         OpenVPNManager::setKernelRouting(true);
-        exec("python ". $this->config['ch_location'] . "FlagAdministration.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
-        exec("python ". $this->config['ch_location'] . "SanityCheckService.py " . $this->config['site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
+        exec("python ". $this->config['ch_location'] . "FlagAdministration.py " . $this->config['public_site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
+        exec("python ". $this->config['ch_location'] . "SanityCheckService.py " . $this->config['public_site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
         $db =&$this->database; /* @var $db PDO */
         $q = $db->prepare("INSERT INTO config VALUES (?,?)");
         $q->execute(array("start_time",time()));
@@ -1388,12 +1388,12 @@ class AdminInterface extends WebInterface {
         $smarty = &$this->getSmarty();
         $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
         $tpl->assign("filename", "server_"."Team".$c->getId());
-        $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
-        $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
+        $tpl->assign("path_to_rsa", $this->config['public_site_folder'] . $this->config['RSA_location']);
+        $tpl->assign("path_to_openvpn", $this->config['public_site_folder'] . $this->config['openvpn_location']);
         $tpl->assign("server_ip_range",  substr($c->getSubnet(), 0, -3));
         $tpl->assign("man_port",$this->config['management_port_base'] + $c->getId());
         $tpl->assign("port",$this->config['base_port'] + $c->getId());
-        $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "/ccd/Team" .$c->getId() );
+        $tpl->assign("ccd",$this->config['public_site_folder'] . $this->config['openvpn_location'] . "/ccd/Team" .$c->getId() );
         $config_file_data = $tpl->fetch();
 
         $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";

@@ -107,7 +107,7 @@ class OpenVPNManager {
         if(!$fp){
             $interface->handleError(new Error("vpn_error", "Error #1: Cannot start openVPN service! (".$errno.")", false));
         }else{
-            $config_path = $config['site_folder'] . $config['openvpn_location'] . "Team" . $contestant->getId() . ".conf";
+            $config_path = $config['public_site_folder'] . $config['openvpn_location'] . "Team" . $contestant->getId() . ".conf";
             fwrite($fp, "STARTVPN " . $config_path);
             fclose($fp);
             // @todo test if start failed
@@ -159,7 +159,7 @@ class OpenVPNManager {
     public static function getVPNStatus(&$contestant){
         global $interface; /* @var $interface WebInterface */
         $config =$interface->getConfig();
-        $config_path = $config['site_folder'] . $config['openvpn_location'] . "Team".$contestant->getId() . ".conf";
+        $config_path = $config['public_site_folder'] . $config['openvpn_location'] . "Team".$contestant->getId() . ".conf";
         $result = exec(sprintf("(ps -e -o pid,args | grep 'openvpn %s') | sed '/ grep /d'", $config_path));
         return ($result != "");
     }
@@ -173,7 +173,7 @@ class OpenVPNManager {
     public static function getBaseVPNStatus(){
         global $interface; /* @var $interface WebInterface */
         $config =$interface->getConfig();
-        $config_path = $config['site_folder'] . $config['openvpn_location'] . "basevpn.conf";
+        $config_path = $config['public_site_folder'] . $config['openvpn_location'] . "basevpn.conf";
         $result = exec(sprintf("(ps -e -o pid,args | grep 'openvpn %s') | sed '/ grep /d'", $config_path));
         return ($result != "");
     }
@@ -229,7 +229,7 @@ class OpenVPNManager {
         if(!$fp){
             $interface->handleError(new Error("vpn_error", "Error #1: Cannot start openVPN service! (".$errno.")", false));
         }else{
-            $config_path = $config['site_folder'] . $config['openvpn_location'] . "basevpn.conf";
+            $config_path = $config['public_site_folder'] . $config['openvpn_location'] . "basevpn.conf";
             fwrite($fp, "STARTVPN " . $config_path);
             fclose($fp);
             // @todo test if start failed

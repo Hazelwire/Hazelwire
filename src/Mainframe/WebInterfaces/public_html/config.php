@@ -1,3 +1,4 @@
+
 <?php
 /*******************************************************************************
  * Copyright (c) 2011 The Hazelwire Team.
@@ -18,33 +19,28 @@
  * along with Hazelwire.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
  
-define("preConfig",0,true);
-define("postConfig",1,true);
-define("preVPN",2,true);
-define("preGameStart",3,true);
-define("GameInProgress",4,true);
-define("PostGame",5,true);
-//includes
-include_once 'lib/stringparser_bbcode.class.php';
-include_once 'lib/etc_funcs.php';
-include_once 'config.php';
-include_once 'lib/GameConfig.php';
-include_once 'lib/WebInterface.php';
-include_once 'lib/AdminInterface.php';
-include_once 'lib/ContestantInterface.php';
-include_once 'lib/Smarty-3.0.6/libs/Smarty.class.php';
-include_once 'lib/Error.php';
-include_once 'lib/Contestant.php';
-include_once 'lib/OpenVPNManager.php';
+// IP ranges from which admin(s) will connect, separated with comma's (no spaces!)
+//$config['admin_ip_range'] = '192.168.0.0/16';
+$config['admin_ip_range'] = '127.0.0.01/32,130.89.224.172/0';
 
-$interface;
-if(ip_in_range($_SERVER['REMOTE_ADDR'], explode(",",$config['admin_ip_range']))){
-      $interface = new AdminInterface();
-}
-else {
-    $interface = new ContestantInterface();
-}
-$interface->doWork();
-echo $interface->show();
+// name of the database file (perhaps location?)
+$config['database_file_name'] = '../Hazelwire.sqlite';
 
+// The path to the root folder of the webinterfaces
+//$config['site_folder'] = '/var/www/WebInterfaces/';
+$config['site_folder'] = dirname(__DIR__)."/";
+
+$config['public_site_folder'] = __DIR__."/";
+
+
+
+$config['RSA_location'] = '../lib/admin/rsa/';
+$config['openvpn_location'] = '../lib/admin/openvpn/';
+
+// ClientHandler location
+$config['ch_location'] = "../../ClientHandler/";
+
+$config['base_port'] = 40000;
+
+$config['management_port_base'] = 45000;
 ?>

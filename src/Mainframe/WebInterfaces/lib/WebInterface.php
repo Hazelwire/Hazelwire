@@ -54,7 +54,7 @@ class WebInterface {
         $this->smarty->compile_dir = $this->config['site_folder'].  'templates_c/';
         $this->smarty->config_dir = $this->config['site_folder'].   'configs/';
         $this->smarty->cache_dir = $this->config['site_folder'].    'cache/';
-        $this->smarty->addPluginsDir("lib/smartyPlugins");
+        $this->smarty->addPluginsDir("../lib/smartyPlugins");
 
 
         $this->contestant_list = array();
@@ -93,12 +93,12 @@ class WebInterface {
             $smarty = &$this->getSmarty();
             $tpl = $smarty->createTemplate("server.conf"); /* @var $tpl Smarty_Internal_Template */
             $tpl->assign("filename", "server_Team".$c->getId());
-            $tpl->assign("path_to_rsa", $this->config['site_folder'] . $this->config['RSA_location']);
-            $tpl->assign("path_to_openvpn", $this->config['site_folder'] . $this->config['openvpn_location']);
+            $tpl->assign("path_to_rsa", $this->config['public_site_folder'] . $this->config['RSA_location']);
+            $tpl->assign("path_to_openvpn", $this->config['public_site_folder'] . $this->config['openvpn_location']);
             $tpl->assign("server_ip_range",  $c->getSubnet());
             $tpl->assign("man_port",$this->config['management_port_base'] + $res['team_id']);
             $tpl->assign("port",$this->config['base_port'] + $res['team_id']);
-            $tpl->assign("ccd",$this->config['site_folder'] . $this->config['openvpn_location'] . "ccd/Team" .$c->getId() );
+            $tpl->assign("ccd",$this->config['public_site_folder'] . $this->config['openvpn_location'] . "ccd/Team" .$c->getId() );
             $config_file_data = $tpl->fetch();
 
             $config_file_loc = $this->config['openvpn_location'] . "Team".$c->getId() . ".conf";
