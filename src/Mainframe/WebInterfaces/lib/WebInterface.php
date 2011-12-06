@@ -219,6 +219,10 @@ class WebInterface {
 
         return $bbcode->parse ($text);
     }
+
+    public function get_contestant_list(){
+        return $this->contestant_list;
+    }
     
 }
 

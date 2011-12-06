@@ -21,7 +21,7 @@
 include_once 'config.php';
 include_once '../lib/etc_funcs.php';
 
-if(strcmp($_SERVER['REMOTE_ADDR'], '127.0.0.1') === 0 || ip_in_range($_SERVER['REMOTE_ADDR'], $config['admin_ip_range'])){
+if(ip_in_range($_SERVER['REMOTE_ADDR'], explode(',',$config['admin_ip_range']))){
     if(isset($_GET['team']) && !ctype_alnum($_GET['team']) || !isset($_GET['team']))
             exit;
 

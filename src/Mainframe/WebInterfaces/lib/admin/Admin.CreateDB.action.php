@@ -42,6 +42,7 @@ function create_database(){
                 CREATE TABLE evil_teams ( ip TEXT, port INTEGER, timestamp INTEGER, reporter TEXT, seen INTEGER, modulename TEXT);
                 CREATE TABLE announcements ( id INTEGER PRIMARY KEY, title TEXT, announcement TEXT, timestamp INTEGER);
                 CREATE TABLE bans ( team_id INTEGER, end_timestamp INTEGER, reason TEXT, jobid INTEGER );
+                CREATE TABLE cache ( cache_id TEXT, lifetime_end INTEGER, data TEXT );
                 COMMIT;
     ");
     if($res === false)return false;

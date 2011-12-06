@@ -260,8 +260,20 @@ class OpenVPNManager {
      */
     public static function getNumConnForContestant(&$contestant){
         global $interface; /* @var $interface WebInterface */
-        $retval = 0;
+
+        $q = $interface->database->prepare("SELECT * FROM cache WHERE cache_id = ?");
+        $q->execute(array('vpn_conn_data'));
+        if(($res = $q->fetch())!= FALSE){
+            if($res['lifetime_end'] > time()){
+                $cache_data = json_decode($res['data']);
+                $arr_data = (array)$cache_data;
+                return $arr_data["Team".$contestant->getId()];
+            }
+        }
+
+        $conn_data = array();
         $config =$interface->getConfig();
+        $lines = array();
         $fp = @fsockopen("127.0.0.1", $config['management_port_base'] + $contestant->getId(), $errno, $errstr, 5);
         if(!$fp){
             $interface->handleError(new Error("vpn_error", "Error #1337: Cannot fetch number of connections to openVPN service! (".$errno.")", false));
@@ -269,14 +281,35 @@ class OpenVPNManager {
         }else{
             fwrite($fp, "status\r\n");
             while(!startsWith(($line = fgets($fp)),"END")){
-                if(startsWith($line, "Team".$contestant->getId())){
-                    $retval++;
-                }
+                $lines[] = $line;
             }
             fwrite($fp, "quit\n");
             fclose($fp);
-            return $retval;
         }
+
+        $contestants = $interface->get_contestant_list();
+
+        foreach($contestants as $c){
+            $conn_data["Team".$c->getId()] = 0;
+            foreach ($lines as $line) {
+                if(startsWith($line, "Team".$c->getId().",")){
+                        $conn_data["Team".$c->getId()]++;
+                    }
+
+            }
+        }
+        
+        if($res == FALSE){
+            $q = $interface->database->prepare( "INSERT INTO cache VALUES (?,?,?)");
+            $q->execute(array("vpn_conn_data",time()+2*60, json_encode((object) $conn_data)));
+        }
+        else {
+            $q = $interface->database->prepare( "UPDATE cache SET lifetime_end = ?, data = ? WHERE cache_id = ?");
+            $q->execute(array(time()+2*60, json_encode((object) $conn_data),"vpn_conn_data"));
+        }
+
+        return $conn_data["Team".$contestant->getId()];
+
     }
     
 }
