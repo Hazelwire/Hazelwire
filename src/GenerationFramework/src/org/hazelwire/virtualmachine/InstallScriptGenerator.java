@@ -60,7 +60,8 @@ public class InstallScriptGenerator
 		script += "sudo apt-get update\n"; //update the repos first or else older vm's might fail because of old packages
 		script += "sudo apt-get -y install openvpn\n"; //Download openvpn if it's not already there
 		script += "sudo apt-get -y install screen\n"; //TODO i should really read this in from a file -_-
-		script += "MODULEDIR=" + Configuration.getInstance().getExternalModuleDirectory() + "\n"; //set the environment variable for the module dir
+		script += "export MODULEDIR=" + Configuration.getInstance().getExternalModuleDirectory() + "\n"; //set the environment variable for the module dir
+		script += "sudo sh -c 'echo \"export MODULEDIR=" + Configuration.getInstance().getExternalModuleDirectory() + "\" > /etc/profile.d/moduledir.sh'\nMODU";
 		Iterator<Module> iterate = modules.iterator();
 		
 		int i = 0;
