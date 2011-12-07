@@ -53,29 +53,21 @@ public class SSHConnection
 		SSHClient ssh = this.getSSHConnection();
         Iterator<String> iterator = files.iterator();
         
-        try
+        // Present here to demo algorithm renegotiation - could have just put this before connect()
+        // Make sure JZlib is in classpath for this to work
+        //ssh.useCompression();
+        final SFTPClient sftp = ssh.newSFTPClient();
+        
+        while(iterator.hasNext())
         {
-            // Present here to demo algorithm renegotiation - could have just put this before connect()
-            // Make sure JZlib is in classpath for this to work
-            ssh.useCompression();
-            final SFTPClient sftp = ssh.newSFTPClient();
-            
-            while(iterator.hasNext())
-            {
-            	try
-            	{
-            		sftp.put(iterator.next(),targetDir);
-            	}
-            	finally
-            	{
-            		sftp.close();
-            	}
-            }
-
-        }
-        finally 
-        {
-            ssh.disconnect();
+        	try
+        	{
+        		sftp.put(iterator.next(),targetDir);
+        	}
+        	finally
+        	{
+        		sftp.close();
+        	}
         }
 	}
 	

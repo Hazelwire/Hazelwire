@@ -687,7 +687,7 @@ public class GUIBuilder implements Observer, ControlListener {
 
 		text_1 = new Text(composite_1, SWT.BORDER | SWT.WRAP | SWT.MULTI);
 		text_1.setEnabled(false);
-		text_1.setText("Press the download button to download the default Hazelwire VM.\nYou can also locate a VM on your hard drive, for example if you have already downloaded the default VM. Usage of a non-default VM is not supported and may not work.");
+		text_1.setText("Press the download button to download the default Hazelwire VM.\nYou can also locate a VM on your hard drive, for example if you have already downloaded the default VM. Usage of a non-default VM is supported and but may not work as planned depending on your configuration.");
 		GridData gd_text_1 = new GridData(SWT.FILL, SWT.CENTER, false, false,
 				3, 1);
 		gd_text_1.widthHint = 262;
