@@ -37,6 +37,8 @@ class Contestant {
     private $bantime;
     private $bantime_full = 0;
     private $sane = true;
+    private $image = null;
+    private $tagline = null;
 
     /**
      * Creates a new Contestant using the given information.
@@ -70,8 +72,8 @@ class Contestant {
             $insert_q->execute(array($id,$this->teamname,$this->vm_ip,$this->subnet));
             $this->id = $id;
         }else{
-            $update_q = $db->prepare("UPDATE teams SET name = ?, VMip = ?, subnet = ? WHERE id = ?;");
-            $update_q->execute(array($this->teamname,$this->vm_ip,$this->subnet,$this->id));
+            $update_q = $db->prepare("UPDATE teams SET name = ?, VMip = ?, subnet = ?, image =?, tagline=? WHERE id = ?;");
+            $update_q->execute(array($this->teamname,$this->vm_ip,$this->subnet,$this->image,$this->tagline,$this->id));
         }
     }
 
@@ -91,6 +93,8 @@ class Contestant {
         
         if($res !== false && count($res) > 0){
             $result =  new Contestant($res[0]['name'],$res[0]['subnet'],$res[0]['VMip'],$res[0]['id']);
+            $result->setImage($res[0]['image']);
+            $result->setTagline($res[0]['tagline']);
             
             //collect flag submission block information.
             $q = $db->prepare("SELECT * FROM submission_block WHERE team_id = ? ORDER BY block_timestamp DESC LIMIT 0,1");
@@ -138,7 +142,6 @@ class Contestant {
             $q->execute(array($id,$id));
             $res = $q->fetch();
             $result->setPoints($res['sum']);
-
 
             
             return $result;
@@ -262,6 +265,24 @@ class Contestant {
     public function getNumVPNConn(){
         return OpenVPNManager::getNumConnForContestant($this);
     }
+
+    public function getImage() {
+        return $this->image;
+    }
+
+    public function setImage($image) {
+        $this->image = $image;
+    }
+
+    public function getTagline() {
+        return $this->tagline;
+    }
+
+    public function setTagline($tagline) {
+        $this->tagline = $tagline;
+    }
+
+
 
 }
 

@@ -172,6 +172,36 @@ ol.scorelist li:nth-child(even)
 	padding-right: .25em;
 }
 
+.scorelist .cextrainfo {
+    position: relative;
+    float: none;
+    text-align: left;
+    margin-right: 0pt;
+    color: rgb(0, 0, 0);
+    font-size: 0.85em;
+}
+
+.scorelist .cextrainfo .image {
+    display: block;
+    position: relative;
+    float: none;
+}
+
+.scorelist .cextrainfo .tagline {
+    display: block;
+    position: relative;
+    float: left;
+    width:70px;
+}
+
+.scorelist .title-bar::after{
+    content:'.';
+    height:0;
+    display: block;
+    visibility: hidden;
+    clear: both;
+}
+
 div#announcements
 {
 	top: 0;

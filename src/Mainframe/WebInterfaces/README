@@ -1,6 +1,7 @@
 Please make sure apache has writing privileges in the following folders:
 
 .../WebInterfaces
+.../WebInterfaces/public_html
 .../WebInterfaces/lib/admin/rsa
 .../WebInterfaces/lib/admin/openvpn
 .../WebInterfaces/lib/admin/openvpn/ccd

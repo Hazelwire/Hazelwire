@@ -36,7 +36,7 @@ function create_database(){
                 CREATE TABLE flagpoints (flag_id INTEGER, mod_id INTEGER, points INTEGER);
                 CREATE TABLE flags (flag_id INTEGER, mod_id INTEGER, team_id INTEGER, flag TEXT);
                 CREATE TABLE modules (id INTEGER PRIMARY KEY, name TEXT, numFlags INTEGER, deployscript TEXT, serviceport INTEGER);
-                CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
+                CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT, image TEXT, tagline TEXT);
                 CREATE TABLE scores (attacker_id INTEGER, target_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER, type INTEGER);
                 CREATE TABLE submission_block (team_id INTEGER, try_timestamp INTEGER, block_timestamp INTEGER);
                 CREATE TABLE evil_teams ( ip TEXT, port INTEGER, timestamp INTEGER, reporter TEXT, seen INTEGER, modulename TEXT);

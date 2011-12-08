@@ -75,6 +75,7 @@ class ContestantInterface extends WebInterface{
         if ($this->getCurrentState() < GAMEINPROGRESS) {
             return $smarty->fetch("game_not_started.tpl");
         } else {
+            $smarty->assign("id",$this->contestant->getId());
             if(!isset($_POST['ajax'])){
                 if($this->getCurrentState() == POSTGAME)
                         $smarty->assign ("endgame", true);
@@ -456,6 +457,69 @@ class ContestantInterface extends WebInterface{
                      //clear block info that is too long ago now
                     $q = $db->prepare("DELETE FROM submission_block WHERE team_id = ? AND try_timestamp NOT IN (SELECT try_timestamp FROM submission_block WHERE team_id = ? ORDER BY try_timestamp DESC LIMIT 0,10)");
                     $q->execute(array($this->contestant->getId(), $this->contestant->getId()));
+                }
+                /** Process image and tagline data */
+                else if(isset($_FILES['img']) && isset($_POST['tag'])){
+                    if(($ext = end(explode('.', $_FILES['img']['name']))) == "png" ||
+                            $ext == "jpg" || $ext == "gif"){
+                        if($_FILES['img']['error'] === 0){
+                        
+                            if($_FILES['img']['size'] > 500*1024) {
+                                $this->handleError(new Error("invalid_file", "The image can only be 500kb!", false));
+                                return;
+                            }
+
+                            /** @TODO make this configurable? */
+                            if(!is_dir($this->config['public_site_folder'] . "images")){
+                                if(!file_exists($this->config['public_site_folder'] . "images")){
+                                    mkdir("images");
+                                } else {
+                                    $this->handleError(new Error("config_error", "The target directory for the file is a file. Please contant the Administrator. (Location: public_html/images)", false));
+                                }
+                            }
+
+                            $new_image_name = md5($_FILES['img']['tmp_name'].now()).".".$ext;
+
+                            $image_info = getimagesize($_FILES['img']['tmp_name']);
+                            $image_type = $image_info[2];
+
+                            if( $image_type == IMAGETYPE_JPEG ) {
+                               $image = imagecreatefromjpeg($_FILES['img']['tmp_name']);
+                            } elseif( $image_type == IMAGETYPE_GIF ) {
+                               $image = imagecreatefromgif($_FILES['img']['tmp_name']);
+                            } elseif( $image_type == IMAGETYPE_PNG ) {
+                               $image = imagecreatefrompng($_FILES['img']['tmp_name']);
+                            }
+
+                            $new_image = imagecreatetruecolor(64, 64);
+                            imagecopyresampled($new_image, $image, 0, 0, 0, 0, 64, 64, imagesx($image), imagesy($image));
+                            $image = $new_image;
+
+                            if( $image_type == IMAGETYPE_JPEG ) {
+                                imagejpeg($image, $this->config['public_site_folder']."images/".  $new_image_name, 75);
+                            } elseif( $image_type == IMAGETYPE_GIF ) {
+                                imagegif($image, $this->config['public_site_folder']."images/".  $new_image_name);
+                            } elseif( $image_type == IMAGETYPE_PNG ) {
+                                imagepng($image, $this->config['public_site_folder']."images/".  $new_image_name);
+                            }
+                            
+                            $tag = strip_tags($_POST['tag']);
+                            if(strlen($_POST['tag']) > 140){
+                                $this->handleError(new Error("invalid_tag", "Your tagline is too long. Please stay within the 140 char limit!", false));
+                            }
+                            else {
+                                $this->contestant->setImage($new_image_name);
+                                $this->contestant->setTagline($tag);
+                                $this->contestant->save($this->database);
+                            }
+                        }
+                        else {
+                            $this->handleError(new Error("invalid_file", "Something went wrong with your image!", false));
+                        }
+                    }
+                    else {
+                        $this->handleError(new Error("invalid_file", "The image can only be PNG, JPEG or GIF!", false));
+                    }
                 }
             }
         }

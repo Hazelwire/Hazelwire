@@ -36,9 +36,9 @@ function setCCollapseHandlers(){
     $("ol.scorelist").click(function(e) {
             var $target = $(e.target);
             var id;
-            if( $target.is("span:first-child") ) {
-                    $slide = $target.siblings('.cextrainfo');
-                    $slide.slideToggle("fast");
+            if( $target.is(".scorelist div:first-child span") ) {
+                    $slide = $target.parent().siblings('.cextrainfo');
+                    $slide.slideToggle(600);
                     id = $slide[0].attr('id');
                     if(openContestants.indexOf(id) != -1){
                         openContestants.splice(openContestants.indexOf(id), 1);
