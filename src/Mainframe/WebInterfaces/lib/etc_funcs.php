@@ -56,7 +56,7 @@ function ip_in_range($ip,$ranges) {
    for ($i = 0; $i<count($ranges) && !$match; $i++){
        $ip_addr = decbin(myip2long($ip));
 
-       $network = explode("/", $ranges);
+       $network = explode("/", $ranges[$i]);
        $net_addr = decbin(myip2long($network[0]));
        $cidr = $network[1];
 

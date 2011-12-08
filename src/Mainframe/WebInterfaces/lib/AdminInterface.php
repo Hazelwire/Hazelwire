@@ -1377,6 +1377,10 @@ class AdminInterface extends WebInterface {
 
         $this->setState(POSTGAME);
         $this->endgame_success = true;
+        
+        $db =&$this->database; /* @var $db PDO */
+        $q = $db->prepare("INSERT INTO config VALUES (?,?)");
+        $q->execute(array("end_time",time()));
     }
 
     /**

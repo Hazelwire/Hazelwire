@@ -113,6 +113,8 @@ function centerPopup(duration) {
  * @type jqXHR
  */
 function ajaxReq(location,payload, expectedAnswer,callback){
+    if(expectedAnswer != "getas" && expectedAnswer != "getcs")
+    	$('#popup :input').prop('disabled',true);
     return $.ajax({
         url: location,
         type: 'POST',
@@ -136,6 +138,9 @@ function ajaxReq(location,payload, expectedAnswer,callback){
             addNotification("Something went wrong when trying to contact the server: the server returned '" + textStatus + "'", "notifybad");
         }
     }).complete(function(){
+            if(expectedAnswer != "getas" && expectedAnswer != "getcs")
+                $('#popup :input').prop('disabled',false);
+            
             $("#popupClose").click(function(){
                 disablePopup();
         });});

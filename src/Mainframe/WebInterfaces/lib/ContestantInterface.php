@@ -187,12 +187,15 @@ class ContestantInterface extends WebInterface{
                     array_push($announcements, $announcement);
                 }
                 $smarty->assign("announcements",$announcements);
+
+                
                 /* @var $db PDO */ /* @var $q PDOStatement */
                 //CREATE TABLE flagpoints (flag_id INTEGER, mod_id INTEGER, points INTEGER);
                 //CREATE TABLE flags (flag_id INTEGER, mod_id INTEGER, team_id INTEGER, flag TEXT);
                 //CREATE TABLE teams (id INTEGER PRIMARY KEY, name TEXT, VMip TEXT, subnet TEXT);
                 //CREATE TABLE scores (team_id INTEGER, flag TEXT, timestamp INTEGER, points INTEGER);
                 $q = $db->query("SELECT value FROM config WHERE config_name = 'start_time'");
+                $q_endtime = $db->query("SELECT value FROM config WHERE config_name = 'end_time'");
                 $res = $q->fetch();
                 $start_time = $res['value']*1000;
                 $smarty->assign("start_time",$start_time);
@@ -218,7 +221,16 @@ class ContestantInterface extends WebInterface{
                         $total += intval($points['points']);
                         $serie->string .= "[".($points['timestamp']*1000).",".$total."],";
                     }
-                    $serie->string .= "[".($now*1000).",".$total."]]";
+
+
+                    $res_endtime = $q_endtime->fetch();
+                    if($res_endtime === false){
+                        $serie->string .= "[".($now*1000).",".$total."]]";
+                    }
+                    else{
+                        $end_time = $res_endtime['value']*1000;
+                        $serie->string .= "[".($end_time*1000).",".$total."]]";
+                    }
                     
                     array_push($series->series, $serie);
                 }
@@ -255,6 +267,7 @@ class ContestantInterface extends WebInterface{
                         $retval->action .="_final";
 
                 $q = $db->query("SELECT value FROM config WHERE config_name = 'start_time'");
+                $q_endtime = $db->query("SELECT value FROM config WHERE config_name = 'end_time'");
                 $res = $q->fetch();
                 $retval->starttime = $res['value']*1000 - 60000;
                 
@@ -277,7 +290,12 @@ class ContestantInterface extends WebInterface{
                         $total += intval($points['points']);
                         array_push($serie,array(($points['timestamp']*1000),$total));
                     }
-                    array_push($serie,array(($now*1000),$total));
+                    if (($res_et=$q_endtime->fetch()) === false) {
+                        array_push($serie,array(($now*1000),$total));
+                    }
+                    else {
+                        array_push($serie,array(($res_et['value']*1000),$total));
+                    }
                     array_push($retval->plotdata, $serie);
                     array_push($retval->series, $contest['name']);
                 }
