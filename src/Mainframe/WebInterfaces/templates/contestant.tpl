@@ -10,7 +10,7 @@
                 <script language="javascript" type="text/javascript" src="js/jqplot.dateAxisRenderer.js"></script>
                 <script language="javascript" type="text/javascript" src="js/jqplot.cursor.js"></script>
                 <script language="javascript" type="text/javascript" src="js/jqplot.highlighter.js"></script>
-		<script type="text/javascript" src="js/collapse.js"></script>
+		<script type="text/javascript" src="js/collapse_contestant.js"></script>
                 {*<script type="text/javascript" src="js/buttons.js"></script>*}
 		<script type="text/javascript" src="js/timeline.js"></script>
 		<script type="text/javascript" src="js/textfield.js"></script>
@@ -97,11 +97,15 @@
 								<span>points</span>
 							</li>
 						</ul>
-						<ol class="scorelist">
+						<ol class="scorelist">{counter start=0 skip=1 assign="count"}
                                                         {foreach from=$contestants item=contestant}
                                                             <li>
-                                                                    <span>{$contestant->getTeamname()}</span>
+                                                                    <span id='{counter}{$count}'>{$contestant->getTeamname()}</span>
                                                                     <span>{$contestant->getPoints()}</span>
+                                                                    <div class="cextrainfo" style="position: relative; float: none; text-align: left; margin-right: 0pt; color: rgb(0, 0, 0); font-size: 0.85em; clear: both;">
+										<div> Image: </div>
+										<div> Tagline: FTW JO </div>
+									</div>
                                                             </li>
                                                         {/foreach}
 						</ol>

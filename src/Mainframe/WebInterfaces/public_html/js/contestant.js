@@ -84,6 +84,10 @@ function updateLeaderboard(schedule){
                 }
                 else if(schedule)
                     setTimeout("updateAutoLeaderboard()",30000);
+
+                for ( var i=0, len=openContestants.length; i<len; ++i ){
+                  $('span[id="'+openContestants[i]+ '"]').siblings('.cextrainfo').show();
+                }
             }
         }
     });
@@ -136,7 +140,7 @@ function updatePlotData(){
 
                 $('#chart1').empty();
                 plot1 = $.jqplot('chart1', data.plotdata, {
-                    legend:{show:true},
+                    legend:{show:true,location:'nw'},
                     axes:{
                       xaxis:{
                         renderer:$.jqplot.DateAxisRenderer,

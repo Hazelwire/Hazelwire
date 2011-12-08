@@ -164,7 +164,7 @@ ol.scorelist li:nth-child(even)
 	overflow: hidden;
 	width: 100%;
 }
-.scorelist span:last-child /* right */
+.scorelist span:nth-child(2) /* right */
 {
 	text-align: right;
 	width: 3.75em; /* RC width */
