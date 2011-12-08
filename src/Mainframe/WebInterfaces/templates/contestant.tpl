@@ -109,8 +109,15 @@
                                                                                 <div class="image" style="background: #000 url('images/{$contestant->getImage()}') no-repeat right top;"> &nbsp </div>
                                                                                 <div class="tagline"> {$contestant->getTagline()|escape} </div>
                                                                         {elseif $id == $contestant->getId()}
+                                                                                {if $num_errors > 0}
+                                                                                {foreach from=$errors item=error}
+                                                                                    {if $error->getType() == "imgtag" }
+                                                                                        <div id="flagresponse" style="display: block; right: 0; left: 0; bottom: 0em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);margin-bottom:2px;"> {$error->getMessage()}</div>
+                                                                                    {/if}
+                                                                                {/foreach}
+                                                                                {/if}
                                                                                 <form method="POST" action="index.php" enctype="multipart/form-data">
-                                                                                    <div class="input-wrap defaultText" style="background: #aeaeae" title="Max 500kb. JPG, GIF or PNG."> Image: <input id="fileinput" type="file" name="img"/> </div>
+                                                                                    <div class="input-wrap defaultText" title="Max 500kb. JPG, GIF or PNG."> Image: <input id="fileinput" type="file" name="img"/> </div>
                                                                                     <div class="input-wrap defaultText" title="Max 140 character. No markup."> Tagline: <input type="text" name="tag" /> </div>
                                                                                     <div class="input-wrap defaultText" style="margin-bottom:5px;"> <input type="submit" value="Submit" /> </div>
                                                                                 </form>

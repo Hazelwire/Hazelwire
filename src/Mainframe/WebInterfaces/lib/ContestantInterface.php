@@ -466,7 +466,7 @@ class ContestantInterface extends WebInterface{
                         if($_FILES['img']['error'] === 0){
                         
                             if($_FILES['img']['size'] > 500*1024) {
-                                $this->handleError(new Error("invalid_file", "The image can only be 500kb!", false));
+                                $this->handleError(new Error("imgtag", "The image can only be 500kb!", false));
                                 return;
                             }
 
@@ -475,7 +475,7 @@ class ContestantInterface extends WebInterface{
                                 if(!file_exists($this->config['public_site_folder'] . "images")){
                                     mkdir("images");
                                 } else {
-                                    $this->handleError(new Error("config_error", "The target directory for the file is a file. Please contant the Administrator. (Location: public_html/images)", false));
+                                    $this->handleError(new Error("imgtag", "The target directory for the file is a file. Please contant the Administrator. (Location: public_html/images)", false));
                                 }
                             }
 
@@ -506,7 +506,7 @@ class ContestantInterface extends WebInterface{
                             
                             $tag = strip_tags($_POST['tag']);
                             if(strlen($_POST['tag']) > 140){
-                                $this->handleError(new Error("invalid_tag", "Your tagline is too long. Please stay within the 140 char limit!", false));
+                                $this->handleError(new Error("imgtag", "Your tagline is too long. Please stay within the 140 char limit!", false));
                             }
                             else {
                                 $this->contestant->setImage($new_image_name);
@@ -515,11 +515,11 @@ class ContestantInterface extends WebInterface{
                             }
                         }
                         else {
-                            $this->handleError(new Error("invalid_file", "Something went wrong with your image!", false));
+                            $this->handleError(new Error("imgtag", "Something went wrong with your image!", false));
                         }
                     }
                     else {
-                        $this->handleError(new Error("invalid_file", "The image can only be PNG, JPEG or GIF!", false));
+                        $this->handleError(new Error("imgtag", "The image can only be PNG, JPEG or GIF!", false));
                     }
                 }
             }

@@ -87,7 +87,7 @@ function updateLeaderboard(schedule){
 
                 setCCollapseHandlers();
                 for ( var i=0, len=openContestants.length; i<len; ++i ){
-                  $('span[id="'+openContestants[i]+ '"]').siblings('.cextrainfo').show();
+                  $('span#'+openContestants[i]).parent().siblings('.cextrainfo').show();
                 }
             }
         }

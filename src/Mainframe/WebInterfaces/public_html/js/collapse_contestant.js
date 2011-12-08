@@ -39,7 +39,7 @@ function setCCollapseHandlers(){
             if( $target.is(".scorelist div:first-child span") ) {
                     $slide = $target.parent().siblings('.cextrainfo');
                     $slide.slideToggle('fast');
-                    id = $slide[0].attr('id');
+                    id = $target.attr('id');
                     if(openContestants.indexOf(id) != -1){
                         openContestants.splice(openContestants.indexOf(id), 1);
                     }else{
