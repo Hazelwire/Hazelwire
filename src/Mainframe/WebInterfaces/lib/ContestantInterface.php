@@ -460,7 +460,8 @@ class ContestantInterface extends WebInterface{
                 }
                 /** Process image and tagline data */
                 else if(isset($_FILES['img']) && isset($_POST['tag'])){
-                    if(($ext = end(explode('.', $_FILES['img']['name']))) == "png" ||
+                    $tmp = explode('.', $_FILES['img']['name']);
+                    if(($ext = end($tmp)) == "png" ||
                             $ext == "jpg" || $ext == "gif"){
                         if($_FILES['img']['error'] === 0){
                         
@@ -478,7 +479,7 @@ class ContestantInterface extends WebInterface{
                                 }
                             }
 
-                            $new_image_name = md5($_FILES['img']['tmp_name'].now()).".".$ext;
+                            $new_image_name = md5($_FILES['img']['tmp_name'].time()).".".$ext;
 
                             $image_info = getimagesize($_FILES['img']['tmp_name']);
                             $image_type = $image_info[2];

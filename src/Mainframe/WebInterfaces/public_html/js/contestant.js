@@ -85,6 +85,7 @@ function updateLeaderboard(schedule){
                 else if(schedule)
                     setTimeout("updateAutoLeaderboard()",30000);
 
+                setCCollapseHandlers();
                 for ( var i=0, len=openContestants.length; i<len; ++i ){
                   $('span[id="'+openContestants[i]+ '"]').siblings('.cextrainfo').show();
                 }

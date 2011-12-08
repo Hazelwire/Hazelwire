@@ -11,9 +11,9 @@
                                 <div class="tagline"> {$contestant->getTagline()|escape} </div>
                         {elseif $id == $contestant->getId()}
                                 <form method="POST" action="index.php" enctype="multipart/form-data">
-                                    <div class="tagline" style="background: #aeaeae" title="Max 500kb. JPG, GIF or PNG."> Image: <input id="fileinput" type="file" name="img"/> </div>
-                                    <div class="tagline" title="Max 140 character. No markup."> Tagline: <input type="text" name="tag" /> </div>
-                                    <div class="tagline"> <input type="submit" value="Submit" /> </div>
+                                    <div class="input-wrap defaultText" title="Max 500kb. JPG, GIF or PNG."> Image: <input id="fileinput" type="file" name="img"/> </div>
+                                    <div class="input-wrap defaultText" title="Max 140 character. No markup."> Tagline: <input type="text" name="tag" /> </div>
+                                    <div class="input-wrap defaultText" style="margin-bottom:5px;"> <input type="submit" value=" Submit " /> </div>
                                 </form>
                         {else}
                                 <div class="image" style="background: #aeaeae"> None </div>
