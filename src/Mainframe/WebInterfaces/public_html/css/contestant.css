@@ -194,9 +194,8 @@ ol.scorelist li:nth-child(even)
 .scorelist .cextrainfo .tagline {
     position: relative;
     float: none;
-    display: table-cell;
-    height: 64px;
-    vertical-align: middle;
+    display: block;
+    line-height: 64px;
 }
 
 .scorelist .cextrainfo .input-wrap {

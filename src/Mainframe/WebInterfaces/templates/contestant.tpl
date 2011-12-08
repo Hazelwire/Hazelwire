@@ -111,7 +111,7 @@
                                                                         {elseif $id == $contestant->getId()}
                                                                                 {if $num_errors > 0}
                                                                                 {foreach from=$errors item=error}
-                                                                                    {if $error->getType() == "imgtag" }
+                                                                                    {if $error->getType() == "imgtag"}
                                                                                         <div id="flagresponse" style="display: block; right: 0; left: 0; bottom: 0em; border: 1px solid red; padding: 3px; background: none repeat scroll 0pt 0pt rgb(255, 170, 170);margin-bottom:2px;"> {$error->getMessage()}</div>
                                                                                     {/if}
                                                                                 {/foreach}

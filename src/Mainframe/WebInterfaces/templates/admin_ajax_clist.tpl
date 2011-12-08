@@ -17,6 +17,12 @@
                 <div class="cextradata">{foreach $contestant->getSanityResults(5) as $sanres}
                 {$sanres->timestamp|date_format:"%H:%M:%S"} &nbsp; Port {$sanres->port} ({$sanres->service|escape:'html'}) reported by {$sanres->reporter}{if not $sanres@last}<br />{/if}{/foreach}
                 </div>
+                {if !is_null($contestant->getImage()) || !is_null($contestant->getTagline())}
+                <div class="cextralabel" style="margin-top:5em;">Image:</div>
+                <div class="cextradata"> <img src="images/{$contestant->getImage()}" width=64 height=64 /> </div>
+                <div class="cextralabel" style="padding-top:64px;margin-top: -1.1em;">Tagline:</div>
+                <div class="cextradata"> {$contestant->getTagline()|escape}</div>
+                {/if}
             </div>
         </label>
     </li>{/foreach}
