@@ -29,8 +29,8 @@
 		<div id="container">
                     <div style="right:0;left:0;top:0;bottom:0; text-align:center;padding-top:3em;font-size:3em;"> You are <span style="color:#cc0000">BANNED</span>!
                         <div id="countdown" style=" width:400px;left:50%;margin-left:-200px;font-size:0.5em;margin-top:1em;">Indefinitely!</div>
+                        <div style="width:400px;left:50%;margin-left:-200px;font-size: 0.35em;margin-top: 10em;">Please remember to restart your VMs VPN client.</div>
                     </div>
-			
 		</div>
                 
 	</body>
