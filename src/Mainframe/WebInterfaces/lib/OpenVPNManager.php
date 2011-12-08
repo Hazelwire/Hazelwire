@@ -267,7 +267,7 @@ class OpenVPNManager {
             if($res['lifetime_end'] > time()){
                 $cache_data = json_decode($res['data']);
                 $arr_data = (array)$cache_data;
-                return $arr_data["Team".$contestant->getId()];
+                return array_key_exists("Team".$contestant->getId(), $arr_data)?$arr_data["Team".$contestant->getId()]:0;
             }
         }
 

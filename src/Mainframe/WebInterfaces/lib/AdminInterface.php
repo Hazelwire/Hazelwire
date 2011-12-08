@@ -89,7 +89,10 @@ class AdminInterface extends WebInterface {
             /* If there's no game, and the has not been just stopped, show the End Game page*/
         } /*elseif ($this->getCurrentState() == POSTGAME && !$this->endgame_success) {
             return $smarty->fetch("game_end.tpl");
-        } */else {
+        } */
+        else if($this->state == POSTCONFIG && isset($_POST['configsubmit']))
+                header('Location: index.php');
+        else {
             // Get the name of the game
             $db = &$this->database;
             $q = $db->query("SELECT value FROM config WHERE config_name = 'gamename'");
@@ -711,7 +714,7 @@ class AdminInterface extends WebInterface {
              * trying to mess with his own game.
              */
 
-            move_uploaded_file($manifest['tmp_name'], "manifest.xml");
+            move_uploaded_file($manifest['tmp_name'], "../manifest.xml");
 
             $res = exec("python ". $this->config['ch_location'] . "ManifestParser.py " . $this->config['site_folder']."manifest.xml " . $this->config['public_site_folder'].$this->config['database_file_name'], $cmd_result);
             if(strrpos($res,"False") !== false){
@@ -860,7 +863,7 @@ class AdminInterface extends WebInterface {
 
                 // VPN client config for the team players
                 $tpl = $smarty->createTemplate("client.conf"); /* @var $tpl Smarty_Internal_Template */
-                $tpl->assign("teamname", "Team".$c->getId());
+                $tpl->assign("teamname", "Team".$c->getId()."_team");
                 $tpl->assign("port",$this->config['base_port'] + $c->getId());
                 $tpl->assign("server_ip", $gc->server_ip);
                 $config_file_data = $tpl->fetch();
@@ -1320,6 +1323,8 @@ class AdminInterface extends WebInterface {
         }
         
         OpenVPNManager::setKernelRouting(true);
+        $cwd = getcwd();
+        chdir('../');
         exec("python ". $this->config['ch_location'] . "FlagAdministration.py " . $this->config['public_site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
         exec("python ". $this->config['ch_location'] . "SanityCheckService.py " . $this->config['public_site_folder'].$this->config['database_file_name'] . " > /dev/null 2>/dev/null &");
         $db =&$this->database; /* @var $db PDO */
