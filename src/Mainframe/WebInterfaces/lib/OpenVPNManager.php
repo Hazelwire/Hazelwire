@@ -292,7 +292,7 @@ class OpenVPNManager {
         foreach($contestants as $c){
             $conn_data["Team".$c->getId()] = 0;
             foreach ($lines as $line) {
-                if(startsWith($line, "Team".$c->getId().",")){
+                if(startsWith($line, "Team".$c->getId().",") || startsWith($line, "Team".$c->getId()."_vm,")){
                         $conn_data["Team".$c->getId()]++;
                     }
 
