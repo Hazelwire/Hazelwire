@@ -204,7 +204,13 @@ ol.scorelist li:nth-child(even)
     display: block;
 }
 
-.scorelist .title-bar::after{
+.scorelist .title-bar
+{
+    overflow:visible;
+}
+
+.scorelist .title-bar::after
+{
     content:'.';
     height:0;
     display: block;
