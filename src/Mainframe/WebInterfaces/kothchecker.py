@@ -37,4 +37,5 @@ def give_team_score(team):
 if __name__ == "__main__":
     KOTH_IP = "10.1.1.137"
     team = read_team_from_koth_page('http://'+KOTH_IP)
-    give_team_score(team)
+    if team != "DELTAGREEN":
+	give_team_score(team)
