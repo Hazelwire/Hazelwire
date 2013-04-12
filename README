@@ -11,6 +11,7 @@ Full system requirements for the generation process / mainframe server are unkno
 
 ==Installation==
 This is a very rough description of the installation that might not be specific enough for your needs. For further information please read the Manual.
+It can be found at https://github.com/downloads/Hazelwire/Hazelwire/hazelwire_manual.pdf
 
 ===Generation Framework===
 1. Add all the files in the lib/ folder with regards to your CPU architecture to the buildpath.
